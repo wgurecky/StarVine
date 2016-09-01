@@ -1,0 +1,2 @@
+##
+# @brief Gaussian model distribution

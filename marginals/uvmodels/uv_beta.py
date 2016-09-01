@@ -1,0 +1,2 @@
+##
+# @brief Beta model distribution
