@@ -20,6 +20,12 @@ Requires:
     - h5py
     - mpi4py
 
+build the docs from the doc dir:
+
+    cd doc
+    doxygen Doxyfile.in
+    make html
+
 Example
 ========
 
