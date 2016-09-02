@@ -1,6 +1,9 @@
 StarVine/dist
 =============
 
-Multivariate and univariate distribution classes
+Univariate marginal distribution classes.
 
-Evaluate model functions.
+Includes:
+
+- Evaluate model functions
+- Simplified plotting

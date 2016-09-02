@@ -1,9 +1,10 @@
 from scipy.stats import rv_continuous
-from statmodels.sandbox.regression.gmm import GMM
+from statsmodels.sandbox.regression.gmm import GMM
 import numpy as np
+from scipy.special import psi
 
 
-class BVmodel(rv_continuous):
+class UVmodel(rv_continuous):
     """!
     @brief Univariate parameterized model base class.
     Extends the capabilities of the rv_continuous base
@@ -16,6 +17,7 @@ class BVmodel(rv_continuous):
     estimators for univariate model parameters.
 
     Methods inherited from scipy.stats.rv_continuous:
+
         rvs(*args, **kwds)  Random variates of given type.
         pdf(x, *args, **kwds)  Probability density function at x of the given RV.
         logpdf(x, *args, **kwds)  Log of the probability density function at x of the given RV.
@@ -40,13 +42,16 @@ class BVmodel(rv_continuous):
         fit_loc_scale(data, *args)  Estimate loc and scale parameters from data using 1st and 2nd moments.
         nnlf(theta, x)  Return negative loglikelihood function.
 
-    Example 2 parameter custom gamma distribution:
-        from uv_base import BVmodel
-        gamma_model = BVmodel(name='custom_gamma', shapes="a, b")
-        fitted_params, loc, scale = gamma_model.fit(xdata)
     """
-    def __init__(self, *args, **kwargs):
-        pass
+    def __init__(self, paramsString, momtype, bounds, *args, **kwargs):
+        super(UVmodel, self).__init__(shapes=paramsString,
+                                      momtype=momtype,
+                                      a=bounds[0],
+                                      b=bounds[1],
+                                      name=kwargs.pop("name", None))
+        # Infer number of model params from shapes string (clunky but a necissary evil
+        # due to the way rv_continuous is subclassed)
+        self.nParams = len(paramsString.split(","))
 
     def setupGMM(self, data, w=1.0, nMoM=None):
         """!
@@ -59,18 +64,27 @@ class BVmodel(rv_continuous):
             params0 = np.array([2.0, 1.0])
             my_uvmodel.internalGMM.fit(params0, maxiter=2, optim_method='nm', wargs=dict(centered=False))
         """
-        self.nMomentConditions = nMoM
-        # Require number of moment conditions
-        if not self.nMomentConditions:
-            raise NotImplementedError
+        self.nMomentConditions = max((nMoM, self.nParams))
         nobs = data.shape[0]
-        exog = np.ones((nobs, self.nMomentConditions))
-        self.internalGMM = GMMgeneric(data, exog, None,
-                                      weights=w, internal=self, nMoM=self.nMomentConditions)
+        instruments = exog = np.ones((nobs, self.nMomentConditions))
+        self.internalGMM = GMMgeneric(data, exog, instruments,
+                                      internal=self,
+                                      weights=w,
+                                      nMoM=self.nMomentConditions)
 
     def _pdf(self, x, *args):
         """!
         @brief Pure virtual pdf model function
+
+        Note:
+            the number of paramers is "infered" from the signature of
+            the _pdf OR _cdf methods.
+        """
+        raise NotImplementedError
+
+    def _cdf(self, x, *args):
+        """!
+        @brief Pure virtual cdf model function
         """
         raise NotImplementedError
 
@@ -82,14 +96,16 @@ class GMMgeneric(GMM):
     def __init__(self, *args, **kwargs):
         """!
         @brief General method of moments base class
-        args[0] endog AKA Y var "response var"
-        args[1] exog AKA X var "explan var"
+        @param endog  Response data
+        @param exog   Explanatory data
+        @param instruments (optional) defaults to None
+        @param internal internal univariate model - must have a moment() method.
         """
-        self.internal = kwargs.pop("internal", None)
+        self.internalModel = kwargs.pop("internal", None)
         self.weights = kwargs.pop("weights", 1.0)
-        self.nMomentConditions = kwargs.pop("nMoM", 2)
-        kwargs.setdefault('k_moms', 2)  # moment conditions
-        kwargs.setdefault('k_params', 2)  # number model params
+        self.nMomentConditions = kwargs.pop("nMoM", self.internalModel.nParams)
+        kwargs.setdefault('k_moms', self.nMomentConditions)  # moment conditions
+        kwargs.setdefault('k_params', self.internalModel.nParams)  # number model params
         super(GMMgeneric, self).__init__(*args, **kwargs)
 
     def momcond(self, params):
@@ -102,7 +118,7 @@ class GMMgeneric(GMM):
         endog = self.endog
         for n in range(1, self.nMomentConditions + 1):
             # nth moment condition (error between sample moment and model moment)
-            error_gn.append(weights * (endog ** n - self.internal.moment(n, params))
+            error_gn.append(weights * (endog ** n - self.internalModel.moment(n, *params))
                             / np.sum(weights))
         g = np.column_stack(tuple(error_gn))
         return g
