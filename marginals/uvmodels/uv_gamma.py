@@ -1,25 +1,17 @@
 ##
 # @brief Gamma model distribution
+from __future__ import print_function, division
 from uv_base import UVmodel
 import numpy as np
-from math import gamma
+from scipy.special import gamma
 
 
 class UVGamma(UVmodel):
     """!
     @brief Custom gamma distribution.
 
-    Example 2 parameter custom gamma distribution:
-
-        from uv_library import UVGamma
-        gamma_model = UVGamma(name='custom_gamma')
-        fitted_params = gamma_model.fit(xdata)
-        print(fitted_params)
-        # GMM fit
-        gamma_model.setupGMM(xdata)
-        params0 = np.array([3.0, 1.0])
-        res = gamma_model.internalGMM.fit(params0, maxiter=2, optim_method='nm')
-        print(res.params)
+    Note:
+        Included example.
     """
     def __init__(self, *args, **kwargs):
         # supply parameter string and support range to base class
@@ -29,13 +21,22 @@ class UVGamma(UVmodel):
                                       bounds=[0, float('inf')],
                                       name=kwargs.pop("name", "custom_gamma"))
 
-
     def _pdf(self, x, *args):
         """!
-        Gamma PDF
+        @brief Gamma PDF
         """
-        a, b = args[0], args[1]
+        a, b, x = np.ravel(args[0]), np.ravel(args[1]), np.ravel(x)
         return (b ** a) * (x ** (a - 1.0)) * np.exp(-x * b) / gamma(a)
+
+    def _pCheck(self, params):
+        """
+        @brief Parameter bounds check
+        """
+        for p in params:
+            if p <= 0:
+                return False
+        return True
+
 
 def example():
     # Test gamma fit with mle and gmm from
@@ -45,14 +46,46 @@ def example():
                   55.8, 25.2, 29.0, 85.5, 15.1, 28.5, 21.4, 17.7, 6.42, 84.9])
     gamma_model = UVGamma(name='custom_gamma')
     params0 = [2.0, 0.1]
+
+    # ------------------------------------------------------------------------ #
+    # Scipy's MLE estimate (fixed location and scale)
     fitted_params = gamma_model.fit(tstData, *params0, floc=0, fscale=1)
+    print("---- Scipy MLE params ----")
     print(fitted_params)
-    # GMM fit
-    gamma_model.setupGMM(tstData, nMoM=5)
+
+    # ------------------------------------------------------------------------ #
+    # Custom MLE estimate
+    cus_fitted_params = gamma_model.fitMLE(tstData, params0)
+    print("---- Custom MLE params ----")
+    print(cus_fitted_params)
+
+    # ------------------------------------------------------------------------ #
+    # GMM estimate
+    gamma_model.setupGMM(tstData, nMoM=4)
     gmm_params = gamma_model.internalGMM.fit(params0, maxiter=4, optim_method='nm', wargs=dict(centered=False))
-    print(gmm_params.summary())
     print("---- GMM params ----")
     print(gmm_params.params)
+
+    # ------------------------------------------------------------------------ #
+    # MCMC estimate
+    # Define prior distributions for the paramers in the model
+    def logPrior(theta):
+        # Define ln(P(model))
+        # Assume a and b are uncorrelated ln(P(a,b)) = ln(P(a))*ln(P(b))
+        # Assume flat prior: ln(P(a)) == ln(1.0) == ln(P(b))
+        a, b = theta
+        if a <= 0 or b <= 0:
+            # impossible condition.  Return ln(0)
+            return -np.inf
+        return 0.0
+    gamma_model.setLogPrior(logPrior)
+    # Set inital position of all walkers
+    gamma_model.setupMCMC(20, params0, tstData)
+    gamma_model.fitMCMC(1000)
+    # Get results
+    samples = gamma_model.sampler.chain[:, 50:, :].reshape((-1, 2))
+    print("---- MCMC params ----")
+    print("Averge: " + str(np.average(samples, axis=0)) + " +/-sigma :" + str(np.std(samples, axis=0)))
 
 if __name__ == "__main__":
     example()

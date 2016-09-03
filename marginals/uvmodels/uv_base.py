@@ -1,7 +1,8 @@
-from scipy.stats import rv_continuous
+from scipy.stats import rv_continuous, gaussian_kde
 from statsmodels.sandbox.regression.gmm import GMM
 import numpy as np
-from scipy.special import psi
+from scipy.optimize import minimize
+import emcee
 
 
 class UVmodel(rv_continuous):
@@ -82,11 +83,96 @@ class UVmodel(rv_continuous):
         """
         raise NotImplementedError
 
-    def _cdf(self, x, *args):
+    def fitKDE(self, data, *args):
         """!
-        @brief Pure virtual cdf model function
+        @brief Fit gaussian kernel density fn to data
         """
-        raise NotImplementedError
+        self.kde = gaussian_kde(data, bandwith=None)
+        return self.kde
+
+    def setLogPrior(self, logPriorFn):
+        """!
+        @brief Set log of prior distribution
+        ln(P(\f$\theta$\f))
+        @param logPriorFn <function> logPrior
+        """
+        self.logPriorFn = logPriorFn
+
+    def setupMCMC(self, nwalkers, params, data, wgts=None, *args):
+        """!
+        @brief Initilize the MCMC sampler
+        """
+        wgts = 1.0 if not wgts else wgts
+        assert(wgts == 1.0 or len(np.array([wgts])) == len(data))
+        if not hasattr(self, "logPriorFn"):
+            raise NotImplementedError("ERROR: Must supply a logPriorFn via setLogPrior() method")
+        # init walkers in tight ball around initial param guess
+        self.walker_pos = [np.array(params) +
+                           1e-4 * np.random.randn(self.nParams)
+                           for i in range(nwalkers)]
+        self.nwalkers = nwalkers
+        self.sampler = emcee.EnsembleSampler(nwalkers, self.nParams,
+                                             self._logPosterior,
+                                             args=(data, wgts))
+
+    def fitMCMC(self, iters, pos=None):
+        """!
+        @brief Execute MCMC model parameter fitting
+        @param pos Initial position of walkers
+        """
+        if pos:
+            self.walker_pos = pos
+        self.sampler.run_mcmc(self.walker_pos, iters)
+
+    def _logPosterior(self, params, data, wgts):
+        """!
+        @brief Posterior distribution = P(model)*P(data|model)
+        ln(P(model)*P(data|model)) == P(ln(model)) + P(ln(data|model))
+        """
+        return self.logPriorFn(params) + self._loglike(params, data, wgts)
+
+    def _paramCheck(input_f):
+        """!
+        @brief Parameter bounds checker.
+        @return  Typical function value if params are in bounds, -inf if out of bounds
+        """
+        def check_f(self, *args, **kwargs):
+            params = args[0]
+            if not hasattr(self, "_pCheck"):
+                raise NotImplementedError("ERROR: Must define _pCheck method")
+            if not self._pCheck(params):
+                return -np.inf
+            return input_f(self, *args, **kwargs)
+        return check_f
+
+    @_paramCheck
+    def _loglike(self, params, data, wgts):
+        """!
+        @param params <array-like> model parameters
+        @param data  <np_array> input data
+        @param wgts  <np_array> input data weights
+        """
+        return np.sum(wgts * np.log(self.pdf(data, *list(params))) /
+                      np.sum(wgts))
+
+    def fitMLE(self, data, params0, weights=None, *args):
+        """!
+        @brief Generic maximum (log)likelyhood estimate of paramers.
+        @param data  Input data to fit to
+        @param params0  Initial guess for model parameters
+        @param weights Input data weights
+
+        Note: compare to scipy's model.fit() method results.
+        Scipy's model.fit() method does not allow for weights :(
+        """
+        weights = 1.0 if not weights else weights
+        assert(weights == 1.0 or len(np.array([weights])) == len(data))
+        res = \
+            minimize(lambda *args: -self._loglike(*args),
+                     params0,
+                     args=(data, weights,),
+                     tol=1e-9, method='SLSQP')
+        return res.x
 
 
 class GMMgeneric(GMM):
