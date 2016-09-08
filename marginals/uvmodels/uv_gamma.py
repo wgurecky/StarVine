@@ -8,7 +8,7 @@ from scipy.special import gamma
 
 class UVGamma(UVmodel):
     """!
-    @brief Custom gamma distribution.
+    @brief Custom 2 parameter gamma distribution.
 
     Note:
         Included example.
@@ -75,9 +75,9 @@ def example():
         # Assume flat prior: ln(P(a)) == ln(1.0) == ln(P(b))
         a, b = theta
         if a <= 0 or b <= 0:
-            # impossible condition.  Return ln(0)
+            # impossible condition.  Return ln(0.0)
             return -np.inf
-        return 0.0
+        return 0.0  # ln(1.0) == 0.0
     gamma_model.setLogPrior(logPrior)
     # Set inital position of all walkers
     gamma_model.setupMCMC(20, params0, tstData)

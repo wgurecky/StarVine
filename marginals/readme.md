@@ -3,7 +3,6 @@ StarVine/dist
 
 Univariate marginal distribution classes.
 
-Includes:
-
+- Fit model univariate distributions to data
 - Evaluate model functions
-- Simplified plotting
+- Simplified univariate plotting
