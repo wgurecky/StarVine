@@ -18,7 +18,7 @@ class UVGamma(UVmodel):
         # Gamma PDF is supported on (0, +\infty)
         super(UVGamma, self).__init__(paramsString="a, b",
                                       momtype=0,
-                                      bounds=[0, float('inf')],
+                                      bounds=[0, np.inf],
                                       name=kwargs.pop("name", "custom_gamma"))
 
     def _pdf(self, x, *args):

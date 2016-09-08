@@ -12,10 +12,11 @@ class UVGauss(UVmodel):
     """
     def __init__(self, *args, **kwargs):
         # supply parameter string and support range to base class
-        # Gamma PDF is supported on (0, +\infty)
+        # Normal PDF is supported on (-\infty, +\infty)
+        # takes (mean, std. dev) as paramters
         super(UVGauss, self).__init__(paramsString="m, s",
                                       momtype=0,
-                                      bounds=[-float('inf'), float('inf')],
+                                      bounds=[-np.inf, np.inf],
                                       name=kwargs.pop("name", "custom_gaussian"))
 
     def _pdf(self, x, *args):
@@ -24,8 +25,7 @@ class UVGauss(UVmodel):
         """
         m, s, x = np.ravel(args[0]), np.ravel(args[1]), np.ravel(x)
         return (1.0 / np.sqrt(2.0 * np.pi * s ** 2.0)) * \
-                np.exp(-(x - m) ** 2 / (2 * s ** 2.0))
-
+            np.exp(-(x - m) ** 2 / (2 * s ** 2.0))
 
     def _pCheck(self, params):
         """

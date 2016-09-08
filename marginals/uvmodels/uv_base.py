@@ -155,7 +155,7 @@ class UVmodel(rv_continuous):
         return np.sum(wgts * np.log(self.pdf(data, *list(params))) /
                       np.sum(wgts))
 
-    def fitMLE(self, data, params0, weights=None, *args):
+    def fitMLE(self, data, params0, weights=None, *args, **kwargs):
         """!
         @brief Generic maximum (log)likelyhood estimate of paramers.
         @param data  Input data to fit to
@@ -171,6 +171,7 @@ class UVmodel(rv_continuous):
             minimize(lambda *args: -self._loglike(*args),
                      params0,
                      args=(data, weights,),
+                     bounds=kwargs.pop("bounds", None),
                      tol=1e-9, method='SLSQP')
         return res.x
 
