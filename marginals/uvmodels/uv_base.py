@@ -108,7 +108,7 @@ class UVmodel(rv_continuous):
             raise NotImplementedError("ERROR: Must supply a logPriorFn via setLogPrior() method")
         # init walkers in tight ball around initial param guess
         self.walker_pos = [np.array(params) +
-                           1e-4 * np.random.randn(self.nParams)
+                           1e-3 * np.random.randn(self.nParams)
                            for i in range(nwalkers)]
         self.nwalkers = nwalkers
         self.sampler = emcee.EnsembleSampler(nwalkers, self.nParams,

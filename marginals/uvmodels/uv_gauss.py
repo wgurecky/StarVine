@@ -3,6 +3,7 @@
 from __future__ import print_function, division
 from uv_base import UVmodel
 import numpy as np
+from scipy.special import erf
 
 
 class UVGauss(UVmodel):
@@ -24,14 +25,17 @@ class UVGauss(UVmodel):
         @brief Gamma PDF
         """
         m, s, x = np.ravel(args[0]), np.ravel(args[1]), np.ravel(x)
-        return (1.0 / np.sqrt(2.0 * np.pi * s ** 2.0)) * \
-            np.exp(-(x - m) ** 2 / (2 * s ** 2.0))
+        return (1.0 / np.sqrt(2.0 * np.pi * s)) * \
+            np.exp(-(x - m) ** 2 / (2 * s))
+
+    def _cdf(self, x, *args):
+        m, s, x = np.ravel(args[0]), np.ravel(args[1]), np.ravel(x)
+        return 0.5 * (1 + erf((x - m) / (np.sqrt(s) * np.sqrt(2))))
 
     def _pCheck(self, params):
         """
         @brief Parameter bounds check
         """
-        if params[1] <= 0.0:
-            # sigam > 0
+        if params[1] <= 0.001 or params[0] <= 0:
             return False
         return True

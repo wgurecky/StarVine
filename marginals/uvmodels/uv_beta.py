@@ -23,7 +23,7 @@ class UVBeta(UVmodel):
 
     def _pdf(self, x, *args):
         """!
-        @brief Gamma PDF
+        @brief Beta PDF
         """
         a, b, x = np.ravel(args[0]), np.ravel(args[1]), np.ravel(x)
         beta_factor = gamma(a) * gamma(b) / gamma(a + b)
