@@ -34,7 +34,6 @@ class TestNormFit(unittest.TestCase):
         self.assertTrue(np.allclose(self.true_model_params, self.mle_fitted_params,
                                     atol=1e-5, rtol=tol))
 
-        """
         # ------------------------------------------------------------------------ #
         # Custom MLE estimate
         cmle_fitted_params = self.model.fitMLE(tstData, params0, bounds=((5, 10), (0.9, 10)))
@@ -45,6 +44,7 @@ class TestNormFit(unittest.TestCase):
                                     atol=1e-5, rtol=tol))
 
 
+        """
         # ------------------------------------------------------------------------ #
         # GMM estimate
         self.model.setupGMM(tstData, nMoM=4)
