@@ -15,7 +15,7 @@ class UVBeta(UVmodel):
     """
     def __init__(self, *args, **kwargs):
         # supply parameter string and support range to base class
-        # Gamma PDF is supported on (0, +\infty)
+        # Beta PDF is supported on (0, 1)
         super(UVBeta, self).__init__(paramsString="a, b",
                                      momtype=0,
                                      bounds=[0.0, 1.0],
@@ -34,6 +34,7 @@ class UVBeta(UVmodel):
         @brief Parameter bounds check
         """
         for p in params:
-            if p <= 0:
+            # all params >0
+            if p <= 1e-6:
                 return False
         return True
