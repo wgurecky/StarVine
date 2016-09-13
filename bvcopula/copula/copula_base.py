@@ -20,12 +20,13 @@ class CopulaBase(object):
     def _cdf(self, upper_bounds, theta, rotation=0):
         """!
         @brief Default implementation of the cumulative density function. Very slow.
-        Recommended to implement a analytic CDF if possible.
+        Recommended to replace with a analytic CDF if possible.
         @param theta  Copula parameter list
         @param rotation <int> copula rotation parameter
         @param upper_bounds len=2 <np_array> [u upper, v upper]
         """
         # default implementation of bivariate CDF given _pdf()
+        # copula is always supported on unit square: [0, 1]
         ranges = np.array([[0, upper_bounds[0]], [0, upper_bounds[1]]])
         return spi.nquad(self.pdf, ranges, args=(rotation, theta))[0]
 
