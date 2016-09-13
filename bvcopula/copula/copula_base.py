@@ -5,6 +5,7 @@
 import numpy as np
 import scipy.integrate as spi
 from scipy.optimize import bisect
+from scipy.optimize import minimize
 
 
 class CopulaBase(object):
@@ -38,8 +39,8 @@ class CopulaBase(object):
         @brief Public facing PDF function.
         @param theta  <list> of <float> Copula parameter list
         @param rotation <int> copula rotation parameter
-        @param u
-        @param v
+        @param u <np_1darray> Rank CDF data vector
+        @param v <np_1darray> Rank CDF data vector
         """
         # expand parameter list
         return self._pdf(u, v, rotation, *theta)
@@ -67,13 +68,28 @@ class CopulaBase(object):
         """!
         @brief
         """
-        pass
+        raise NotImplementedError
 
     def _hinv(self):
         """!
         @brief Inverse H function.
         """
         pass
+
+    def fitMLE(self, u, v, rotation=0, *theta0, **kwargs):
+        """!
+        @brief Maximum likelyhood copula fit.
+        @param u <np_1darray> Rank CDF data vector
+        @param v <np_1darray> Rank CDF data vector
+        @param theta0 Initial guess for copula parameter list
+        """
+        params0 = theta0
+        res = \
+            minimize(lambda *args: self._nlogLike(u, v, rotation, *args),
+                     params0,
+                     bounds=kwargs.pop("bounds", None),
+                     tol=1e-8, method='SLSQP')
+        return res.x  # return best fit theta(s)
 
     def _nlogLike(self, u, v, rotation=0, *theta):
         """!
@@ -97,12 +113,10 @@ class CopulaBase(object):
         reducedHfn = lambda u: self._h(u, V, rotation, *theta) - U
         return bisect(reducedHfn, 1e-10, 1.0 - 1e-10, maxiter=500)[0]
 
-    def _fittedAIC(self, u, v, rotation=0, *theta):
+    def _AIC(self, u, v, rotation=0, *theta):
         """!
         @brief Estimate the AIC of a fitted copula (with params == theta)
         @param theta Copula paramter list
-        @param u
-        @param v
         """
         cll = self._nlogLike(u, v, rotation, *theta)
         if len(theta) == 1:
