@@ -7,6 +7,10 @@ from copula_base import CopulaBase
 
 
 class StudentTCopula(CopulaBase):
+    """!
+    @brief Student T copula
+    2 parameter model
+    """
     def __init__(self):
         pass
 
@@ -21,12 +25,12 @@ class StudentTCopula(CopulaBase):
         """
         # Constants
         rho2 = np.power(theta[0], 2.0)
-        h1 = 1-rho2
-        h2 = theta[1]/2
+        h1 = 1.0 - rho2
+        h2 = theta[1] / 2.0
         h3 = h2 + 0.5
-        h4 = h2 + 1
-        h5 = 1/ theta[1]
-        h6 = h5/h1
+        h4 = h2 + 1.0
+        h5 = 1.0 / theta[1]
+        h6 = h5 / h1
         # T random var with theta[1] DoF parameter (unit SD, centered at 0)
         t_rv = sp.stats.t(df=theta[1], scale=1.0, loc=0.0)
         # Output storage

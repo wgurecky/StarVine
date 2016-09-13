@@ -7,6 +7,10 @@ from copula_base import CopulaBase
 
 
 class GaussCopula(CopulaBase):
+    """!
+    @brief Gaussian copula model
+    single parameter
+    """
     def __init__(self):
         pass
 
@@ -23,9 +27,7 @@ class GaussCopula(CopulaBase):
         rho2 = np.power(theta[0], 2.0)
         h1 = 1-rho2
         h2 = rho2 / (2.0 * h1)
-        h3 = theta / h1
-
-        # T random var with theta[1] DoF parameter (unit SD, centered at 0)
+        h3 = theta[0] / h1
         norm_rv = sp.stats.norm(scale=1.0, loc=0.0)
 
         # Output storage
@@ -49,7 +51,7 @@ class GaussCopula(CopulaBase):
         """!
         @brief H function (Conditional distribution) of T copula.
         """
-        h1 = np.sqrt(1.0 - np.power(np.array(theta), 2))
+        h1 = np.sqrt(1.0 - np.power(np.array(theta[0]), 2))
         dist = sp.stats.norm(scale=1.0, loc=0.0)
 
         UU = np.array(u)  # TODO: check input bounds
@@ -68,7 +70,7 @@ class GaussCopula(CopulaBase):
         """!
         @brief Inverse H function (Inv Conditional distribution) of T copula.
         """
-        h1 = np.sqrt(1.0 - np.power(np.array(theta), 2))
+        h1 = np.sqrt(1.0 - np.power(np.array(theta[0]), 2))
         dist = sp.stats.norm(scale=1.0, loc=0.0)
 
         UU = np.array(u)  # TODO: check input bounds
@@ -79,5 +81,5 @@ class GaussCopula(CopulaBase):
         y = dist.ppf(VV)
 
         # eval H function
-        uu = dist.cdf(x * h1 + theta * y)
+        uu = dist.cdf(x * h1 + theta[0] * y)
         return uu
