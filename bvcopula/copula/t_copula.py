@@ -10,6 +10,9 @@ class StudentTCopula(CopulaBase):
     """!
     @brief Student T copula
     2 parameter model
+
+    theta[0] == rho (shape param, related to pearson's corr coeff)
+    theta[1] == nu (degrees of freedom)
     """
     def __init__(self):
         pass
@@ -21,7 +24,7 @@ class StudentTCopula(CopulaBase):
         @param v <np_1darary>
         @param rotation <int>  Optional copula rotation.
         @param theta <list of float> list of parameters to T-copula
-            [Shape, DoF]
+               [Shape, DoF]
         """
         # Constants
         rho2 = np.power(theta[0], 2.0)
@@ -33,8 +36,6 @@ class StudentTCopula(CopulaBase):
         h6 = h5 / h1
         # T random var with theta[1] DoF parameter (unit SD, centered at 0)
         t_rv = sp.stats.t(df=theta[1], scale=1.0, loc=0.0)
-        # Output storage
-        p = np.zeros(len(u))
 
         # UU = CheckBounds(u);
         # VV = CheckBounds(v);

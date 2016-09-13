@@ -85,7 +85,7 @@ class CopulaBase(object):
         """
         params0 = theta0
         res = \
-            minimize(lambda *args: self._nlogLike(u, v, rotation, *args),
+            minimize(lambda args: self._nlogLike(u, v, rotation, *args),
                      params0,
                      bounds=kwargs.pop("bounds", None),
                      tol=1e-8, method='SLSQP')
