@@ -7,6 +7,7 @@ from copula.gauss_copula import GaussCopula as stg
 import pylab as pl
 import numpy as np
 import os
+import seaborn as sns;
 pwd_ = os.getcwd()
 dataDir = pwd_ + "/tests/data/"
 np.random.seed(123)
@@ -21,16 +22,15 @@ class TestTcopulaFit(unittest.TestCase):
         y = stocks[:, 1]
 
         # plot dataset for visual inspection
-        pl.figure(0)
-        pl.scatter(x, y)
-        pl.savefig("original_stocks.png")
+        marg_dict = {}
+        plt0 = sns.jointplot(x, y, marginal_kws=marg_dict)
+        plt0.savefig("original_stocks.png")
 
         # Rank transform the data
         u = rankdata(x) / (len(x) + 1)
         v = rankdata(y) / (len(y) + 1)
-        pl.figure(1)
-        pl.scatter(u, v)
-        pl.savefig("rank_transformed.png")
+        plt1 = sns.jointplot(u, v, marginal_kws=marg_dict)
+        plt1.savefig("rank_transformed.png")
 
         # Fit t copula and gaussian copula
         thetat0 = [0.7, 30]
@@ -46,20 +46,16 @@ class TestTcopulaFit(unittest.TestCase):
         self.assertAlmostEqual(theta_g_fit[0], theta_t_fit[0], places=3)
 
         # Sample from the fitted gaussian copula and plot
-        s1 = np.random.uniform(1e-9, 1-1e-9, 1000)
-        s2 = np.random.uniform(1e-9, 1-1e-9, 1000)
-        ug_hat = s1
-        vg_hat = g_copula._hinv(ug_hat, s2, 0., *theta_g_fit)
+        ug_hat, vg_hat = g_copula.sample(1000, 0, *theta_g_fit)
         pl.figure(2)
-        pl.scatter(ug_hat, vg_hat)
-        pl.savefig("gaussian_copula_hat.png")
+        plt2 = sns.jointplot(ug_hat, vg_hat)
+        plt2.savefig("gaussian_copula_hat.png")
 
         # Sample from the fitted t copula and plot
-        ut_hat = s1
-        vt_hat = t_copula._hinv(ut_hat, s2, 0., *theta_t_fit)
+        ut_hat, vt_hat = t_copula.sample(1000, 0, *theta_t_fit)
         pl.figure(3)
-        pl.scatter(ut_hat, vt_hat)
-        pl.savefig("t_copula_hat.png")
+        plt3 = sns.jointplot(ut_hat, vt_hat)
+        plt3.savefig("t_copula_hat.png")
 
         # Compare to expected results
         true_rho = 0.7220  # shape (related to pearsons corr coeff)

@@ -96,3 +96,6 @@ class StudentTCopula(CopulaBase):
         # eval H function
         uu = dist1.cdf(x * np.sqrt((theta[1] + np.power(y, 2.0)) * h1 / nu1) + theta[0] * y)
         return uu
+
+    def kTau(self, *theta):
+        return (2.0 / np.pi) * np.arcsin(theta[0])

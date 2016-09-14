@@ -17,7 +17,7 @@ class ClaytonCopula(CopulaBase):
         @brief Probability density function for frank bivariate copula
         """
         if theta[0] == 0:
-            p = np.ones(len(u))
+            p = np.ones(np.array(u).size)
             return p
         else:
             h1 = (1 + 2.0 * theta[0]) / theta[0]
@@ -46,3 +46,9 @@ class ClaytonCopula(CopulaBase):
         VV = np.array(V);
         uu = np.power(np.power(VV,-theta[0])*(np.power(UU,h2)-1.0)+1.0,h1);
         return uu
+
+    def _gen(self, t, *theta):
+        return (1.0 / theta[0]) * (np.power(t, theta[0]) - 1.0)
+
+    def kTau(self, rotation=0, *theta):
+        return self._kTau(rotation, *theta)

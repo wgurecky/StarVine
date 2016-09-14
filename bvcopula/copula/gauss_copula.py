@@ -29,14 +29,14 @@ class GaussCopula(CopulaBase):
         h3 = theta[0] / h1
         norm_rv = sp.stats.norm(scale=1.0, loc=0.0)
 
-        # Output storage
-        p = np.zeros(len(u))
-
         # UU = CheckBounds(u);
         # VV = CheckBounds(v);
         # u and v must be on the unit square ie. in [0, 1]
         UU = np.array(u)  # TODO: check bounds
         VV = np.array(v)
+
+        # Output storage
+        p = np.zeros(UU.size)
 
         # quantile function is the inverse CDF
         x = norm_rv.ppf(UU)
@@ -82,3 +82,12 @@ class GaussCopula(CopulaBase):
         # eval H function
         uu = dist.cdf(x * h1 + theta[0] * y)
         return uu
+
+    def _gen(self, t, *theta):
+        """!
+        @brief Copula generating function
+        """
+        raise NotImplementedError
+
+    def kTau(self, *theta):
+        return (2.0 / np.pi) * np.arcsin(theta[0])

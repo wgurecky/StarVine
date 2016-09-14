@@ -6,6 +6,7 @@ import numpy as np
 import scipy.integrate as spi
 from scipy.optimize import bisect
 from scipy.optimize import minimize
+from scipy.misc import derivative
 
 
 class CopulaBase(object):
@@ -58,15 +59,21 @@ class CopulaBase(object):
         """!
         @brief Percentile point function.  Equivilent to the inverse of the
         CDF.  Used to draw random samples from the bivariate distribution.
-        EX:
-            # will draw 100 samples from My_Copula with param0 == 0.21
-            >> My_Copula._ppf(np.random.uniform(0, 1, 100), np.random.uniform(0, 1, 100), rotation=0, 0.21)
+
+        EX: will draw 100 samples from a t-copula with params [0.21, 20]
+        >>> import starvine.bvcopula as bvc
+        >>> My_Copula = bvc.t_copula.StudentTCopula()
+        >>> u, v = np.random.uniform(0, 1, 100)
+        >>> My_Copula._ppf(u, v, rotation=0, 0.21, 20)
         """
-        raise NotImplementedError
+        u_hat = u
+        v_hat = self._hinv(u_hat, v, rotation, *theta)
+        return (u_hat, v_hat)
 
     def _h(self):
         """!
-        @brief
+        @brief Copula conditional distribution function.
+        \f$ h(u|v, \theta) = \frac{\partial C( F(u|v), F(u|v) | \theta) }{\partial F(u|v)} $\f
         """
         raise NotImplementedError
 
@@ -74,7 +81,7 @@ class CopulaBase(object):
         """!
         @brief Inverse H function.
         """
-        pass
+        raise NotImplementedError
 
     def fitMLE(self, u, v, rotation=0, *theta0, **kwargs):
         """!
@@ -113,6 +120,19 @@ class CopulaBase(object):
         reducedHfn = lambda u: self._h(u, V, rotation, *theta) - U
         return bisect(reducedHfn, 1e-10, 1.0 - 1e-10, maxiter=500)[0]
 
+    def sample(self, n=1000, rotation=0, *theta):
+        """!
+        @brief Draw random N samples from the copula.
+        @param n Number of samples
+        @param theta  Parameter list
+        @param rotation Copula rotation parameter
+        """
+        u = np.random.uniform(1e-9, 1-1e-9, n)
+        v = np.random.uniform(1e-9, 1-1e-9, n)
+        u_hat = u
+        v_hat = self._hinv(u_hat, v, rotation, *theta)
+        return (u_hat, v_hat)
+
     def _AIC(self, u, v, rotation=0, *theta):
         """!
         @brief Estimate the AIC of a fitted copula (with params == theta)
@@ -127,5 +147,52 @@ class CopulaBase(object):
             AIC = 2 * cll + 4.0 + 12.0 / (len(u) - 3)
         return AIC
 
+    def _gen(self, t, *theta):
+        """!
+        @brief Copula generator function.  Related to kendall's tau
+        distribtuion.  See self._kTau
+        """
+        raise NotImplementedError
+
+    def kTau(self, rotation=0, *theta):
+        """!
+        @brief Public facing kendall's tau function.
+        """
+        raise NotImplementedError
+
+    def _kTau(self, rotation=0, *theta):
+        """!
+        @brief Computes Kendall's tau.  Requires that
+        the copula has a _gen() method implemented.
+        This method should be overridden if an analytic form of
+        kendall's tau is avalible.
+
+        Let \f$T = C(u, v)$\f represent a univariate random variable
+        which is in turn a function of the random variables, u \& v.
+        \f$ K_c(t) = t - \frac{\phi(t)}{\phi'(t)} $\f
+        where \f$ \phi(t) $\f is the copula generating function.
+
+        Note:
+            For the gauss and T copula this should be == (2.0/np.pi) * arcsin(rho)
+            where rho is the T and gauss correlation parameter.
+        """
+        t_range = np.array([[1e-9, 1 - 1e-9], ])
+        # Kendall's tau distribution
+        K_c = lambda t: t - self._gen(t, *theta) / \
+            derivative(self._gen, t, dx=1e-5, args=(rotation, theta))
+        # Cumulative copula
+        cumCopula = spi.nquad(K_c, t_range, args=(rotation, theta))[0]
+        return 3.0 - 4.0 * cumCopula
+
     def setRotation(self, rotation=0):
+        """!
+        @brief  Set the copula's orientation:
+            0 == 0 deg
+            1 == 90 deg rotation
+            2 == 180 deg rotation
+            3 == 270 deg rotation
+        Allows for modeling negative dependence with the
+        frank, gumbel, and clayton copulas (Archimedean Copula family is
+        non-symmetric)
+        """
         self.rotation = rotation

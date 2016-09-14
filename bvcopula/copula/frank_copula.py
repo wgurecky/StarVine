@@ -17,7 +17,7 @@ class FrankCopula(CopulaBase):
         @brief Probability density function for frank bivariate copula
         """
         if theta[0] == 0:
-            p = np.ones(len(u))
+            p = np.ones(np.array(u).size)
             return p
         else:
             h1 = -theta[0]
@@ -51,6 +51,12 @@ class FrankCopula(CopulaBase):
 
         uu = h3*np.log(1+h2/(h4*(1/UU-1)+1))
         return uu
+
+    def _gen(self, t, *theta):
+        return -np.log((np.exp(-theta[0] * t) - 1.0) / (np.exp(-theta[0]) - 1.0))
+
+    def kTau(self, rotation=0, *theta):
+        return self._kTau(rotation, *theta)
 
 
 def expm1(x):

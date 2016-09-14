@@ -46,12 +46,19 @@ class GumbelCopula(CopulaBase):
         uu = np.power(h4,h1)/VV*(np.power(h5,h2))*np.exp(-np.power(h5,h3))
         return uu
 
-    def _hinv(self, U, V, rotation=0, *theta):
+    def _hinv(self, u, v, rotation=0, *theta):
         """!
         TODO: Computing hinv by bisection is slow. speed up needed!
         """
-        uu = np.zeros(len(U))
+        U = np.array(u)
+        V = np.array(v)
+        uu = np.zeros(U.size)
         for i, (uu, vv) in enumerate(zip(U, V)):
             uu[i] = self._invhfun_bisect(uu, vv, rotation, *theta)
         return uu
 
+    def _gen(self, t, *theta):
+        return np.power(-np.log(t), theta[0])
+
+    def kTau(self, rotation=0, *theta):
+        return self._kTau(rotation, *theta)
