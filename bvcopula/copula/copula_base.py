@@ -96,13 +96,13 @@ class CopulaBase(object):
         @brief Default negative log likelyhood function.
         Used in MLE fitting
         """
-        return -np.log(self._pdf(u, v, rotation, *theta))
+        return -self._logLike(u, v, rotation, *theta)
 
     def _logLike(self, u, v, rotation=0, *theta):
         """!
         @brief Default log likelyhood func.
         """
-        return np.log(self._pdf(u, v, rotation, *theta))
+        return np.sum(np.log(self._pdf(u, v, rotation, *theta)))
 
     def _invhfun_bisect(self, U, V, rotation, *theta):
         """!

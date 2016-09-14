@@ -37,11 +37,10 @@ class StudentTCopula(CopulaBase):
         # T random var with theta[1] DoF parameter (unit SD, centered at 0)
         t_rv = sp.stats.t(df=theta[1], scale=1.0, loc=0.0)
 
-        # UU = CheckBounds(u);
-        # VV = CheckBounds(v);
-        # u and v must be on the unit square ie. in [0, 1]
-        UU = np.array(u)  # TODO: check bounds
-        VV = np.array(v)
+        # u and v must be inside the unit square ie. in (0, 1)
+        # clipMask = ((v < 1.0) & (v > 0.0) & (u < 1.0) & (v > 0.0))
+        UU = u
+        VV = v
 
         # quantile function is the inverse CDF
         x = t_rv.ppf(UU)
@@ -49,7 +48,8 @@ class StudentTCopula(CopulaBase):
 
         x2 = np.power(x, 2.0)
         y2 = np.power(y, 2.0)
-
+        if(theta[1] >= 150):
+            print("Warning: DoF exceeds gamma function maximum: DoF >= ", theta[1])
         p = gamma(h4)*gamma(h2)/np.sqrt(h1)/np.power(gamma(h3),2)*np.power(1+h5*x2,h3)* \
             np.power(1+h5*y2,h3)/np.power(1+h6*(x2+y2-2*theta[0]*x*y),h4)
         return p

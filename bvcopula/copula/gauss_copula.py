@@ -20,7 +20,7 @@ class GaussCopula(CopulaBase):
         @param u <np_1darary>
         @param v <np_1darary>
         @param rotation <int>  Optional copula rotation.
-        @param theta <list of float> list of parameters to T-copula
+        @param theta  Gaussian copula parameter
             [Shape, DoF]
         """
         # Constants

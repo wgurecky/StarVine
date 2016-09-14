@@ -3,6 +3,7 @@ from __future__ import print_function, division
 import unittest
 from scipy.stats.mstats import rankdata
 from copula.t_copula import StudentTCopula as stc
+from copula.gauss_copula import GaussCopula as stg
 import pylab as pl
 import numpy as np
 import os
@@ -25,17 +26,23 @@ class TestTcopulaFit(unittest.TestCase):
         pl.savefig("original_stocks.png")
 
         # Rank transform the data
-        u = rankdata(x) / len(x)
-        v = rankdata(y) / len(y)
+        u = rankdata(x) / (len(x) + 1)
+        v = rankdata(y) / (len(y) + 1)
         pl.figure(1)
         pl.scatter(u, v)
         pl.savefig("rank_transformed.png")
 
-        # Fit t copula
-        # theta0 = [0.7, 3.0e6]
-        theta0 = [0.7, 30]
+        # Fit t copula and gaussian copula
+        thetat0 = [0.7, 30]
+        thetag0 = [0.2]
+        g_copula = stg()
+        theta_g_fit = g_copula.fitMLE(u, v, 0, *thetag0, bounds=((0, 0.99),))
+        print(theta_g_fit)
         t_copula = stc()
-        theta_fit = t_copula.fitMLE(u, v, 0, *theta0)
+        theta_t_fit = t_copula.fitMLE(u, v, 0, *thetat0, bounds=((0, 0.99),(1, 150),))
+        print(theta_t_fit)
+
+        # The two should agree
 
         # Compare to expected results
         true_rho = 0.7220  # shape (related to pearsons corr coeff)
