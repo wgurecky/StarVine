@@ -2,7 +2,7 @@
 # \brief Student's T copula.
 import numpy as np
 import scipy as sp
-from scipy.special import gamma
+from scipy.special import gammaln
 from copula_base import CopulaBase
 
 
@@ -48,9 +48,11 @@ class StudentTCopula(CopulaBase):
 
         x2 = np.power(x, 2.0)
         y2 = np.power(y, 2.0)
+
         if(theta[1] >= 150):
             print("Warning: DoF exceeds gamma function maximum: DoF >= ", theta[1])
-        p = gamma(h4)*gamma(h2)/np.sqrt(h1)/np.power(gamma(h3),2)*np.power(1+h5*x2,h3)* \
+
+        p = ggamma(h4)*ggamma(h2)/np.sqrt(h1)/np.power(ggamma(h3),2)*np.power(1+h5*x2,h3)* \
             np.power(1+h5*y2,h3)/np.power(1+h6*(x2+y2-2*theta[0]*x*y),h4)
         return p
 
@@ -99,3 +101,7 @@ class StudentTCopula(CopulaBase):
 
     def kTau(self, *theta):
         return (2.0 / np.pi) * np.arcsin(theta[0])
+
+
+def ggamma(x):
+    return np.log(gammaln(x))

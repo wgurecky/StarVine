@@ -39,7 +39,7 @@ class TestTcopulaFit(unittest.TestCase):
         theta_g_fit = g_copula.fitMLE(u, v, 0, *thetag0, bounds=((-0.99, 0.99),))
         print(theta_g_fit)
         t_copula = stc()
-        theta_t_fit = t_copula.fitMLE(u, v, 0, *thetat0, bounds=((-0.99, 0.99),(1, 150),))
+        theta_t_fit = t_copula.fitMLE(u, v, 0, *thetat0, bounds=((-0.99, 0.99),(1, 1e8),))
         print(theta_t_fit)
 
         # The two should agree
