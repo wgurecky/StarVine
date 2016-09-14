@@ -36,13 +36,30 @@ class TestTcopulaFit(unittest.TestCase):
         thetat0 = [0.7, 30]
         thetag0 = [0.2]
         g_copula = stg()
-        theta_g_fit = g_copula.fitMLE(u, v, 0, *thetag0, bounds=((0, 0.99),))
+        theta_g_fit = g_copula.fitMLE(u, v, 0, *thetag0, bounds=((-0.99, 0.99),))
         print(theta_g_fit)
         t_copula = stc()
-        theta_t_fit = t_copula.fitMLE(u, v, 0, *thetat0, bounds=((0, 0.99),(1, 150),))
+        theta_t_fit = t_copula.fitMLE(u, v, 0, *thetat0, bounds=((-0.99, 0.99),(1, 150),))
         print(theta_t_fit)
 
         # The two should agree
+        self.assertAlmostEqual(theta_g_fit[0], theta_t_fit[0], places=3)
+
+        # Sample from the fitted gaussian copula and plot
+        s1 = np.random.uniform(1e-9, 1-1e-9, 1000)
+        s2 = np.random.uniform(1e-9, 1-1e-9, 1000)
+        ug_hat = s1
+        vg_hat = g_copula._hinv(ug_hat, s2, 0., *theta_g_fit)
+        pl.figure(2)
+        pl.scatter(ug_hat, vg_hat)
+        pl.savefig("gaussian_copula_hat.png")
+
+        # Sample from the fitted t copula and plot
+        ut_hat = s1
+        vt_hat = t_copula._hinv(ut_hat, s2, 0., *theta_t_fit)
+        pl.figure(3)
+        pl.scatter(ut_hat, vt_hat)
+        pl.savefig("t_copula_hat.png")
 
         # Compare to expected results
         true_rho = 0.7220  # shape (related to pearsons corr coeff)

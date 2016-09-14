@@ -2,7 +2,6 @@
 # \brief Gaussian copula (special case of t-copula where DoF = \inf)
 import numpy as np
 import scipy as sp
-from scipy.special import gamma
 from copula_base import CopulaBase
 
 
@@ -16,7 +15,7 @@ class GaussCopula(CopulaBase):
 
     def _pdf(self, u, v, rotation=0, *theta):
         """!
-        @brief Probability density function of T copula.
+        @brief Probability density function of Gauss copula.
         @param u <np_1darary>
         @param v <np_1darary>
         @param rotation <int>  Optional copula rotation.
@@ -49,7 +48,7 @@ class GaussCopula(CopulaBase):
 
     def _h(self, u, v, rotation=0, *theta):
         """!
-        @brief H function (Conditional distribution) of T copula.
+        @brief H function (Conditional distribution) of Gauss copula.
         """
         h1 = np.sqrt(1.0 - np.power(np.array(theta[0]), 2))
         dist = sp.stats.norm(scale=1.0, loc=0.0)
@@ -68,7 +67,7 @@ class GaussCopula(CopulaBase):
 
     def _hinv(self, u, v, rotation=0, *theta):
         """!
-        @brief Inverse H function (Inv Conditional distribution) of T copula.
+        @brief Inverse H function (Inv Conditional distribution) of Gauss copula.
         """
         h1 = np.sqrt(1.0 - np.power(np.array(theta[0]), 2))
         dist = sp.stats.norm(scale=1.0, loc=0.0)
