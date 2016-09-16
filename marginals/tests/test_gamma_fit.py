@@ -29,6 +29,7 @@ class TestGammaFit(unittest.TestCase):
         """!
         @brief Try all fitting methods.  Ensure all are in agreement.
         """
+        print("---------------------- GAMMA FIT TEST ------------------------------")
         # init guess for parameters
         params0 = [2.0, 0.1]
         tstData = self.sampled_density_data

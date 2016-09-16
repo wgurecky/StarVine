@@ -22,6 +22,7 @@ class TestNormFit(unittest.TestCase):
 
     def testNormFit(self):
         # init guess for parameters
+        print("---------------------- GAUSS FIT TEST ------------------------------")
         params0 = [2.0, 0.1]
         tstData = self.sampled_density_data
 

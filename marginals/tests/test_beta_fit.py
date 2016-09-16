@@ -29,6 +29,7 @@ class TestBetaFit(unittest.TestCase):
         """!
         @brief Try all fitting methods.  Ensure all are in agreement.
         """
+        print("---------------------- BETA FIT TEST ------------------------------")
         # init guess for parameters
         params0 = [1.8, 5.]
         tstData = self.sampled_density_data

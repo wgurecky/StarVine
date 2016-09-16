@@ -19,6 +19,7 @@ tol = 0.1
 
 class TestTcopulaFit(unittest.TestCase):
     def testTcoplulaFit(self):
+        print("--------------------- T COPULA FIT TEST --------------------------")
         # Load matlab data set
         stocks = np.loadtxt(dataDir + 'stocks.csv', delimiter=',')
         x = stocks[:, 0]
@@ -51,10 +52,10 @@ class TestTcopulaFit(unittest.TestCase):
         thetag0 = [0.2]
         g_copula = stg()
         theta_g_fit = g_copula.fitMLE(u, v, 0, *thetag0, bounds=((-0.99, 0.99),))
-        print("Gaussian copula paramter [rho]: ", theta_g_fit)
+        print("Gaussian copula MLE paramter [rho]: ", theta_g_fit)
         t_copula = stc()
         theta_t_fit = t_copula.fitMLE(u, v, 0, *thetat0, bounds=((-0.99, 0.99),(1, 1e8),))
-        print("T copula parameters [rho, DoF]: ", theta_t_fit)
+        print("T copula MLE parameters [rho, DoF]: ", theta_t_fit)
 
         # For this dataset, the t-copula should approach the gaussian copula fit
         self.assertAlmostEqual(theta_g_fit[0], theta_t_fit[0], places=3)
