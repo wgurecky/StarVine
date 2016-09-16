@@ -7,10 +7,9 @@ import numpy as np
 from scipy.stats import gaussian_kde
 
 
-class SSuvd(object):
+class Uvd(object):
     """!
-    @brief Container for frequency binned CFD field data.
-    Contained methods are only relevent to uni-variate data.
+    @brief Container for univariate data.
     """
     def __init__(self, *args, **kwargs):
         self.dataName = (args[0] if args else None)
@@ -58,7 +57,7 @@ class SSuvd(object):
         self.nBins = len(binBounds) - 1
         self.binBounds = np.array(binBounds)
 
-    def computeMoments(self, maxMoment=6):
+    def computeCentralMoments(self, maxMoment=6):
         """!
         @brief Computes N sample moments about the mean of univariate distribution
 

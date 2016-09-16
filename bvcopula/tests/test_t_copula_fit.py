@@ -7,6 +7,7 @@ from scipy.stats import kendalltau
 from scipy.stats import gaussian_kde
 from copula.t_copula import StudentTCopula as stc
 from copula.gauss_copula import GaussCopula as stg
+from bv_plot import bvPairPlot
 import pylab as pl
 import numpy as np
 import os
@@ -29,6 +30,7 @@ class TestTcopulaFit(unittest.TestCase):
         marg_dict = {}
         plt0 = sns.jointplot(x, y, marginal_kws=marg_dict, stat_func=kendalltau)
         plt0.savefig("original_stocks.png")
+        bvPairPlot(x, y, savefig="original_stocks_pair.png")
 
         # Rank transform the data
         u = rankdata(x) / (len(x) + 1)

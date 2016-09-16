@@ -91,9 +91,8 @@ class Mvd(object):
 
     def computePCOP(self, retainFracVar=0.95, reducedDim=None):
         """!
-        @brief Computes a projection matrix
-        that maps from the original data space to the reduced
-        param space as found via PC decomposition.
+        @brief Computes a projection matrix.
+        Maps from the original data space to a reduced param space.
         @param retainFracVar <double> Desired fraction of explained varience to retain
         @param reducedDim <int> Target reduced data dimension
         @return <np_ndarray> PC projection matrix
@@ -114,24 +113,6 @@ class Mvd(object):
                 break
         self.pcW = np.hstack(retained_eig_vecs)
         return self.pcW
-
-    def pairPlot(self, style=1, **kwargs):
-        """!
-        @brief Generates pairwise scatter plots of multi-variate data.
-        @param style <int> optional 1== pandas scatter plot
-        @param kwargs  optional extra arguments to pass to plotting function
-        @return list of matplotlib plt objects
-        """
-        return pd.tools.plotting.scatter_materix(
-            self.mvdData, hist_kwds={'weights': self.mvdDataWeights},
-            size=self.mvdDataWeights,
-            alpha=0.5)
-
-    def explainedVarPlot(self, **kwargs):
-        """!
-        @brief Generates explained varience plot from PCA results.
-        """
-        pass
 
     def returnMVD_PCA(self):
         """
