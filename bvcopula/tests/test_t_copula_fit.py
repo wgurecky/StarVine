@@ -27,7 +27,7 @@ class TestTcopulaFit(unittest.TestCase):
 
         # plot dataset for visual inspection
         marg_dict = {}
-        plt0 = sns.jointplot(x, y, marginal_kws=marg_dict)
+        plt0 = sns.jointplot(x, y, marginal_kws=marg_dict, stat_func=kendalltau)
         plt0.savefig("original_stocks.png")
 
         # Rank transform the data
@@ -81,8 +81,7 @@ class TestTcopulaFit(unittest.TestCase):
         # Resample
         def icdf_uv_bisect(ux, X):
             icdf = np.zeros(np.array(X).size)
-            i = 0
-            for xx in X:
+            for i, xx in enumerate(X):
                 kde_f = gaussian_kde(ux)
                 kde_cdf_err = lambda m: xx - kde_f.integrate_box_1d(-np.inf, m)
                 try:
@@ -92,7 +91,6 @@ class TestTcopulaFit(unittest.TestCase):
                                      xtol=1e-6, maxiter=200)
                 except:
                     icdf[i] = np.nan
-                i += 1
             return icdf
         resampled_x = icdf_uv_bisect(x, ut_hat)
         resampled_y = icdf_uv_bisect(y, vt_hat)

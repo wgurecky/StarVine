@@ -1,6 +1,5 @@
 ##
-# \brief Multi-variate data container composed of univariate data sets
-#
+# \brief Multi-variate data container composed of univariate data sets.
 
 import numpy as np
 import pandas as pd
@@ -8,9 +7,11 @@ from scipy.stats import gaussian_kde
 from sklearn.preprocessing import StandardScaler
 
 
-class SSmvd(object):
+class Mvd(object):
     """!
-    @brief  Multi-variate data class
+    @brief  Multi-variate data class.
+    Performs principal component analysis as a preprocessing step
+    to reduce the dimensionality of a large data set.
     """
     def __init__(self):
         """! @brief Storage for constitutive uni-variate data sets """

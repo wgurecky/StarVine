@@ -22,30 +22,73 @@ class CopulaBase(object):
         # Set orientation of copula
         self.rotation = rotation
 
-    def _cdf(self, upper_bounds, rotation=0, *theta):
+    # ---------------------------- PUBLIC METHODS ------------------------------ #
+    def cdf(self, u, v, rotation=0, *theta):
         """!
-        @brief Default implementation of the cumulative density function. Very slow.
-        Recommended to replace with an analytic CDF if possible.
-        @param theta  Copula parameter list
+        @brief Public facing CDF function.
+        @param u <np_1darray> Rank data vector
+        @param v <np_1darray> Rank data vector
         @param rotation <int> copula rotation parameter
-        @param upper_bounds len=2 <np_array> [u upper, v upper]
+        @param theta  <list> of <float> Copula parameter list
         """
-        # default implementation of bivariate CDF given _pdf()
-        # copula is always supported on unit square: [0, 1]
-        ranges = np.array([[0, upper_bounds[0]], [0, upper_bounds[1]]])
-        return spi.nquad(self.pdf, ranges, args=(rotation, theta))[0]
+        return self._cdf(u, v, rotation, *theta)
 
-    def pdf(self, u, v, rotation, theta):
+    def pdf(self, u, v, rotation=0, *theta):
         """!
         @brief Public facing PDF function.
+        @param u <np_1darray> Rank data vector
+        @param v <np_1darray> Rank data vector
         @param theta  <list> of <float> Copula parameter list
         @param rotation <int> copula rotation parameter
-        @param u <np_1darray> Rank CDF data vector
-        @param v <np_1darray> Rank CDF data vector
         """
         # expand parameter list
         return self._pdf(u, v, rotation, *theta)
 
+    def fitMLE(self, u, v, rotation=0, *theta0, **kwargs):
+        """!
+        @brief Maximum likelyhood copula fit.
+        @param u <np_1darray> Rank data vector
+        @param v <np_1darray> Rank data vector
+        @param theta0 Initial guess for copula parameter list
+        @return <np_array> Array of MLE fit copula parameters
+        """
+        params0 = theta0
+        res = \
+            minimize(lambda args: self._nlogLike(u, v, rotation, *args),
+                     params0,
+                     bounds=kwargs.pop("bounds", None),
+                     tol=1e-8, method='SLSQP')
+        return res.x  # return best fit theta(s)
+
+    def sample(self, n=1000, rotation=0, *theta):
+        """!
+        @brief Draw N samples from the copula.
+        @param n Number of samples
+        @param theta  Parameter list
+        @param rotation Copula rotation parameter
+        @return <np_array> (n, 2) size vector.  Resampled (U, V)
+        data pairs from copula with paramters: *theta
+        """
+        u = np.random.uniform(1e-9, 1-1e-9, n)
+        v = np.random.uniform(1e-9, 1-1e-9, n)
+        u_hat = u
+        v_hat = self._hinv(u_hat, v, rotation, *theta)
+        return (u_hat, v_hat)
+
+    def setRotation(self, rotation=0):
+        """!
+        @brief  Set the copula's orientation:
+            0 == 0 deg
+            1 == 90 deg rotation
+            2 == 180 deg rotation
+            3 == 270 deg rotation
+        Allows for modeling negative dependence with the
+        frank, gumbel, and clayton copulas (Archimedean Copula family is
+        non-symmetric)
+        """
+        self.rotation = rotation
+
+    # ---------------------------- PRIVATE METHODS ------------------------------ #
     def _pdf(self, u, v, rotation=0, *theta):
         """!
         @brief Pure virtual density function.
@@ -53,7 +96,24 @@ class CopulaBase(object):
         @param v <np_1darray> Rank CDF data vector
         @param rotation_theta <int> Copula rotation (0 == 0deg, 1==90deg, ...)
         """
-        return None
+        raise NotImplementedError
+
+    def _cdf(self, u, v, rotation=0, *theta):
+        """!
+        @brief Default implementation of the cumulative density function. Very slow.
+        Recommended to replace with an analytic CDF if possible.
+        @param theta  Copula parameter list
+        @param rotation <int> copula rotation parameter
+        @param u <np_1darray> Rank CDF data vector
+        @param v <np_1darray> Rank CDF data vector
+        """
+        # default implementation of bivariate CDF given _pdf()
+        # copula is always supported on unit square: [0, 1]
+        cdf_vector = np.zeros(np.array(u).size)
+        for i, (ui, vi) in enumerate(zip(u, v)):
+            ranges = np.array([[0, ui], [0, vi]])
+            cdf_vector[i] = spi.nquad(self.pdf, ranges, args=(rotation, theta))[0]
+        return cdf_vector
 
     def _ppf(self, u, v, rotation=0, *theta):
         """!
@@ -83,21 +143,6 @@ class CopulaBase(object):
         """
         raise NotImplementedError
 
-    def fitMLE(self, u, v, rotation=0, *theta0, **kwargs):
-        """!
-        @brief Maximum likelyhood copula fit.
-        @param u <np_1darray> Rank CDF data vector
-        @param v <np_1darray> Rank CDF data vector
-        @param theta0 Initial guess for copula parameter list
-        """
-        params0 = theta0
-        res = \
-            minimize(lambda args: self._nlogLike(u, v, rotation, *args),
-                     params0,
-                     bounds=kwargs.pop("bounds", None),
-                     tol=1e-8, method='SLSQP')
-        return res.x  # return best fit theta(s)
-
     def _nlogLike(self, u, v, rotation=0, *theta):
         """!
         @brief Default negative log likelyhood function.
@@ -119,19 +164,6 @@ class CopulaBase(object):
         # Freeze U, V, rotation, and model parameter, theta
         reducedHfn = lambda u: self._h(u, V, rotation, *theta) - U
         return bisect(reducedHfn, 1e-10, 1.0 - 1e-10, maxiter=500)[0]
-
-    def sample(self, n=1000, rotation=0, *theta):
-        """!
-        @brief Draw random N samples from the copula.
-        @param n Number of samples
-        @param theta  Parameter list
-        @param rotation Copula rotation parameter
-        """
-        u = np.random.uniform(1e-9, 1-1e-9, n)
-        v = np.random.uniform(1e-9, 1-1e-9, n)
-        u_hat = u
-        v_hat = self._hinv(u_hat, v, rotation, *theta)
-        return (u_hat, v_hat)
 
     def _AIC(self, u, v, rotation=0, *theta):
         """!
@@ -184,15 +216,3 @@ class CopulaBase(object):
         cumCopula = spi.nquad(K_c, t_range, args=(rotation, theta))[0]
         return 3.0 - 4.0 * cumCopula
 
-    def setRotation(self, rotation=0):
-        """!
-        @brief  Set the copula's orientation:
-            0 == 0 deg
-            1 == 90 deg rotation
-            2 == 180 deg rotation
-            3 == 270 deg rotation
-        Allows for modeling negative dependence with the
-        frank, gumbel, and clayton copulas (Archimedean Copula family is
-        non-symmetric)
-        """
-        self.rotation = rotation

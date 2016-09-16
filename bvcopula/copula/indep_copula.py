@@ -16,3 +16,6 @@ class IndepCopula(CopulaBase):
 
     def _hinv(self, u, v, rotation_theta=0):
         return u
+
+    def _gen(self, t, *theta):
+        return -np.log(t)

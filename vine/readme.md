@@ -6,11 +6,12 @@ C- and D- vine copula classes are described in this directory.
 Vines are nested tree data structures.  The nodes are univariate marginal distributions
 and the edges are bivariate copula.
 
-To construct a vine one must:
+To construct a vine sequentially starting from the top tree:
 
-1) Determine the tree structure
-2) Fit copula (maximum likelyhood) at all edges in the vine
-    2.1) Fit marginal distributions at all nodes
+    For each level in the vine:
+        i) Determine the tree structure.  In the case of a regular vine, this is the
+           maximum spanning tree with edge weights equal to kendall's tau.
+        ii) Fit copula (maximum likelyhood) at all edges in the vine
 
 
 C-Vine
@@ -29,7 +30,7 @@ D-Vine
 In a D-Vine, every node is connected with exactly two other nodes via copula.
 
 This dependence structure is well suited when no single primary variable of interest
-can be identified.
+can be identified.  It is also suitable for temporally ordered data.
 
 
 Regular Vines
