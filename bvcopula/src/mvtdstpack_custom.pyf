@@ -6,17 +6,17 @@ python module mvtdstpack ! in
         subroutine mvtdst(n,nu,lower,upper,infin,correl,delta,maxpts,abseps,releps,error,value,inform) ! in :mvtdstpack:mvtdstpack.f
             integer :: n
             integer :: nu
-            double precision dimension(*) :: lower
-            double precision dimension(*) :: upper
-            integer dimension(*) :: infin
-            double precision dimension(*) :: correl
-            double precision dimension(*) :: delta
-            integer :: maxpts
-            double precision :: abseps
-            double precision :: releps
-            double precision :: error
-            double precision :: value
-            integer :: inform
+            double precision dimension(n) :: lower
+            double precision dimension(n) :: upper
+            integer dimension(n) :: infin
+            double precision dimension(n*(n-1)/2) :: correl
+            double precision dimension(n) :: delta
+            integer intent(optional) :: maxpts=2000
+            double precision intent(optional) :: abseps=1e-6
+            double precision intent(optional) :: releps=1e-6
+            double precision intent(out) :: error
+            double precision intent(out) :: value
+            integer intent(out) :: inform
             integer :: ivls
             common /ptblck/ ivls
         end subroutine mvtdst

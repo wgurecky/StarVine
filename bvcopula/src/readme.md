@@ -8,31 +8,41 @@ producing a numerical estimate for a multivariate Student-T CDF.
 
 All credit goes to Alan Genz.
 
-license
+Install
 =======
 
-Copyright (C) 2013, Alan Genz,  All rights reserved.
+To manually build the python extension module:
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided the following conditions are met:
-  1. Redistributions of source code must retain the above copyright
-     notice, this list of conditions and the following disclaimer.
-  2. Redistributions in binary form must reproduce the above copyright
-     notice, this list of conditions and the following disclaimer in
-     the documentation and/or other materials provided with the
-     distribution.
-  3. The contributor name(s) may not be used to endorse or promote
-     products derived from this software without specific prior
-     written permission.
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+    f2py -c mvtdstpack_custom.pyf mvtdstpack.f
 
+Depends:
+
+    - numpy (includes f2py)
+    - a functional F77 compiler
+
+Example Use
+===========
+
+In python, import the mvtdstpack module:
+
+    import mvtdstpack as mvt
+
+now use the mvtdst routine to integrate as 2D Student-T distribution:
+    
+    # 2d student t settings
+    dim, dof = 2, 10
+    # corr coeff parameter
+    rho = np.array([0.7])
+    #
+    # integration settings (int from -inf, to upperb)
+    lowerb = np.array([0.2, 0.2], dtype='double')
+    upperb = np.array([0.2, 0.2], dtype='double')
+    inFin = np.zeros(upperb.size, dtype='int')     # integration limit setting
+    delta = np.zeros(upperb.size, dtype='double')  # non centrality params
+    maxpts = int(1000 * dim)
+    abseps = 0.001
+    releps = 0.0
+    #
+    error, value, status = mvt.mvtdst(dim, dof, lowerb, upperb, inFin, rho, delta, maxpts, abseps, releps)
+
+Note:  mvtdst only accepts integers for degrees of freedom parameter.
