@@ -1,0 +1,27 @@
+!    -*- f90 -*-
+! Note: the context of this file is case sensitive.
+
+python module mvtdstpack ! in 
+    interface  ! in :mvtdstpack
+        subroutine mvtdst(n,nu,lower,upper,infin,correl,delta,maxpts,abseps,releps,error,value,inform) ! in :mvtdstpack:mvtdstpack.f
+            integer :: n
+            integer :: nu
+            double precision dimension(*) :: lower
+            double precision dimension(*) :: upper
+            integer dimension(*) :: infin
+            double precision dimension(*) :: correl
+            double precision dimension(*) :: delta
+            integer :: maxpts
+            double precision :: abseps
+            double precision :: releps
+            double precision :: error
+            double precision :: value
+            integer :: inform
+            integer :: ivls
+            common /ptblck/ ivls
+        end subroutine mvtdst
+    end interface 
+end python module mvtdstpack
+
+! This file was auto-generated with f2py (version:2).
+! See http://cens.ioc.ee/projects/f2py2e/
