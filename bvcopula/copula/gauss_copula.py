@@ -12,8 +12,8 @@ class GaussCopula(CopulaBase):
     \f$\theta[0] \in (-1, 1)\f$
     """
     def __init__(self):
-        self.thetaBounds = ((-1, 1),)
-        self.theta0 = [0.7]
+        self.thetaBounds = ((-1+1e-9, 1-1e-9),)
+        self.theta0 = (0.7,)
         self.name = 'gauss'
 
     def _pdf(self, u, v, rotation=0, *theta):
@@ -41,7 +41,7 @@ class GaussCopula(CopulaBase):
         # Output storage
         p = np.zeros(UU.size)
 
-        # quantile function is the inverse CDF
+        # Percentile point function eval
         x = norm_rv.ppf(UU)
         y = norm_rv.ppf(VV)
 

@@ -1,4 +1,6 @@
 #!/usr/bin/env python2
+##
+# \brief Tests for T- and Gaussian copula fitting
 from __future__ import print_function, division
 import unittest
 from scipy.optimize import bisect
@@ -54,13 +56,16 @@ class TestTcopulaFit(unittest.TestCase):
         thetag0 = [0.2]
         g_copula = stg()
         theta_g_fit = g_copula.fitMLE(u, v, 0, *thetag0, bounds=((-0.99, 0.99),))
-        print("Gaussian copula MLE paramter [rho]: ", theta_g_fit)
+        aic_g_fit = g_copula._AIC(u, v, 0, *theta_g_fit)
+        print("Gaussian copula MLE paramter [rho]: " + str(theta_g_fit) + " AIC =" + str(aic_g_fit))
         t_copula = stc()
         theta_t_fit = t_copula.fitMLE(u, v, 0, *thetat0, bounds=((-0.99, 0.99),(1, 1e8),))
-        print("T copula MLE parameters [rho, DoF]: ", theta_t_fit)
+        aic_t_fit = t_copula._AIC(u, v, 0, *theta_t_fit)
+        print("T copula MLE parameters [rho, DoF]: " + str(theta_t_fit) + " AIC =" + str(aic_t_fit))
 
-        # For this dataset, the t-copula should approach the gaussian copula fit
+        # check fits
         self.assertAlmostEqual(theta_g_fit[0], theta_t_fit[0], places=3)
+        self.assertTrue(abs(aic_g_fit) > abs(aic_t_fit))
 
         # Sample from the fitted gaussian copula and plot
         ug_hat, vg_hat = g_copula.sample(1000, 0, *theta_g_fit)
@@ -75,8 +80,8 @@ class TestTcopulaFit(unittest.TestCase):
         plt3.savefig("t_copula_hat.png")
 
         # Random noise
-        rv = np.random.uniform(0, 1, 2000)
-        ru = np.random.uniform(0, 1, 2000)
+        rv = np.random.uniform(0, 1, 1000)
+        ru = np.random.uniform(0, 1, 1000)
         plt4 = sns.jointplot(ru, rv, stat_func=kendalltau)
         plt4.savefig("rand_scatter.png")
 
@@ -98,13 +103,6 @@ class TestTcopulaFit(unittest.TestCase):
         resampled_y = icdf_uv_bisect(y, vt_hat)
         plt5 = sns.jointplot(resampled_x, resampled_y, stat_func=kendalltau)
         plt5.savefig("resampled_scatter.png")
-
-        # Check CDF
-        x1 = x2 = np.linspace(1e-6, 1 - 1e-6, 3)
-        grid = np.meshgrid(x1, x2)
-        xx, yy = grid[0].flatten(), grid[1].flatten()
-        pp = t_copula.cdf(xx, yy, 0, *theta_t_fit)
-        bvContour(xx, yy, pp, savefig='t_cdf_contour.png')
 
         # Compare to expected results
         true_rho = 0.7220  # shape (related to pearsons corr coeff)

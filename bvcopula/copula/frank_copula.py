@@ -11,8 +11,8 @@ class FrankCopula(CopulaBase):
     \f$\theta \in [0, \infty) \f$
     """
     def __init__(self):
-        self.thetaBounds = ((0, np.inf),)
-        self.theta0 = [1.0]
+        self.thetaBounds = ((1e-9, np.inf),)
+        self.theta0 = (1.0,)
         self.name = 'frank'
 
     def _pdf(self, u, v, rotation=0, *theta):

@@ -17,8 +17,8 @@ class StudentTCopula(CopulaBase):
     \f$\theta[1] \in (2, \infty) \f$
     """
     def __init__(self):
-        self.thetaBounds = ((-1, 1), (2.0, np.inf),)
-        self.theta0 = [0.7, 10.0]
+        self.thetaBounds = ((-1 + 1e-9, 1 - 1e-9), (2.0, np.inf),)
+        self.theta0 = (0.7, 10.0)
         self.name = 't'
 
     def _pdf(self, u, v, rotation=0, *theta):
@@ -43,10 +43,10 @@ class StudentTCopula(CopulaBase):
 
         # u and v must be inside the unit square ie. in (0, 1)
         # clipMask = ((v < 1.0) & (v > 0.0) & (u < 1.0) & (v > 0.0))
-        UU = u
-        VV = v
+        UU = np.array(u)
+        VV = np.array(v)
 
-        # quantile function is the inverse CDF
+        # Percentile point function eval
         x = t_rv.ppf(UU)
         y = t_rv.ppf(VV)
 
@@ -55,6 +55,8 @@ class StudentTCopula(CopulaBase):
 
         p = ggamma(h4)*ggamma(h2)/np.sqrt(h1)/np.power(ggamma(h3),2)*np.power(1+h5*x2,h3)* \
             np.power(1+h5*y2,h3)/np.power(1+h6*(x2+y2-2*theta[0]*x*y),h4)
+        if np.any(np.isinf(p)):
+            print("WARNING: INF probability returned by PDF")
         return p
 
 

@@ -11,8 +11,8 @@ class GumbelCopula(CopulaBase):
     \f$\theta \in [1, \infty) \f$
     """
     def __init__(self):
-        self.thetaBounds = ((1, np.inf),)
-        self.theta0 = [2.0]
+        self.thetaBounds = ((1+1e-9, np.inf),)
+        self.theta0 = (2.0, )
         self.name = 'gumbel'
 
     def _pdf(self, u, v, rotation=0, *theta):

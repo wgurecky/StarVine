@@ -5,7 +5,7 @@ import numpy as np
 from scipy.stats import kendalltau, spearmanr, pearsonr
 from scipy.stats import gaussian_kde
 from scipy.stats.mstats import rankdata
-#
+# COPULA IMPORTS
 from copula.t_copula import StudentTCopula
 from copula.gauss_copula import GaussCopula
 from copula.frank_copula import FrankCopula
@@ -31,8 +31,8 @@ class BVbase(object):
     def __init__(self, x, y, weights=None, **kwargs):
         """!
         @brief Bivariate data set init.
-        @param u  <np_1darray> first marginal data set
-        @param v  <np_1darray> second marginal data set
+        @param x  <np_1darray> first marginal data set
+        @param y  <np_1darray> second marginal data set
         @param weights <np_1darray> (optional) data weights
                normalized or unormalized weights accepted
         Note: len(u) == len(v) == len(weights)
@@ -45,12 +45,13 @@ class BVbase(object):
         if self.weights:
             self.weights = self.weights / np.sum(self.weights)
         # init default copula family
-        defaultFamily = ['t', 'gauss', 'indep', 'frank', 'clayton', 'gumbel']
+        defaultFamily = ['t', 'gauss', 'frank', 'clayton', 'gumbel']
         self.setTrialCopula(kwargs.pop("family", defaultFamily))
         # Rank transform data
         self.rank(kwargs.pop("rankMethod", 0))
         # default rotation
-        self.rotateData(self, self.u, self.v, rotation=kwargs.pop("rotation", 0))
+        self.setRotation(kwargs.pop("rotation", 0))
+        self.rotateData(self.u, self.v)
 
     def rank(self, method=0):
         """!
@@ -85,10 +86,10 @@ class BVbase(object):
     def setTrialCopula(self, family=['t', 'gauss', 'clayton', 'gumbel', 'frank']):
         self.copulaBank = {'t': StudentTCopula(),
                            'gauss': GaussCopula(),
+                           'indep': IndepCopula(),
                            'gumbel': GumbelCopula(),
                            'frank': FrankCopula(),
                            'clayton': ClaytonCopula(),
-                           'indep': IndepCopula(),
                            }
         self.trialFamily = family
 
@@ -97,24 +98,24 @@ class BVbase(object):
         @brief Returns emperical kendall's tau of rank transformed data.
         @return <float> Kendall's tau rank correlation coeff
         """
-        self.empKTau, self.pval = kendalltau(self.u, self.v)
-        return self.empKTau, self.pval
+        self.empKTau_, self.pval_ = kendalltau(self.u, self.v)
+        return self.empKTau_, self.pval_
 
     def empSRho(self):
         """!
         @brief Returns emperical spearman rho, the rank correlation coefficient.
         @return <float> Spearman's rank correlation coeff
         """
-        self.empSRho, self.pval = spearmanr(self.u, self.v)
-        return self.empSRho, self.pval
+        self.empSRho_, self.pval_ = spearmanr(self.u, self.v)
+        return self.empSRho_, self.pval_
 
     def empPRho(self):
         """!
         @brief Returns linear correlation coefficient, pearson's rho.
         @return <float> pearson's correlation coefficient
         """
-        self.empPRho, self.pval = pearsonr(self.x, self.y)
-        return self.empPRho, self.pval
+        self.empPRho_, self.pval_ = pearsonr(self.x, self.y)
+        return self.empPRho_, self.pval_
 
     def copulaTournament(self, criterion='AIC'):
         """!
@@ -123,7 +124,7 @@ class BVbase(object):
         All copula in the trial_family set are considered.
         """
         self.empKTau()
-        if self.pval >= 0.99:
+        if self.pval_ >= 0.99:
             print("Independence Coplua selected")
             return self.copulaBank['indep']
         # Find best fitting copula as judged by the AIC
@@ -133,25 +134,26 @@ class BVbase(object):
             copula = self.copulaBank[trialCopulaName]
             fittedCopulaParams = self.fitCopula(copula)
             trialAIC = abs(fittedCopulaParams[2])
-            print(" AIC: " + str(trialAIC))
+            print(" |AIC|: " + str(trialAIC))
             if trialAIC > maxAIC:
                 goldCopula = copula
                 goldParams = fittedCopulaParams
                 maxAIC = trialAIC
-        print(goldCopula.name + " Coplua selected")
-        self.copulaModel = (goldCopula, goldParams)
-        return self.copulaModel
+        print(goldCopula.name + " copula selected")
+        self.copulaModel = goldCopula
+        self.copulaParams = goldParams
+        return (self.copulaModel, self.copulaParams)
 
-    def fitCopula(self, copula, thetaGuess=None):
+    def fitCopula(self, copula, thetaGuess=(None,None,)):
         """!
         @brief fit specified copula to data.
         @return (copula type <string>, fitted copula params <np_array>)
         """
-        thetaHat = copula.fitMLE(self.UU, self.VV, 0, thetaGuess)
-        AIC = copula._AIC(self.UU, self.VV, 0, thetaHat)
+        thetaHat = copula.fitMLE(self.UU, self.VV, 0, *thetaGuess)
+        AIC = copula._AIC(self.UU, self.VV, 0, *thetaHat)
         return (copula.name, thetaHat, AIC, self.rotation)
 
-    def rotateData(self, u, v):
+    def rotateData(self, u, v, rotation=0):
         """!
         @brief Rotates the ranked data on the unit square.
         Allows for modeling of negative dependence with the
@@ -160,6 +162,8 @@ class BVbase(object):
         @param v  Ranked data vector
         @param rotation <int>
         """
+        if rotation > 0:
+            self.setRotation(rotation)
         self.UU = np.zeros(u.shape)  # storage for rotated u
         self.VV = np.zeros(v.shape)  # storage for rotated v
         if self.rotation == 1:

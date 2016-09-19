@@ -25,7 +25,7 @@ class CopulaBase(object):
     # ---------------------------- PUBLIC METHODS ------------------------------ #
     def cdf(self, u, v, rotation=0, *theta):
         """!
-        @brief Public facing CDF function.
+        @brief Evaluate the copula's CDF function.
         @param u <np_1darray> Rank data vector
         @param v <np_1darray> Rank data vector
         @param rotation <int> copula rotation parameter
@@ -38,8 +38,8 @@ class CopulaBase(object):
         @brief Public facing PDF function.
         @param u <np_1darray> Rank data vector
         @param v <np_1darray> Rank data vector
-        @param theta  <list> of <float> Copula parameter list
         @param rotation <int> copula rotation parameter
+        @param theta  <list> of <float> Copula parameter list
         """
         # expand parameter list
         return self._pdf(u, v, rotation, *theta)
@@ -52,10 +52,10 @@ class CopulaBase(object):
         @param theta0 Initial guess for copula parameter list
         @return <np_array> Array of MLE fit copula parameters
         """
-        if theta0:
-            params0 = theta0
-        else:
+        if None in theta0:
             params0 = self.theta0
+        else:
+            params0 = theta0
         res = \
             minimize(lambda args: self._nlogLike(u, v, rotation, *args),
                      x0=params0,
@@ -111,15 +111,17 @@ class CopulaBase(object):
         @param u <np_1darray> Rank CDF data vector
         @param v <np_1darray> Rank CDF data vector
         """
-        # default implementation of bivariate CDF given _pdf()
-        # copula is always supported on unit square: [0, 1]
+        # for i, (ui, vi) in enumerate(zip(u, v)):
+        #     reducedPPF = lambda pu, pv: \
+        #         np.abs(np.sum(np.array([ui, vi]) - self._ppf(pu, pv, 0, *theta)))
+        #     cdf_vector[i] = fsolve(reducedPPF, x0=np.array([0.5, 0.5]))[0]
+        # return cdf_vector
         cdf_vector = np.zeros(np.array(u).size)
         for i, (ui, vi) in enumerate(zip(u, v)):
-            print(i)
             ranges = np.array([[0, ui], [0, vi]])
             cdf_vector[i] = spi.nquad(self.pdf, ranges,
                                       args=(rotation, theta),
-                                      opts={'epsrel': 1e-2, 'epsabs': 1e-2, 'limit':20})[0]
+                                      opts={'limit': 20})[0]
         return cdf_vector
 
     def _ppf(self, u, v, rotation=0, *theta):
@@ -140,7 +142,7 @@ class CopulaBase(object):
     def _h(self):
         """!
         @brief Copula conditional distribution function.
-        \f$ h(u|v, \theta) = \frac{\partial C( F(u|v), F(u|v) | \theta) }{\partial F(u|v)} $\f
+        \f$ h(u|v, \theta) = \frac{\partial C( F(u|v), F(u|v) | \theta) }{\partial F(u|v)} \f$
         """
         raise NotImplementedError
 
