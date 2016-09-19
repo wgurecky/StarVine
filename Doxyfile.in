@@ -1,0 +1,15 @@
+PROJECT_NAME           = StarVine
+PROJECT_LOGO           = ./doc/images/logo.png
+OUTPUT_DIRECTORY       = ./doc/documentation
+IMAGE_PATH             = ./doc/images
+FILE_PATTERNS          = *.h \
+                         *.c \
+                         *.cpp \
+                         *.hpp \
+                         *.py \
+                         *.md
+RECURSIVE              = YES
+USE_MDFILE_AS_MAINPAGE = ./README.md
+DISABLE_INDEX          = NO
+GENERATE_TREEVIEW      = YES
+WARN_IF_UNDOCUMENTED   = NO

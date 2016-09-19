@@ -7,7 +7,7 @@ from scipy.stats import kendalltau
 from scipy.stats import gaussian_kde
 from copula.t_copula import StudentTCopula as stc
 from copula.gauss_copula import GaussCopula as stg
-from bv_plot import bvPairPlot
+from bv_plot import bvPairPlot, bvContour
 import pylab as pl
 import numpy as np
 import os
@@ -98,6 +98,13 @@ class TestTcopulaFit(unittest.TestCase):
         resampled_y = icdf_uv_bisect(y, vt_hat)
         plt5 = sns.jointplot(resampled_x, resampled_y, stat_func=kendalltau)
         plt5.savefig("resampled_scatter.png")
+
+        # Check CDF
+        x1 = x2 = np.linspace(1e-6, 1 - 1e-6, 3)
+        grid = np.meshgrid(x1, x2)
+        xx, yy = grid[0].flatten(), grid[1].flatten()
+        pp = t_copula.cdf(xx, yy, 0, *theta_t_fit)
+        bvContour(xx, yy, pp, savefig='t_cdf_contour.png')
 
         # Compare to expected results
         true_rho = 0.7220  # shape (related to pearsons corr coeff)

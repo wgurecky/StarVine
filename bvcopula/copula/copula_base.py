@@ -33,7 +33,7 @@ class CopulaBase(object):
         """
         return self._cdf(u, v, rotation, *theta)
 
-    def pdf(self, u, v, rotation=0, *theta):
+    def pdf(self, u, v, rotation=0, theta=None):
         """!
         @brief Public facing PDF function.
         @param u <np_1darray> Rank data vector
@@ -52,12 +52,16 @@ class CopulaBase(object):
         @param theta0 Initial guess for copula parameter list
         @return <np_array> Array of MLE fit copula parameters
         """
-        params0 = theta0
+        if theta0:
+            params0 = theta0
+        else:
+            params0 = self.theta0
         res = \
             minimize(lambda args: self._nlogLike(u, v, rotation, *args),
-                     params0,
-                     bounds=kwargs.pop("bounds", None),
-                     tol=1e-8, method='SLSQP')
+                     x0=params0,
+                     bounds=kwargs.pop("bounds", self.thetaBounds),
+                     tol=kwargs.pop("tol", 1e-8),
+                     method=kwargs.pop("method", 'SLSQP'))
         return res.x  # return best fit theta(s)
 
     def sample(self, n=1000, rotation=0, *theta):
@@ -111,8 +115,11 @@ class CopulaBase(object):
         # copula is always supported on unit square: [0, 1]
         cdf_vector = np.zeros(np.array(u).size)
         for i, (ui, vi) in enumerate(zip(u, v)):
+            print(i)
             ranges = np.array([[0, ui], [0, vi]])
-            cdf_vector[i] = spi.nquad(self.pdf, ranges, args=(rotation, theta))[0]
+            cdf_vector[i] = spi.nquad(self.pdf, ranges,
+                                      args=(rotation, theta),
+                                      opts={'epsrel': 1e-2, 'epsabs': 1e-2, 'limit':20})[0]
         return cdf_vector
 
     def _ppf(self, u, v, rotation=0, *theta):

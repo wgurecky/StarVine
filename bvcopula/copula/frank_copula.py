@@ -8,9 +8,12 @@ class FrankCopula(CopulaBase):
     """!
     @brief Frank copula.
     Single parameter
+    \f$\theta \in [0, \infty) \f$
     """
     def __init__(self):
-        pass
+        self.thetaBounds = ((0, np.inf),)
+        self.theta0 = [1.0]
+        self.name = 'frank'
 
     def _pdf(self, u, v, rotation=0, *theta):
         """!

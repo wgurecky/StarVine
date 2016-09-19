@@ -7,34 +7,47 @@ dependence structures in multivariate data sets.
 Install
 ========
 
-To install:
+Prep package:
 
-    python setup.py install
+    python setup.py build
+
+Execute unit tests:
+
+    python setup.py test
 
 To install a development version:
 
-    python setup.py develop
+    python setup.py develop --user
 
 Requires:
 
-    - numpy
-    - scipy
-    - networkx
-    - pandas
-    - h5py
-    - emcee
-    - mpi4py : (optional)
+    - numpy : basic linear algebra operations
+    - scipy : additional numerical operations
+    - networkx : vine graph structure
+    - pandas : multivariate data representation and analysis
+    - h5py : file I/O
+    - emcee : MCMC
+    - seaborn : advanced plotting
+    - matplotlib : basic plotting, required by seaborn
+
+Optional:
+
+    - statsmodels: Generalized method of moments fitting (optional)
+    - mpi4py : MCMC parallelization (optional)
 
 Docs
 =====
 
-Documentation is provided in the /doc directory.
+Documentation is provided in the `/doc` directory.
 
-build the docs from the doc dir:
+Build the docs from `starvine` directory:
 
-    cd doc
     doxygen Doxyfile.in
     make html
+
+Requires:
+
+    - Doxygen
 
 Example
 ========
@@ -70,7 +83,7 @@ Visually compare the MLE fitted C-vine copula to raw empirical data.
     # this should give 4 copula plots
     fig3.show()
 
-Throw away point-wise data to free RAM:
+Throw away point-wise data:
 
     # not necissary, but nice to clear out pointwise data
     # when it is no longer needed
@@ -91,7 +104,7 @@ Reload the saved vine:
     newvine = sv.cvine()
     newvine.read_h5('cvine_ex.h5')
 
-We can sample the reclaimed C-vine:
+Sample the reclaimed C-vine:
 
     newvine.simulate(n=1000)
     # plot only the copula from the first tree level
@@ -103,6 +116,7 @@ We can sample the reclaimed C-vine:
 License
 ========
 
-BSD 3 clause
+StarVine is distributed under the BSD 3 clause license.
 
-A copy of the license should have been distributed with this source.
+A copy of the license should have been distributed with the StarVine source code.
+A copy of the license can be obtained from [opensource.org]https://opensource.org/licenses/BSD-3-Clause

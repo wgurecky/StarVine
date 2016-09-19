@@ -9,9 +9,12 @@ class GaussCopula(CopulaBase):
     """!
     @brief Gaussian copula model
     single parameter
+    \f$\theta[0] \in (-1, 1)\f$
     """
     def __init__(self):
-        pass
+        self.thetaBounds = ((-1, 1),)
+        self.theta0 = [0.7]
+        self.name = 'gauss'
 
     def _pdf(self, u, v, rotation=0, *theta):
         """!

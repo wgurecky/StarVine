@@ -13,9 +13,13 @@ class StudentTCopula(CopulaBase):
 
     theta[0] == rho (shape param, related to pearson's corr coeff)
     theta[1] == nu (degrees of freedom)
+    \f$\theta[0] \in (-1, 1) \f$
+    \f$\theta[1] \in (2, \infty) \f$
     """
     def __init__(self):
-        pass
+        self.thetaBounds = ((-1, 1), (2.0, np.inf),)
+        self.theta0 = [0.7, 10.0]
+        self.name = 't'
 
     def _pdf(self, u, v, rotation=0, *theta):
         """!

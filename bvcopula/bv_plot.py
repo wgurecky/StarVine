@@ -9,12 +9,20 @@ from pandas import DataFrame
 import numpy as np
 
 
+def bvContour(x1, x2, y, **kwargs):
+    outfile = kwargs.pop("savefig", None)
+    contour_plot = sns.interactplot(x1, x2, y, **kwargs)
+    if outfile:
+        contour_plot.savefig(outfile)
+    return contour_plot
+
+
 def bvJointPlot(u, v, corr_stat="kendalltau", **kwargs):
     stat_funcs = {"kendalltau": kendalltau,
                   "spearmanr": spearmanr,
                   "pearsonr": pearsonr}
-    joint_plt = sns.jointplot(u, v, stat_func=stat_funcs[corr_stat])
     outfile = kwargs.pop("savefig", None)
+    joint_plt = sns.jointplot(u, v, stat_func=stat_funcs[corr_stat], **kwargs)
     if outfile:
         joint_plt.savefig(outfile)
     return joint_plt

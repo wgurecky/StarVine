@@ -7,10 +7,13 @@ from copula_base import CopulaBase
 class ClaytonCopula(CopulaBase):
     """!
     @brief Clayton copula.
-    Single parameter model
+    Single parameter model.
+    \f$\theta \in [0, \infty) \f$
     """
     def __init__(self):
-        pass
+        self.thetaBounds = ((0, np.inf),)
+        self.theta0 = [1.0]
+        self.name = 'clayton'
 
     def _pdf(self, u, v, rotation=0, *theta):
         """!
