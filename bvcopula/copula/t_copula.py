@@ -1,10 +1,10 @@
 ##
 # \brief Student's T copula.
 import numpy as np
-import scipy as sp
+from scipy import stats
 from scipy.special import gammaln
 from copula_base import CopulaBase
-import mvtdstpack as mvt
+from src import mvtdstpack as mvt
 
 
 class StudentTCopula(CopulaBase):
@@ -40,7 +40,7 @@ class StudentTCopula(CopulaBase):
         h5 = 1.0 / theta[1]
         h6 = h5 / h1
         # T random var with theta[1] DoF parameter (unit SD, centered at 0)
-        t_rv = sp.stats.t(df=theta[1], scale=1.0, loc=0.0)
+        t_rv = stats.t(df=theta[1], scale=1.0, loc=0.0)
 
         # u and v must be inside the unit square ie. in (0, 1)
         # clipMask = ((v < 1.0) & (v > 0.0) & (u < 1.0) & (v > 0.0))
@@ -63,7 +63,7 @@ class StudentTCopula(CopulaBase):
     def _cdf(self, u, v, rotation=0, *theta):
         rho = theta[0]
         dof = int(round(theta[1]))
-        t_rv = sp.stats.t(df=theta[1], scale=1.0, loc=0.0)
+        t_rv = stats.t(df=theta[1], scale=1.0, loc=0.0)
 
         UU = np.array(u)
         VV = np.array(v)
@@ -71,7 +71,7 @@ class StudentTCopula(CopulaBase):
         # Output storage
         p = np.zeros(UU.size)
 
-        lower = np.zeros((UU.szie, 2))
+        lower = np.zeros((UU.size, 2))
         upper = np.zeros((UU.size, 2))
         upper[:, 0] = t_rv.ppf(UU)
         upper[:, 1] = t_rv.ppf(VV)
@@ -90,8 +90,8 @@ class StudentTCopula(CopulaBase):
         """
         h1 = 1.0 - np.power(theta[0], 2.0)
         nu1 = theta[1] + 1.0
-        dist1 = sp.stats.t(df=theta[1], scale=1.0, loc=0.0)
-        dist2 = sp.stats.t(df=nu1, scale=1.0, loc=0.0)
+        dist1 = stats.t(df=theta[1], scale=1.0, loc=0.0)
+        dist2 = stats.t(df=nu1, scale=1.0, loc=0.0)
 
         UU = np.array(u)  # TODO: check input bounds
         VV = np.array(v)
@@ -112,8 +112,8 @@ class StudentTCopula(CopulaBase):
         """
         h1 = 1.0 - np.power(theta[0], 2.0)
         nu1 = theta[1] + 1.0
-        dist1 = sp.stats.t(df=theta[1], scale=1.0, loc=0.0)
-        dist2 = sp.stats.t(df=nu1, scale=1.0, loc=0.0)
+        dist1 = stats.t(df=theta[1], scale=1.0, loc=0.0)
+        dist2 = stats.t(df=nu1, scale=1.0, loc=0.0)
 
         UU = np.array(u)  # TODO: check input bounds
         VV = np.array(v)

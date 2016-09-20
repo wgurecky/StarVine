@@ -10,8 +10,9 @@ import numpy as np
 
 
 def bvContour(x1, x2, y, **kwargs):
+    contour_plot = plt.figure()
     outfile = kwargs.pop("savefig", None)
-    contour_plot = sns.interactplot(x1, x2, y, **kwargs)
+    sns.interactplot(x1, x2, y, **kwargs)
     if outfile:
         contour_plot.savefig(outfile)
     return contour_plot

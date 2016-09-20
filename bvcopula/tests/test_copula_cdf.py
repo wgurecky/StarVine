@@ -20,17 +20,17 @@ np.random.seed(123)
 class TestCopulaCDF(unittest.TestCase):
     def testCopulaCDF(self):
         # check all CDFs == 1.0 at U, V = [1.0, 1.0]
-        pass
+        print("------------------- COPULA CDF INTEGRAL TEST ----------------------")
 
     def testTCopulaCDF(self):
         t_copula = StudentTCopula()
-        u, v = np.ones(1), np.ones(1)
+        u, v = np.ones(1)-1e-9, np.ones(1)-1e-9
         cdf_max = t_copula.cdf(u, v, 0, *[0.7, 10])
         self.assertAlmostEqual(cdf_max, 1.0)
 
     def testGaussCopulaCDF(self):
         gauss_copula = GaussCopula()
-        u, v = np.ones(1), np.ones(1)
+        u, v = np.ones(1)-1e-9, np.ones(1)-1e-9
         cdf_max = gauss_copula.cdf(u, v, 0, *[0.7])
         self.assertAlmostEqual(cdf_max, 1.0)
 

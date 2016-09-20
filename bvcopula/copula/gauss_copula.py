@@ -1,9 +1,9 @@
 ##
 # \brief Gaussian copula (special case of t-copula where DoF = \inf)
 import numpy as np
-import scipy as sp
+from scipy import stats
 from copula_base import CopulaBase
-import mvtdstpack as mvt
+from src import mvtdstpack as mvt
 
 
 class GaussCopula(CopulaBase):
@@ -31,7 +31,7 @@ class GaussCopula(CopulaBase):
         h1 = 1-rho2
         h2 = rho2 / (2.0 * h1)
         h3 = theta[0] / h1
-        norm_rv = sp.stats.norm(scale=1.0, loc=0.0)
+        norm_rv = stats.norm(scale=1.0, loc=0.0)
 
         # UU = CheckBounds(u);
         # VV = CheckBounds(v);
@@ -52,7 +52,7 @@ class GaussCopula(CopulaBase):
     def _cdf(self, u, v, rotation=0, *theta):
         rho = theta[0]
         dof = 0
-        norm_rv = sp.stats.norm(scale=1.0, loc=0.0)
+        norm_rv = stats.norm(scale=1.0, loc=0.0)
 
         UU = np.array(u)
         VV = np.array(v)
@@ -60,7 +60,7 @@ class GaussCopula(CopulaBase):
         # Output storage
         p = np.zeros(UU.size)
 
-        lower = np.zeros((UU.szie, 2))
+        lower = np.zeros((UU.size, 2))
         upper = np.zeros((UU.size, 2))
         upper[:, 0] = norm_rv.ppf(UU)
         upper[:, 1] = norm_rv.ppf(VV)
@@ -79,7 +79,7 @@ class GaussCopula(CopulaBase):
         @brief H function (Conditional distribution) of Gauss copula.
         """
         h1 = np.sqrt(1.0 - np.power(np.array(theta[0]), 2))
-        dist = sp.stats.norm(scale=1.0, loc=0.0)
+        dist = stats.norm(scale=1.0, loc=0.0)
 
         UU = np.array(u)  # TODO: check input bounds
         VV = np.array(v)
@@ -98,7 +98,7 @@ class GaussCopula(CopulaBase):
         @brief Inverse H function (Inv Conditional distribution) of Gauss copula.
         """
         h1 = np.sqrt(1.0 - np.power(np.array(theta[0]), 2))
-        dist = sp.stats.norm(scale=1.0, loc=0.0)
+        dist = stats.norm(scale=1.0, loc=0.0)
 
         UU = np.array(u)  # TODO: check input bounds
         VV = np.array(v)

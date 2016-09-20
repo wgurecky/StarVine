@@ -1,4 +1,4 @@
 StarVine/bvcopula
 =================
 
-Bivariate copula classes.
+Bivariate copula
