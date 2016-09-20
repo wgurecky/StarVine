@@ -11,6 +11,9 @@ class IndepCopula(CopulaBase):
     def _pdf(self, u, v, rotation_theta=0):
         return np.ones(len(u))
 
+    def _cdf(self, u, v, rotation_theta=0):
+        return u * v
+
     def _h(self, u, v, rotation_theta=0):
         return u
 

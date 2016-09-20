@@ -34,6 +34,17 @@ class FrankCopula(CopulaBase):
             p = h3 * np.exp(h1 * (UU + VV)) / np.power(h2 + h4, 2.0)
             return p
 
+    def _cdf(self, u, v, rotation=0, *theta):
+        h1 = -theta[0]
+        h2 = expm1(h1)
+
+        UU = np.array(u)
+        VV = np.array(v)
+        h3 = expm1(h1 * UU) * expm1(h1 * VV)
+
+        p = -np.log(1.0 + h3 / h2) / theta[0]
+        return p
+
     def _h(self, u, v, rotation=0, *theta):
         h1 = np.exp(-theta[0])
         UU = np.array(u)

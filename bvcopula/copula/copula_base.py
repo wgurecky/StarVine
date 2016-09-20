@@ -139,18 +139,37 @@ class CopulaBase(object):
         v_hat = self._hinv(u_hat, v, rotation, *theta)
         return (u_hat, v_hat)
 
-    def _h(self):
+    def _h(self, u, v, rotation=0, *theta):
         """!
         @brief Copula conditional distribution function.
+        Provides \f$ h \f$  given \f$ V \f$  and \f$ \theta \f$
         \f$ h(u|v, \theta) = \frac{\partial C( F(u|v), F(u|v) | \theta) }{\partial F(u|v)} \f$
+
+        @param u <np_1darray> is uniformly distributed on [0, 1]
+        @param v <np_1darray> is distributed acording to some some known DF
+        @param rotation Copula rotation paramter
+        @param theta  Known copula paramter list
+        @return h \f$ h(u|v, \theta) \f$
         """
         raise NotImplementedError
 
-    def _hinv(self):
+    def _hinv(self, u, v, rotation=0, *theta):
         """!
         @brief Inverse H function.
         """
         raise NotImplementedError
+
+    def _v(self, u, v, rotation=0, *theta):
+        """!
+        @brief Copula conditional distribution function.
+        Provides \f$ V\f$  given \f$ u \f$  and \f$ \theta \f$
+        """
+        # For symmetric copula: flip args
+        self._h(v, u, rotation=0, *theta)
+
+    def _vinv(self, u, v, rotation=0, *theta):
+        # For symmetric copula: flip args
+        self._hinv(v, u, rotation=0, *theta)
 
     def _nlogLike(self, u, v, rotation=0, *theta):
         """!

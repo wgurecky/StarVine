@@ -4,6 +4,7 @@ import numpy as np
 import scipy as sp
 from scipy.special import gammaln
 from copula_base import CopulaBase
+import mvtdstpack as mvt
 
 
 class StudentTCopula(CopulaBase):
@@ -59,6 +60,29 @@ class StudentTCopula(CopulaBase):
             print("WARNING: INF probability returned by PDF")
         return p
 
+    def _cdf(self, u, v, rotation=0, *theta):
+        rho = theta[0]
+        dof = int(round(theta[1]))
+        t_rv = sp.stats.t(df=theta[1], scale=1.0, loc=0.0)
+
+        UU = np.array(u)
+        VV = np.array(v)
+
+        # Output storage
+        p = np.zeros(UU.size)
+
+        lower = np.zeros((UU.szie, 2))
+        upper = np.zeros((UU.size, 2))
+        upper[:, 0] = t_rv.ppf(UU)
+        upper[:, 1] = t_rv.ppf(VV)
+        for i in range(UU.size):
+            lowerb = lower[i, :]
+            upperb = upper[i, :]
+            inFin = np.zeros(upperb.size, dtype='int')     # integration limit setting
+            delta = np.zeros(upperb.size, dtype='double')  # non centrality params
+            error, value, status = mvt.mvtdst(dof, lowerb, upperb, inFin, rho, delta)
+            p[i] = value
+        return p
 
     def _h(self, u, v, rotation=0, *theta):
         """!

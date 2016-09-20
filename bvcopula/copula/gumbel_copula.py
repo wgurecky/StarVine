@@ -35,6 +35,20 @@ class GumbelCopula(CopulaBase):
         p = np.exp(-h7+h4+h5)*np.power(h4,h1)*np.power(h5,h1)*np.power(h6,h2)*(h1+h7)
         return p
 
+    def _cdf(self, u, v, rotation=0, *theta):
+        h1 = 1 / theta[0]
+
+        UU = np.array(u)
+        VV = np.array(v)
+
+        h2 = -np.log(UU)
+        h3 = -np.log(VV)
+        h4 = np.power(h2, theta[0]) + np.power(h3, theta[0])
+        h5 = np.power(h4, h1)
+
+        p = np.exp(-h5)
+        return p
+
     def _h(self, u, v, rotation=0, *theta):
         h1 = theta[0] - 1.0
         h2 = (1.0 - theta[0]) / theta[0]

@@ -3,6 +3,7 @@
 import numpy as np
 import scipy as sp
 from copula_base import CopulaBase
+import mvtdstpack as mvt
 
 
 class GaussCopula(CopulaBase):
@@ -46,6 +47,30 @@ class GaussCopula(CopulaBase):
         y = norm_rv.ppf(VV)
 
         p = np.exp(h3 * x  * y - h2 * (np.power(x, 2) + np.power(y, 2))) / np.sqrt(h1)
+        return p
+
+    def _cdf(self, u, v, rotation=0, *theta):
+        rho = theta[0]
+        dof = 0
+        norm_rv = sp.stats.norm(scale=1.0, loc=0.0)
+
+        UU = np.array(u)
+        VV = np.array(v)
+
+        # Output storage
+        p = np.zeros(UU.size)
+
+        lower = np.zeros((UU.szie, 2))
+        upper = np.zeros((UU.size, 2))
+        upper[:, 0] = norm_rv.ppf(UU)
+        upper[:, 1] = norm_rv.ppf(VV)
+        for i in range(UU.size):
+            lowerb = lower[i, :]
+            upperb = upper[i, :]
+            inFin = np.zeros(upperb.size, dtype='int')     # integration limit setting
+            delta = np.zeros(upperb.size, dtype='double')  # non centrality params
+            error, value, status = mvt.mvtdst(dof, lowerb, upperb, inFin, rho, delta)
+            p[i] = value
         return p
 
 

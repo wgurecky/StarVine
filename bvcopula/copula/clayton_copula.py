@@ -35,6 +35,20 @@ class ClaytonCopula(CopulaBase):
             p = h2*np.power(UU,-h2)*np.power(VV,-h2)*np.power(h4,-h1)
             return p
 
+    def _cdf(self, u, v, rotation=0, *theta):
+        h1 = -theta[0]
+        h2 = 1 / h1
+
+        UU = np.array(u)
+        VV = np.array(v)
+
+        hu = np.power(UU, h1)
+        hv = np.power(VV, h1)
+
+        p = np.power(hu + hv - 1.0, h2)
+        return p
+
+
     def _h(self, u, v, rotation=0, *theta):
         h1 = -(1.0 + theta[0]) / theta[0]
         UU = np.array(u);
