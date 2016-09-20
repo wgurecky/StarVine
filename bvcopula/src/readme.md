@@ -19,7 +19,7 @@ To manually build the python extension module:
 Depends:
 
     - numpy (includes f2py)
-    - a functional F77 compiler
+    - a functional fortran compiler
 
 Example Use
 ===========
@@ -28,7 +28,7 @@ In python, import the mvtdstpack module:
 
     import mvtdstpack as mvt
 
-now use the mvtdst routine to integrate as 2D Student-T distribution:
+Use the mvtdst routine to integrate a 2D Student-T distribution:
     
     # 2d student t settings
     dim, dof = 2, 10

@@ -21,13 +21,14 @@ To install a development version:
 
 Requires:
 
+    - A fortran compiler
     - numpy : basic linear algebra operations
     - scipy : additional numerical operations
     - networkx : vine graph structure
-    - pandas : multivariate data representation and analysis
+    - pandas : data analysis
     - h5py : file I/O
     - emcee : MCMC
-    - seaborn : advanced plotting
+    - seaborn : plotting
     - matplotlib : basic plotting, required by seaborn
 
 Optional:
@@ -119,4 +120,4 @@ License
 StarVine is distributed under the BSD 3 clause license.
 
 A copy of the license should have been distributed with the StarVine source code.
-A copy of the license can be obtained from [opensource.org]https://opensource.org/licenses/BSD-3-Clause
+If not, see [opensource.org]https://opensource.org/licenses/BSD-3-Clause

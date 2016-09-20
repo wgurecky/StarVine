@@ -43,12 +43,12 @@ class TestTcopulaFit(unittest.TestCase):
         # CDF tranformed data
         kde_x = gaussian_kde(x)
         kde_y = gaussian_kde(y)
-        x_hat = np.zeros(len(x))
-        y_hat = np.zeros(len(y))
+        u_c = np.zeros(len(x))
+        v_c = np.zeros(len(y))
         for i, (xp, yp) in enumerate(zip(x, y)):
-            x_hat[i] = kde_x.integrate_box_1d(-np.inf, xp)
-            y_hat[i] = kde_y.integrate_box_1d(-np.inf, yp)
-        plt11 = sns.jointplot(x_hat, y_hat, marginal_kws=marg_dict, stat_func=kendalltau)
+            u_c[i] = kde_x.integrate_box_1d(-np.inf, xp)
+            v_c[i] = kde_y.integrate_box_1d(-np.inf, yp)
+        plt11 = sns.jointplot(u_c, v_c, marginal_kws=marg_dict, stat_func=kendalltau)
         plt11.savefig("cdf_transformed.png")
 
         # Fit t copula and gaussian copula
@@ -62,6 +62,9 @@ class TestTcopulaFit(unittest.TestCase):
         theta_t_fit = t_copula.fitMLE(u, v, 0, *thetat0, bounds=((-0.99, 0.99),(1, 1e8),))
         aic_t_fit = t_copula._AIC(u, v, 0, *theta_t_fit)
         print("T copula MLE parameters [rho, DoF]: " + str(theta_t_fit) + " AIC =" + str(aic_t_fit))
+
+        # Alternative fit to CDF transformed data
+        theta_t_fit_c = t_copula.fitMLE(u_c, v_c, 0, *thetat0, bounds=((-0.99, 0.99),(1, 1e8),))
 
         # check fits
         self.assertAlmostEqual(theta_g_fit[0], theta_t_fit[0], places=3)
@@ -79,13 +82,7 @@ class TestTcopulaFit(unittest.TestCase):
         plt3 = sns.jointplot(ut_hat, vt_hat, stat_func=kendalltau)
         plt3.savefig("t_copula_hat.png")
 
-        # Random noise
-        rv = np.random.uniform(0, 1, 1000)
-        ru = np.random.uniform(0, 1, 1000)
-        plt4 = sns.jointplot(ru, rv, stat_func=kendalltau)
-        plt4.savefig("rand_scatter.png")
-
-        # Resample
+        # Resample original data
         def icdf_uv_bisect(ux, X):
             icdf = np.zeros(np.array(X).size)
             for i, xx in enumerate(X):
@@ -105,4 +102,7 @@ class TestTcopulaFit(unittest.TestCase):
         plt5.savefig("resampled_scatter.png")
 
         # Compare to expected results
-        true_rho = 0.7220  # shape (related to pearsons corr coeff)
+        true_rho_ranked = 0.7387
+        true_rho_cdf = 0.7582
+        self.assertAlmostEqual(theta_t_fit[0], true_rho_ranked, places=3)
+        self.assertAlmostEqual(theta_t_fit_c[0], true_rho_cdf, places=2)

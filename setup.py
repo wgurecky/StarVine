@@ -1,5 +1,10 @@
 #!/usr/bin/env python2
-from setuptools import setup, find_packages
+from setuptools import find_packages
+from numpy.distutils.core import setup, Extension
+
+bvt_ext = Extension(name='mvtdstpack',
+                    sources=['bvcopula/src/mvtdstpack_custom.pyf',
+                             'bvcopula/src/mvtdstpack.f'])
 
 setup(name='StarVine',
       version='0.0.1',
@@ -11,12 +16,8 @@ setup(name='StarVine',
                         'pandas>=0.14.0', 'h5py>=2.2.0',
                         'seaborn>=0.7.0', 'networkx>=1.8.1',
                         'emcee>=2.0.0'],
-      package_data={'': ['*.txt']},
+      package_data={'': ['*.f', '*.pyf', '*.txt']},
       license='BSD-3clause',
       author_email='william.gurecky@utexas.edu',
-      entry_points={
-          'console_scripts': [
-              'starvine = StarVine:main'
-            ]
-        }
-)
+      ext_modules=[bvt_ext]
+      )

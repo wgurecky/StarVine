@@ -17,20 +17,20 @@ class TestBivariateBase(unittest.TestCase):
         stocks = np.loadtxt(dataDir + 'stocks.csv', delimiter=',')
         x = stocks[:, 0]
         y = stocks[:, 1]
-        stocks = bvb.BVbase(x, y)
+        stockModel = bvb.BVbase(x, y)
 
-        empTau = stocks.empKTau()    # kendall's tau corr coeff
-        empSRho = stocks.empSRho()  # spearmans corr coeff
-        empPRho = stocks.empPRho()  # pearson's corr coeff
+        empTau = stockModel.empKTau()    # kendall's tau corr coeff
+        empSRho = stockModel.empSRho()  # spearmans corr coeff
+        empPRho = stockModel.empPRho()  # pearson's corr coeff
         print("Emprical kTau, spearmanr, pearsonr: " +
               str(empTau[0]) + ", " + str(empSRho[0]) + ", " + str(empPRho[0]))
 
         # Try to fit all copula
-        stocks.copulaTournament()
+        stockModel.copulaTournament()
 
         # Ensure that the gaussian copula was chosen as the best fit
-        self.assertTrue(stocks.copulaModel[0].name == "gauss")
-        self.assertTrue(stocks.copulaModel[1][0] == "gauss")
+        self.assertTrue(stockModel.copulaModel.name == "gauss")
+        self.assertTrue(stockModel.copulaParams[0] == "gauss")
 
         # Check gaussian copula parameters for correctness
-        self.assertAlmostEqual(stocks.copulaModel[1][1][0], 0.73874003, 4)
+        self.assertAlmostEqual(stockModel.copulaParams[1], 0.73874003, 4)
