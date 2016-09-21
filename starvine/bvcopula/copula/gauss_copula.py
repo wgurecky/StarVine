@@ -4,7 +4,7 @@ import numpy as np
 from scipy import stats
 # STARVINE IMPORTS
 from copula_base import CopulaBase
-from src import mvtdstpack as mvt
+import mvtdstpack as mvt
 
 
 class GaussCopula(CopulaBase):
@@ -13,7 +13,7 @@ class GaussCopula(CopulaBase):
     single parameter
     \f$\theta[0] \in (-1, 1)\f$
     """
-    def __init__(self):
+    def __init__(self, rotation=0):
         self.thetaBounds = ((-1+1e-9, 1-1e-9),)
         self.theta0 = (0.7,)
         self.name = 'gauss'

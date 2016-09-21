@@ -1,8 +1,8 @@
 ##
 # \brief Test ability to determine best fit copula via AIC
 from __future__ import print_function, division
+from pc_base import PairCopula
 import unittest
-import bv_base as bvb
 import numpy as np
 import os
 pwd_ = os.getcwd()
@@ -17,7 +17,7 @@ class TestBivariateBase(unittest.TestCase):
         stocks = np.loadtxt(dataDir + 'stocks.csv', delimiter=',')
         x = stocks[:, 0]
         y = stocks[:, 1]
-        stockModel = bvb.BVbase(x, y)
+        stockModel = PairCopula(x, y)
 
         empTau = stockModel.empKTau()    # kendall's tau corr coeff
         empSRho = stockModel.empSRho()  # spearmans corr coeff

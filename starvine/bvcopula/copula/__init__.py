@@ -4,4 +4,4 @@ __all__ = ['t_copula',
            'frank_copula',
            'clayton_copula',
            'gumbel_copula',
-           'copula_base']
+           ]

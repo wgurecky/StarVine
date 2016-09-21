@@ -7,10 +7,30 @@
 # implementation.
 #
 from base_vine import BaseVine
+import networkx as nx
 
 
 class Cvine(BaseVine):
-    def __init__(self):
+    """!
+    The nodes of the top level Tree are
+    """
+    def __init__(self, data):
+        self.data = data
+        self.levels = data.shape[1]
+        self.vine = nx.Graph()
+
+    def constructVine(self):
+        """!
+        @brief Sequentially construct the vine structure.
+        Construct the top-level tree first.
+        """
+        pass
+
+    def vineLLH(self):
+        """!
+        @brief Compute the vine log likelyhood.  Used for
+        simulatneous MLE estimation of PCC model parameters.
+        """
         pass
 
 
@@ -19,16 +39,15 @@ class Ctree(object):
     @brief A C-tree is a tree with a single root node.
     Each level of a cononical vine is a C-tree.
     """
-    def __init__(self, nT, depth):
+    def __init__(self, nT):
         """!
         @brief
-        @param nT <int> number of variables in top level tree.
-        @param depth <int>  on [1, nT - 1]. Depth of tree in the vine.
+        @param nT <int> number of variables in tree.
         """
         self.nT = nT
-        self.depth = depth
+        self.tree = nx.Graph()
 
-    def _selectSpanningTree(self):
+    def selectSpanningTree(self):
         """!
         @brief Selects the tree which maximizes the sum
         over all edge weights, with the constraint that the

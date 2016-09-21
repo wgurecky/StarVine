@@ -7,9 +7,10 @@ from scipy.optimize import bisect
 from scipy.stats.mstats import rankdata
 from scipy.stats import kendalltau
 from scipy.stats import gaussian_kde
+# COPULA IMPORTS
 from copula.t_copula import StudentTCopula as stc
 from copula.gauss_copula import GaussCopula as stg
-from bv_plot import bvPairPlot, bvContour
+from bv_plot import bvPairPlot
 import pylab as pl
 import numpy as np
 import os

@@ -4,10 +4,10 @@ starvine
 The starvine package is split into four subpackages:
 
 - vine : C- and D- vine classes
-    + Depends : (bvcopula, mvar, uvar)
-
+    + Depends : (bvcopula, mvar)
 - bvcopula : Bivariate copula
-- mvar : Multi-variate data
+    + Depends : (uvar)
+- mvar : Multi-variate data (N-dim data container)
 - uvar : Uni-variate data (marginal distribution fitting)
 
 

@@ -5,9 +5,6 @@
 class BaseVine(object):
     """!
     @brief Regular vine base class.
-
-    A vine's structure can be represented in matrix
-    form stored as self.vS
     """
     def __init__(self, data, weights=None):
         self.nT = data.shape[0]
@@ -17,4 +14,4 @@ class BaseVine(object):
         """!
         @brief Load saved vine structure
         """
-        self.vS = vS
+        pass

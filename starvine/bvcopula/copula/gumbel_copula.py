@@ -10,7 +10,7 @@ class GumbelCopula(CopulaBase):
     single paramter model
     \f$\theta \in [1, \infty) \f$
     """
-    def __init__(self):
+    def __init__(self, rotation=0):
         self.thetaBounds = ((1+1e-9, np.inf),)
         self.theta0 = (2.0, )
         self.name = 'gumbel'

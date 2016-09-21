@@ -5,7 +5,7 @@ from scipy import stats
 from scipy.special import gammaln
 # STARVINE IMPORTS
 from copula_base import CopulaBase
-from src import mvtdstpack as mvt
+import mvtdstpack as mvt
 
 
 class StudentTCopula(CopulaBase):
@@ -18,7 +18,7 @@ class StudentTCopula(CopulaBase):
     \f$\theta[0] \in (-1, 1) \f$
     \f$\theta[1] \in (2, \infty) \f$
     """
-    def __init__(self):
+    def __init__(self, rotation=0):
         self.thetaBounds = ((-1 + 1e-9, 1 - 1e-9), (2.0, np.inf),)
         self.theta0 = (0.7, 10.0)
         self.name = 't'

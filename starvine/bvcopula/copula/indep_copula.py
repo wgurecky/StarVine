@@ -5,7 +5,7 @@ from copula_base import CopulaBase
 
 
 class IndepCopula(CopulaBase):
-    def __init__(self):
+    def __init__(self, rotation=0):
         self.name = 'indep'
 
     def _pdf(self, u, v, rotation_theta=0):

@@ -10,7 +10,7 @@ class ClaytonCopula(CopulaBase):
     Single parameter model.
     \f$\theta \in [0, \infty) \f$
     """
-    def __init__(self):
+    def __init__(self, rotation=0):
         self.thetaBounds = ((1e-9, np.inf),)
         self.theta0 = (1.0, )
         self.name = 'clayton'
