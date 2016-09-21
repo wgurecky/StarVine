@@ -4,7 +4,7 @@ import numpy as np
 from scipy import stats
 # STARVINE IMPORTS
 from copula_base import CopulaBase
-import mvtdstpack as mvt
+from mvtdstpack import mvtdstpack as mvt
 
 
 class GaussCopula(CopulaBase):
