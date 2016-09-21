@@ -6,10 +6,10 @@ StarVine provides tools to construct C- and D-vine copula.
 Similar Projects
 ----------------
 
-- VineCopulaCPP
-- VineCopula
-- CDvine
-- pyvine
+- [VineCopulaCPP](https://github.com/MalteKurz/VineCopulaCPP)
+- [VineCopula](https://github.com/tnagler/VineCopula)
+- [CDvine](https://github.com/cran/CDVine)
+- [pyvine](https://pypi.python.org/pypi/pyvine/0.5.0)
 
 Install
 ========
@@ -28,20 +28,20 @@ To install a development version:
 
 Requires:
 
-    - A fortran compiler
-    - numpy : basic linear algebra operations
-    - scipy : additional numerical operations
-    - networkx : vine graph structure
-    - pandas : data analysis
-    - h5py : file I/O
-    - emcee : MCMC
-    - seaborn : plotting
-    - matplotlib : basic plotting, required by seaborn
+- A fortran compiler
+- numpy : basic linear algebra operations
+- scipy : additional numerical operations
+- networkx : vine graph structure
+- pandas : data analysis
+- h5py : file I/O
+- emcee : MCMC
+- seaborn : plotting
+- matplotlib : basic plotting, required by seaborn
 
 Optional:
 
-    - statsmodels: Generalized method of moments fitting (optional)
-    - mpi4py : MCMC parallelization (optional)
+- statsmodels: Generalized method of moments fitting (optional)
+- mpi4py : MCMC parallelization (optional)
 
 Docs
 =====
@@ -127,4 +127,4 @@ License
 StarVine is distributed under the BSD 3 clause license.
 
 A copy of the license should have been distributed with the StarVine source code.
-If not, see [opensource.org]https://opensource.org/licenses/BSD-3-Clause
+If not, see [opensource.org](https://opensource.org/licenses/BSD-3-Clause)
