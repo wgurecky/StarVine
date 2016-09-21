@@ -3,7 +3,7 @@
 import numpy as np
 # COPULA IMPORTS
 import context
-from bvcopula.copula import t_copula, gauss_copula, frank_copula, clayton_copula, gumbel_copula
+from starvine.bvcopula.copula import *
 from bvcopula import bv_plot
 # from copula.gauss_copula import GaussCopula
 # from copula.frank_copula import FrankCopula
@@ -27,6 +27,7 @@ def main():
     p = c.cdf(u.flatten(), v.flatten(), 0, *[0.7, 10])
     bv_plot.bvContour(u.flatten(), v.flatten(), p, savefig="t_copula_cdf.png")
 
+    """
     c = gauss_copula.GaussCopula()
     p = c.cdf(u.flatten(), v.flatten(), 0, *[0.7])
     bv_plot.bvContour(u.flatten(), v.flatten(), p, savefig="gauss_copula_cdf.png")
@@ -42,6 +43,7 @@ def main():
     c = gumbel_copula.GumbelCopula()
     p = c.cdf(u.flatten(), v.flatten(), 0, *[2.7])
     bv_plot.bvContour(u.flatten(), v.flatten(), p, savefig="gumbel_copula_cdf.png")
+    """
 
 
 if __name__ == "__main__":
