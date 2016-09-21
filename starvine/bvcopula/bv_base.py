@@ -1,10 +1,12 @@
 ##
 # \brief Bivariate distribution base class.
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 import numpy as np
 from scipy.stats import kendalltau, spearmanr, pearsonr
 from scipy.stats import gaussian_kde
 from scipy.stats.mstats import rankdata
+# STARVINE IMPORTS
+# import starvine as sv
 # COPULA IMPORTS
 from copula.t_copula import StudentTCopula
 from copula.gauss_copula import GaussCopula

@@ -2,6 +2,7 @@
 # \brief Bivariate plotting functions.
 # Depends on the seaborn python package for simplified
 # bivariate plotting.
+from __future__ import print_function, absolute_import
 from scipy.stats import kendalltau, spearmanr, pearsonr
 import seaborn as sns
 import matplotlib.pyplot as plt

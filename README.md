@@ -1,8 +1,15 @@
 About
 ========
 
-StarVine provides tools to construct C- and D-vine copula to model
-dependence structures in multivariate data sets.
+StarVine provides tools to construct C- and D-vine copula.
+
+Similar Projects
+----------------
+
+- VineCopulaCPP
+- VineCopula
+- CDvine
+- pyvine
 
 Install
 ========

@@ -1,10 +1,11 @@
 #!/usr/bin/env python2
+from __future__ import division, print_function, absolute_import
 from setuptools import find_packages
 from numpy.distutils.core import setup, Extension
 
 bvt_ext = Extension(name='mvtdstpack',
-                    sources=['bvcopula/src/mvtdstpack_custom.pyf',
-                             'bvcopula/src/mvtdstpack.f'])
+                    sources=['starvine/bvcopula/src/mvtdstpack_custom.pyf',
+                             'starvine/bvcopula/src/mvtdstpack.f'])
 
 setup(name='StarVine',
       version='0.0.1',
