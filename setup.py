@@ -1,6 +1,5 @@
 #!/usr/bin/env python2
 from __future__ import division, print_function, absolute_import
-from numpy.distutils.core import setup
 
 
 def configuration(parent_pacakge='', top_path=None):
@@ -13,6 +12,8 @@ def configuration(parent_pacakge='', top_path=None):
     return config
 
 def setup_package():
+    from setuptools import setup
+    from numpy.distutils.core import setup
     metadata = dict(name='StarVine',
           version='0.0.1',
           description='C- and D-Vine copula library',
@@ -21,7 +22,7 @@ def setup_package():
           platforms=["Linux", "Mac OS-X"],
           build_requires=['numpy>=1.8.0'],
           install_requires=['numpy>=1.8.0', 'scipy>=0.13',
-                            'pandas>=0.14.0', 'h5py>=2.2.0',
+                            'pandas>=0.13.0', 'h5py>=2.2.0',
                             'seaborn>=0.7.0', 'networkx>=1.8.1',
                             'emcee>=2.0.0'],
           package_data={'': ['*.txt']},

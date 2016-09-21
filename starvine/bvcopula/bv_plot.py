@@ -8,6 +8,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from pandas import DataFrame
 import numpy as np
+from pylab import contour, contourf, griddata
 
 
 def bvContour(x1, x2, y, **kwargs):
@@ -17,6 +18,31 @@ def bvContour(x1, x2, y, **kwargs):
                      scatter_kws={"marker": "x", "markersize": 1},
                      contour_kws={"linewidths": 2},
                      **kwargs)
+    if outfile:
+        contour_plot.savefig(outfile)
+    plt.close()
+    return contour_plot
+
+def bvContourf(x1, x2, z, **kwargs):
+    contour_plot = plt.figure()
+    outfile = kwargs.pop("savefig", None)
+    # create interpolation grid support points
+    xx = np.linspace(x1.min(), x1.max(), 150)
+    yy = np.linspace(x2.min(), x2.max(), 150)
+    # create grid required by pl.contour
+    x_grid, y_grid = np.meshgrid(xx, yy)
+    # interpolate data to meshgrid
+    z_grid = griddata(x1, x2, z, x_grid, y_grid,
+                      interp='linear',
+                      )
+    # plot contour
+    contour_plot = plt.figure()
+    plt.subplot(1, 1, 1)
+    cf = plt.contourf(x_grid, y_grid, z_grid, alpha=0.8, cmap="GnBu")
+    cs = plt.contour(x_grid, y_grid, z_grid, 25, colors='k', hold='on', antialiased=True)
+    plt.clabel(cs, fontsize=8, inline=1)
+    cs = plt.colorbar(cf, shrink=0.8, extend='both', alpha=0.8)
+    plt.grid(b=True, which='major', color='k', linestyle='--')
     if outfile:
         contour_plot.savefig(outfile)
     plt.close()
