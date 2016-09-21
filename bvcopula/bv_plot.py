@@ -12,9 +12,13 @@ import numpy as np
 def bvContour(x1, x2, y, **kwargs):
     contour_plot = plt.figure()
     outfile = kwargs.pop("savefig", None)
-    sns.interactplot(x1, x2, y, **kwargs)
+    sns.interactplot(x1, x2, y, filled=True,
+                     scatter_kws={"marker": "x", "markersize": 1},
+                     contour_kws={"linewidths": 2},
+                     **kwargs)
     if outfile:
         contour_plot.savefig(outfile)
+    plt.close()
     return contour_plot
 
 
