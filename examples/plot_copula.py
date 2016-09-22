@@ -36,8 +36,8 @@ def plot_cdfs():
 
 
 def plot_pdfs():
-    rand_u = np.linspace(0.1, 0.9, 30)
-    rand_v = np.linspace(0.1, 0.9, 30)
+    rand_u = np.linspace(0.05, 0.95, 40)
+    rand_v = np.linspace(0.05, 0.95, 40)
 
     u, v = np.meshgrid(rand_u, rand_v)
 
@@ -51,7 +51,7 @@ def plot_pdfs():
     bv_plot.bvContourf(u.flatten(), v.flatten(), p, savefig="gauss_copula_pdf.png")
 
     c = frank_copula.FrankCopula()
-    p = c.pdf(u.flatten(), v.flatten(), 0, [1.0])
+    p = c.pdf(u.flatten(), v.flatten(), 0, [9.2])
     bv_plot.bvContourf(u.flatten(), v.flatten(), p, savefig="frank_copula_pdf.png")
 
     c = clayton_copula.ClaytonCopula()
