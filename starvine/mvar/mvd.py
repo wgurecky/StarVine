@@ -1,60 +1,66 @@
 ##
 # \brief Multi-variate data container composed of univariate data sets.
-
+from six import iteritems
 import numpy as np
 import pandas as pd
 from scipy.stats import gaussian_kde
 from sklearn.preprocessing import StandardScaler
+from uvar.uvd import Uvd
+from mv_plot import matrixPairPlot as mpp
 
 
 class Mvd(object):
     """!
     @brief  Multi-variate data class.
-    Performs principal component analysis as a preprocessing step
-    to reduce the dimensionality of a large data set.
+    Performs principal component analysis to reduce the dimensionality
+    of a large data set.
     """
     def __init__(self):
-        """! @brief Storage for constitutive uni-variate data sets """
-        self.uvdPool = {}
+        self.uvdPool = {}  # Univariate data model storage
+        # Pandas DataFrame storage for multi-variate data
         self.mvdData = pd.DataFrame()
         self.mvdDataWeights = pd.DataFrame()
 
+    def setData(self, dataDict, weights=None):
+        """!
+        @brief Collect data from dictionary with {<str>: <np_1darray>}
+        {key, value} pairs into a pandas dataFrame
+        """
+        for dataName, data in iteritems(dataDict):
+            self.uvdPool[dataName] = Uvd(data, dataName=dataName)
+            # TODO: check all datasets are of equal length
+            self.mvdData[dataName] = pd.Series(data)
+        if weights is None:
+            self.mvdDataWeights = \
+                pd.DataFrame(np.ones(self.mvdData.values.shape))
+        self.nDims = self.mvdData.shape
+
     def setUVD(self, uvdList):
         """!
-        @brief  Add uni-variate data sets to multivariate data object.
-        @param  uvdList <list> of <starStats.starStatUVD.SSuvd> instances
+        @brief  Collect uni-variate data sets into a multivariate data object.
+        @param  uvdList <list> of <uvar.Uvd> instances
         """
-        for uvd in uvdList:
-            self.uvdPool[uvd.dataName] = uvd
-            self.mvdData[uvd.dataName]
-            # set col dset names
-            #
-            self.mvdDataWeights[uvd.dataName]
-        # check all uvd data sets are of equal length
-        for uvdData in self.uvdPool.values():
-            assert(self.uvdPool.values()[0][:].shape == uvdData[:].shape)
-        self.nDims = (len(self.uvdPool.values()[0][:]), len(self.uvdPool))
-
-    def computeUVDMoments(self, maxMoment=6):
-        """!
-        @brief Compute all moments of all uvd's
-        @param maxMoment <int> maximum moment to compute (ex: maxMoment=4
-        would compute up the the "kurtosis".)
-        """
-        for uvD in self.uvdPool.values():
-            uvD.computeMoments(maxMoment)
+        for i, uvd in enumerate(uvdList):
+            dataName = uvd.dataName if uvd.dataName is not None else i
+            self.uvdPool[dataName] = uvd
+            self.mvdData[dataName] = pd.Series(uvd.fieldData)
+            self.mvdDataWeights[dataName] = pd.Series(uvd.dataWeights)
+        if self.mvdDataWeights is None:
+            self.mvdDataWeights = \
+                pd.DataFrame(np.ones(self.mvdData.values.shape))
+        self.nDims = self.mvdData.shape
 
     def computeKDEpdf(self, bandwidth=None):
         """!
         @brief Computes kernel density function.  A kernel density function is
         constructed by combining many locally supported "mini PDFs".  This is
-        a data smoothing operation - it may be useful as a data preprocessor.
+        a data smoothing operation.
         @param <float> (optional) bandwidth.  Default is to use the "scott" factor:
-        \f$n^{\frac{-1}{d+4}}$\f
+        \f$n^{\frac{-1}{d+4}}\f$
         """
         return gaussian_kde(self.mvdData.values, bw_method=bandwidth)
 
-    def computeCov(self, weighted=True):
+    def computeCov(self, weighted=False):
         """!
         @brief computes cov matrix
         @param weighted <bool> if True, utilizes mvdDataWeights (vols or areas)
@@ -66,6 +72,7 @@ class Mvd(object):
                                  aweights=self.mvdDataWeights.values)
         else:
             self.mvdCov = np.cov(self.mvdData.values)
+        return self.mvdCov
 
     def computePC(self):
         """!
@@ -124,3 +131,11 @@ class Mvd(object):
         the PCA-reduced MVD.
         """
         pass
+
+    def plot(self, **kwargs):
+        """!
+        @biref generates matrix pair plot.  Data labels
+        are determined by the column names of the pandas
+        dataframe: self.mvdData
+        """
+        mpp(self.mvdData, **kwargs)

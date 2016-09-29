@@ -165,6 +165,7 @@ class UVmodel(rv_continuous):
         Note: compare to scipy's model.fit() method results.
         Scipy's model.fit() method does not allow for weights :(
         """
+        params0 = params0 if params0 is not None else self.defaultParams
         weights = 1.0 if not weights else weights
         assert(weights == 1.0 or len(np.array([weights])) == len(data))
         res = \

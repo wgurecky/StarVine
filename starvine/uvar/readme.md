@@ -13,4 +13,4 @@ Testing
 
 To execute tests only for this submodule:
 
-    python -m unittest tests.tst_marginal_fit
+    python -m unittest discover
