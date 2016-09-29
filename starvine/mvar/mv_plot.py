@@ -40,10 +40,10 @@ def xy_slope(x, y, **kws):
     slope, intercept = p[0], p[1]
     # r_squared = v[0, 1] ** 2
     ax = plt.gca()
-    ax.annotate("slope= {:.3f}".format(slope),
+    ax.annotate("slp= {:.3f}".format(slope),
                 xy=(0.1, 0.95), xycoords=ax.transAxes)
     ax.annotate("int= {:.3f}".format(intercept),
-                xy=(0.1, 0.92), xycoords=ax.transAxes)
+                xy=(0.1, 0.895), xycoords=ax.transAxes)
 
 
 def corrfunc(x, y, **kws):
