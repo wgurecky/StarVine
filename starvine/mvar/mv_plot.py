@@ -1,6 +1,6 @@
 ##
 # \brief Plotting functions supporting multivariate data class.
-from scipy.stats import kendalltau, spearmanr, pearsonr
+from scipy.stats import kendalltau, spearmanr, pearsonr, linregress
 import seaborn as sns
 import matplotlib.pyplot as plt
 from pandas import DataFrame
@@ -13,14 +13,17 @@ def matrixPairPlot(data, corr_stat="kendalltau", **kwargs):
     @param data <pandas dataframe> nDim data set
     @param corr_stat (optional) correlation statistic for plot
     """
+    upper_kde = kwargs.pop("kde", False)
     pair_plot = sns.PairGrid(data, palette=["red"], size=4)
     # UPPER
-    #pair_plot.map_upper(sns.kdeplot, cmap="Blues_d")
-    pair_plot.map_upper(sns.regplot)
-    pair_plot.map_upper(xy_slope)
+    if upper_kde:
+        pair_plot.map_upper(sns.kdeplot, cmap="Blues_d")
+    else:
+        pair_plot.map_upper(sns.regplot, scatter_kws={'s': 3.0})
+        pair_plot.map_upper(xy_slope)
     #
     # LOWER
-    pair_plot.map_lower(plt.scatter, s=23.0/np.log(data.shape[0]))
+    pair_plot.map_lower(plt.scatter, s=28.0/np.log(data.shape[0]))
     pair_plot.map_lower(corrfunc, cstat=corr_stat)
     #
     # DIAG
@@ -36,14 +39,14 @@ def matrixPairPlot(data, corr_stat="kendalltau", **kwargs):
 
 
 def xy_slope(x, y, **kws):
-    p, v = np.polyfit(x, y, 1, cov=True)
-    slope, intercept = p[0], p[1]
-    # r_squared = v[0, 1] ** 2
+    slope, intercept, r_squared, p, s = linregress(x, y)
     ax = plt.gca()
-    ax.annotate("slp= {:.3f}".format(slope),
-                xy=(0.1, 0.95), xycoords=ax.transAxes)
-    ax.annotate("int= {:.3f}".format(intercept),
-                xy=(0.1, 0.895), xycoords=ax.transAxes)
+    ax.annotate("slp= {:.3e}".format(slope),
+                xy=(0.05, 0.95), xycoords=ax.transAxes)
+    ax.annotate("y0= {:.3e}".format(intercept),
+                xy=(0.05, 0.895), xycoords=ax.transAxes)
+    ax.annotate("R^2= {:.2f}".format(r_squared),
+                xy=(0.75, 0.95), xycoords=ax.transAxes)
 
 
 def corrfunc(x, y, **kws):
@@ -56,13 +59,13 @@ def corrfunc(x, y, **kws):
     ax = plt.gca()
     if cstat is "kendalltau":
         ax.annotate("kTau= {:.2f}".format(r),
-                    xy=(0.1, 0.95), xycoords=ax.transAxes)
+                    xy=(0.05, 0.95), xycoords=ax.transAxes)
     if cstat is "pearsonr":
         ax.annotate("PsRho= {:.2f}".format(r),
-                    xy=(0.1, 0.95), xycoords=ax.transAxes)
+                    xy=(0.05, 0.95), xycoords=ax.transAxes)
     if cstat is "spearmanr":
         ax.annotate("SprRho= {:.2f}".format(r),
-                    xy=(0.1, 0.95), xycoords=ax.transAxes)
+                    xy=(0.05, 0.95), xycoords=ax.transAxes)
 
 
 def explainedVarPlot(self, **kwargs):
