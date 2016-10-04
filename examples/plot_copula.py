@@ -30,9 +30,22 @@ def plot_cdfs():
     p = c.cdf(u.flatten(), v.flatten(), 0, *[2.7])
     bv_plot.bvContourf(u.flatten(), v.flatten(), p, savefig="gumbel_copula_cdf.png")
 
+    # CLAYTON CDFS
     c = clayton_copula.ClaytonCopula()
     p = c.cdf(u.flatten(), v.flatten(), 0, *[2.7])
     bv_plot.bvContourf(u.flatten(), v.flatten(), p, savefig="clayton_copula_cdf.png")
+
+    c_90 = clayton_copula.ClaytonCopula(1)
+    p_90 = c_90.cdf(u.flatten(), v.flatten(), 0, *[2.7])
+    bv_plot.bvContourf(u.flatten(), v.flatten(), p_90, savefig="clayton_90_copula_cdf.png")
+
+    c_180 = clayton_copula.ClaytonCopula(2)
+    p_180 = c_180.cdf(u.flatten(), v.flatten(), 0, *[2.7])
+    bv_plot.bvContourf(u.flatten(), v.flatten(), p_180, savefig="clayton_180_copula_cdf.png")
+
+    c_270 = clayton_copula.ClaytonCopula(3)
+    p_270 = c_270.cdf(u.flatten(), v.flatten(), 0, *[2.7])
+    bv_plot.bvContourf(u.flatten(), v.flatten(), p_270, savefig="clayton_270_copula_cdf.png")
 
 
 

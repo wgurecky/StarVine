@@ -70,7 +70,7 @@ class Ctree(object):
     def setEdges(self, treeStructure=None):
         """!
         @brief Computes the optimal C-tree structure based on maximizing
-        the summed over all edges kendall's tau.
+        kendall's tau summed over all edges.
         Optionally accepts a user input for the C-tree structure.
         @param treeStructure <list of <tuples>> pairs of nodes which must
             adhear to C-tree structure
@@ -91,8 +91,8 @@ class Ctree(object):
         """!
         @brief Assign each data column to a node
         """
-        for col in self.data:
-            self.tree.add_node(col, attr_dict={"data": self.data[col]})
+        for colName in self.data:
+            self.tree.add_node(colName, attr_dict={"data": self.data[colName]})
 
     def _setTreeStructure(self, nodePairs):
         """!
@@ -140,10 +140,29 @@ class Ctree(object):
         bestPairingIndex = np.argmax(np.abs(trialKtauSum))
         return trialPairings[bestPairingIndex]
 
+    def fitCopula(self):
+        """!
+        @brief Iterate through all edges in tree, fit copula models
+        at each edge.
+        """
+        for u, v, data in self.tree.edges(data=True):
+            # attrs (copulaModel <Copula>, copulaParams <list>)
+            self.tree.edge[u][v]['pc-params'] = \
+                data["pc"].copulaTournament()
+
     def treeLLH(self):
         """!
         @brief Compute this tree's pair copula construction log likelyhood.
-        For C-trees this is just the sum of copula-log-likeyhoos over all
+        For C-trees this is just the sum of copula-log-likeyhoods over all
         node-pairs.
         """
         pass
+
+    def buildNodes(self):
+        """!
+        @brief Define nodes of the next level tree.  Use the dependence function
+        ("H" function) to obtain marginal distributions at the next tree level.
+        """
+        for u, v, data in self.tree.edges(data=True):
+            pass
+
