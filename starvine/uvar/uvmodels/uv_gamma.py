@@ -1,7 +1,7 @@
 ##
 # @brief Gamma model distribution
 from __future__ import print_function, division
-from uvmodels.uv_base import UVmodel
+from uv_base import UVmodel
 import numpy as np
 from scipy.special import gamma
 
@@ -20,6 +20,7 @@ class UVGamma(UVmodel):
                                       momtype=0,
                                       bounds=[0, np.inf],
                                       name=kwargs.pop("name", "custom_gamma"))
+        self.defaultParams = [9.0, 2.]
 
     def _pdf(self, x, *args):
         """!

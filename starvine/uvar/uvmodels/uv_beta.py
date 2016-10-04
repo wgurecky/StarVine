@@ -20,6 +20,7 @@ class UVBeta(UVmodel):
                                      momtype=0,
                                      bounds=[0.0, 1.0],
                                      name=kwargs.pop("name", "custom_beta"))
+        self.defaultParams = [1.5, 5.]
 
     def _pdf(self, x, *args):
         """!

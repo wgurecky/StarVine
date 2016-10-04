@@ -19,6 +19,7 @@ class UVGauss(UVmodel):
                                       momtype=0,
                                       bounds=[-np.inf, np.inf],
                                       name=kwargs.pop("name", "custom_gaussian"))
+        self.defaultParams = [2.0, 1.]
 
     def _pdf(self, x, *args):
         """!
