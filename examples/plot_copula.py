@@ -26,13 +26,14 @@ def plot_cdfs():
     p = c.cdf(u.flatten(), v.flatten(), 0, *[2.7])
     bv_plot.bvContourf(u.flatten(), v.flatten(), p, savefig="frank_copula_cdf.png")
 
+    c = gumbel_copula.GumbelCopula()
+    p = c.cdf(u.flatten(), v.flatten(), 0, *[2.7])
+    bv_plot.bvContourf(u.flatten(), v.flatten(), p, savefig="gumbel_copula_cdf.png")
+
     c = clayton_copula.ClaytonCopula()
     p = c.cdf(u.flatten(), v.flatten(), 0, *[2.7])
     bv_plot.bvContourf(u.flatten(), v.flatten(), p, savefig="clayton_copula_cdf.png")
 
-    c = gumbel_copula.GumbelCopula()
-    p = c.cdf(u.flatten(), v.flatten(), 0, *[2.7])
-    bv_plot.bvContourf(u.flatten(), v.flatten(), p, savefig="gumbel_copula_cdf.png")
 
 
 def plot_pdfs():
@@ -50,17 +51,32 @@ def plot_pdfs():
     p = c.pdf(u.flatten(), v.flatten(), 0, [0.2])
     bv_plot.bvContourf(u.flatten(), v.flatten(), p, savefig="gauss_copula_pdf.png")
 
+    # FRANK PDFS
     c = frank_copula.FrankCopula()
     p = c.pdf(u.flatten(), v.flatten(), 0, [9.2])
     bv_plot.bvContourf(u.flatten(), v.flatten(), p, savefig="frank_copula_pdf.png")
 
+    # GUMBEL PDFS
+    c = gumbel_copula.GumbelCopula()
+    p = c.pdf(u.flatten(), v.flatten(), 0, [2.0])
+    bv_plot.bvContourf(u.flatten(), v.flatten(), p, savefig="gumbel_copula_pdf.png")
+
+    # CLAYTON PDFS
     c = clayton_copula.ClaytonCopula()
     p = c.pdf(u.flatten(), v.flatten(), 0, [1.0])
     bv_plot.bvContourf(u.flatten(), v.flatten(), p, savefig="clayton_copula_pdf.png")
 
-    c = gumbel_copula.GumbelCopula()
-    p = c.pdf(u.flatten(), v.flatten(), 0, [2.0])
-    bv_plot.bvContourf(u.flatten(), v.flatten(), p, savefig="gumbel_copula_pdf.png")
+    c_90 = clayton_copula.ClaytonCopula(1)
+    p_90 = c_90.pdf(u.flatten(), v.flatten(), 0, [1.0])
+    bv_plot.bvContourf(u.flatten(), v.flatten(), p_90, savefig="clayton_90_copula_pdf.png")
+
+    c_180 = clayton_copula.ClaytonCopula(2)
+    p_180 = c_180.pdf(u.flatten(), v.flatten(), 0, [1.0])
+    bv_plot.bvContourf(u.flatten(), v.flatten(), p_180, savefig="clayton_180_copula_pdf.png")
+
+    c_270 = clayton_copula.ClaytonCopula(3)
+    p_270 = c_270.pdf(u.flatten(), v.flatten(), 0, [1.0])
+    bv_plot.bvContourf(u.flatten(), v.flatten(), p_270, savefig="clayton_270_copula_pdf.png")
 
 
 def main():

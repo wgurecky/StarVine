@@ -74,8 +74,8 @@ class CopulaBase(object):
         @return <np_array> (n, 2) size vector.  Resampled (U, V)
         data pairs from copula with paramters: *theta
         """
-        u = np.random.uniform(1e-9, 1-1e-9, n)
-        v = np.random.uniform(1e-9, 1-1e-9, n)
+        u = np.random.uniform(1e-9, 1 - 1e-9, n)
+        v = np.random.uniform(1e-9, 1 - 1e-9, n)
         u_hat = u
         v_hat = self._hinv(u_hat, v, rotation, *theta)
         return (u_hat, v_hat)
@@ -245,3 +245,91 @@ class CopulaBase(object):
         cumCopula = spi.nquad(K_c, t_range, args=(rotation, theta))[0]
         return 3.0 - 4.0 * cumCopula
 
+    # -------------------------- COPULA ROTATION METHODS ---------------------------- #
+    @classmethod
+    def _rotPDF(cls, f):
+        """!
+        @brief Define copula probability density function rotation.
+        """
+        def wrapper(self, *args, **kwargs):
+            u, v = args[0], args[1]
+            nargs = args[2:]
+            if self.rotation == 0:
+                # 0 deg rotation
+                return f(self, *args, **kwargs)
+            elif self.rotation == 1:
+                # 90 deg rotation
+                return f(self, 1. - u, v, *nargs)
+            elif self.rotation == 2:
+                # 180 deg rotation
+                return f(self, 1. - u, 1. - v, *nargs)
+            elif self.rotation == 3:
+                # 270 deg rotation
+                return f(self, u, 1. - v, *nargs)
+        return wrapper
+
+    @classmethod
+    def _rotCDF(cls, f):
+        """!
+        @brief Define copula cumulative density function rotation.
+        """
+        def wrapper(self, *args, **kwargs):
+            u, v = args[0], args[1]
+            nargs = args[2:]
+            if self.rotation == 0:
+                # 0 deg rotation
+                return f(self, *args, **kwargs)
+            elif self.rotation == 1:
+                # 90 deg rotation
+                return v - f(self, 1. - u, v, *nargs)
+            elif self.rotation == 2:
+                # 180 deg rotation
+                return f(self, 1. - u, 1. - v, *nargs) + u + v - 1.
+            elif self.rotation == 3:
+                # 270 deg rotation
+                return u - f(self, u, 1. - v, *nargs)
+        return wrapper
+
+    @classmethod
+    def _rotHinv(cls, f):
+        """!
+        @brief Define copula dependence function rotation.
+        """
+        def wrapper(self, *args, **kwargs):
+            u, v = args[0], args[1]
+            nargs = args[2:]
+            if self.rotation == 0:
+                # 0 deg rotation
+                return f(self, *args, **kwargs)
+            elif self.rotation == 1:
+                # 90 deg rotation
+                return 1. - f(self, 1. - u, v, *nargs)
+            elif self.rotation == 2:
+                # 180 deg rotation
+                return 1. - f(self, 1. - u, 1. - v, *nargs)
+            elif self.rotation == 3:
+                # 270 deg rotation
+                return f(self, u, 1. - v, *nargs)
+        return wrapper
+
+    @classmethod
+    def _rotH(cls, f):
+        """!
+        @brief Define copula inverse dependence function rotation.
+        """
+        def wrapper(self, *args, **kwargs):
+            u, v = args[0], args[1]
+            nargs = args[2:]
+            if self.rotation == 0:
+                # 0 deg rotation
+                return f(self, *args, **kwargs)
+            elif self.rotation == 1:
+                # 90 deg rotation
+                return 1. - f(self, 1. - u, v, *nargs)
+            elif self.rotation == 2:
+                # 180 deg rotation
+                return 1. - f(self, 1. - u, 1. - v, *nargs)
+            elif self.rotation == 3:
+                # 270 deg rotation
+                return f(self, u, 1. - v, *nargs)
+        return wrapper

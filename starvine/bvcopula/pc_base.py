@@ -3,6 +3,7 @@
 # Bivariate distribution base class.
 from __future__ import print_function, absolute_import
 import numpy as np
+from six import iteritems
 from scipy.stats import kendalltau, spearmanr, pearsonr
 from scipy.stats import gaussian_kde
 from scipy.stats.mstats import rankdata
@@ -41,7 +42,22 @@ class PairCopula(object):
         if self.weights:
             self.weights = self.weights / np.sum(self.weights)
         # init default copula family
-        defaultFamily = ['t', 'gauss', 'frank', 'clayton', 'gumbel']
+        defaultFamily = {'t': 0,
+                         'gauss': 0,
+                         'frank': 0,
+                         'frank-90': 1,
+                         'frank-180': 2,
+                         'frank-270': 3,
+                         'gumbel': 0,
+                         'gumbel-90': 1,
+                         'gumbel-180': 2,
+                         'gumbel-270': 3,
+                         'clayton': 0,
+                         'clayton-90': 1,
+                         'clayton-180': 2,
+                         'clayton-270': 3,
+                         }
+        #
         self.setTrialCopula(kwargs.pop("family", defaultFamily))
         # Rank transform data
         self.rank(kwargs.pop("rankMethod", 0))
@@ -79,11 +95,11 @@ class PairCopula(object):
         """
         pass
 
-    def setTrialCopula(self, family=['t', 'gauss', 'clayton', 'gumbel', 'frank']):
-        self.copulaBank = {}
-        for name in family:
-            self.copulaBank[name] = Copula(name)
+    def setTrialCopula(self, family):
         self.trialFamily = family
+        self.copulaBank = {}
+        for name, rotation in iteritems(self.trialFamily):
+            self.copulaBank[name] = Copula(name, rotation)
 
     def empKTau(self):
         """!
@@ -121,7 +137,7 @@ class PairCopula(object):
             return self.copulaBank['indep']
         # Find best fitting copula as judged by the AIC
         maxAIC, goldCopula, goldParams = 0, None, None
-        for trialCopulaName in self.trialFamily:
+        for trialCopulaName, rotation in iteritems(self.trialFamily):
             print("Fitting trial copula " + trialCopulaName + "...", end="")
             copula = self.copulaBank[trialCopulaName]
             fittedCopulaParams = self.fitCopula(copula)

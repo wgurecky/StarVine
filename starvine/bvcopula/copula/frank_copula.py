@@ -13,8 +13,10 @@ class FrankCopula(CopulaBase):
     def __init__(self, rotation=0):
         self.thetaBounds = ((1e-9, np.inf),)
         self.theta0 = (1.0,)
+        self.rotation = rotation
         self.name = 'frank'
 
+    @CopulaBase._rotPDF
     def _pdf(self, u, v, rotation=0, *theta):
         """!
         @brief Probability density function for frank bivariate copula
@@ -34,6 +36,7 @@ class FrankCopula(CopulaBase):
             p = h3 * np.exp(h1 * (UU + VV)) / np.power(h2 + h4, 2.0)
             return p
 
+    @CopulaBase._rotCDF
     def _cdf(self, u, v, rotation=0, *theta):
         h1 = -theta[0]
         h2 = expm1(h1)
@@ -45,6 +48,7 @@ class FrankCopula(CopulaBase):
         p = -np.log(1.0 + h3 / h2) / theta[0]
         return p
 
+    @CopulaBase._rotH
     def _h(self, u, v, rotation=0, *theta):
         h1 = np.exp(-theta[0])
         UU = np.array(u)
@@ -55,6 +59,7 @@ class FrankCopula(CopulaBase):
         uu = (h4 - h3) / (h4 - h2 - h3 + h1)
         return uu
 
+    @CopulaBase._rotHinv
     def _hinv(self, U, V, rotation=0, *theta):
         h1 = np.exp(-theta[0])
         h2 = expm1(-theta[0])
