@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import gaussian_kde
 from sklearn.preprocessing import StandardScaler
-
+import mv_plot as mvp
 
 class Mvd(object):
     """!
@@ -35,6 +35,14 @@ class Mvd(object):
             assert(self.uvdPool.values()[0][:].shape == uvdData[:].shape)
         self.nDims = (len(self.uvdPool.values()[0][:]), len(self.uvdPool))
 
+    def plot(self, **kwargs):
+        """!
+        @brief generate pairwise scatter plots
+        Ex:
+        >>> self.plot(savefig='outfig.png')
+        """
+        mvp.matrixPairPlot(self.mvdData, **kwargs)
+
     def computeUVDMoments(self, maxMoment=6):
         """!
         @brief Compute all moments of all uvd's
@@ -46,13 +54,14 @@ class Mvd(object):
 
     def computeKDEpdf(self, bandwidth=None):
         """!
-        @brief Computes kernel density function.  A kernel density function is
+        @brief Computes mulitvariate kernel density function.  A kernel density function is
         constructed by combining many locally supported "mini PDFs".  This is
         a data smoothing operation - it may be useful as a data preprocessor.
         @param <float> (optional) bandwidth.  Default is to use the "scott" factor:
         \f$n^{\frac{-1}{d+4}}$\f
         """
-        return gaussian_kde(self.mvdData.values, bw_method=bandwidth)
+        self.mvdKDEpdf = gaussian_kde(self.mvdData.values, bw_method=bandwidth)
+        return self.mvdKDEpdf
 
     def computeCov(self, weighted=True):
         """!
@@ -114,13 +123,18 @@ class Mvd(object):
         self.pcW = np.hstack(retained_eig_vecs)
         return self.pcW
 
-    def returnMVD_PCA(self):
-        """
-        @brief Provides a reduced order view of the current MVD object
+    def applyPCA(self):
+        """!
+        @brief Provides a reduced order view of the current MVD object.
 
-        @returns SSmvd object, eigenValues_cov, eigenVectors_cov, W
-        Where W is the transformation matrix to higher dimensional space
-        of original object to lower dimensional subspace occupied by
-        the PCA-reduced MVD.
+        @returns (Mvd object, eigenValues_cov, eigenVectors_cov, W)
+        Where W is the transformation matrix.
+        """
+        pass
+
+    def plotExplainedVar(self):
+        """!
+        @brief Plots fractional explained varience as a function of
+        number of principal components retained.
         """
         pass

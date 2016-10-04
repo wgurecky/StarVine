@@ -43,7 +43,7 @@ def plot_pdfs():
 
     # PLOT ALL CDF
     c = t_copula.StudentTCopula()
-    p = c.pdf(u.flatten(), v.flatten(), 0, [0.2, 10])
+    p = c.pdf(u.flatten(), v.flatten(), 0, [-0.2, 10.2])
     bv_plot.bvContourf(u.flatten(), v.flatten(), p, savefig="t_copula_pdf.png")
 
     c = gauss_copula.GaussCopula()
