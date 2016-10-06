@@ -39,6 +39,15 @@ class Cvine(BaseVine):
         """
         pass
 
+    def treeHfun(self, level=0):
+        """!
+        @brief Operates on a tree, T_(i).
+        The dependent distribution is evaluated
+        at each edge in the tree providing univariate distributions that
+        populate the dataFrame in the tree level T_(i+1)
+        """
+        pass
+
 
 class Ctree(object):
     """!
@@ -146,8 +155,10 @@ class Ctree(object):
         at each edge.
         """
         for u, v, data in self.tree.edges(data=True):
-            # attrs (copulaModel <Copula>, copulaParams <list>)
-            self.tree.edge[u][v]['pc-params'] = \
+            # (copulaModel <Copula>, copulaParams <list>)
+            # TODO: Freeze copula model and parameters after
+            # copula fit
+            self.tree.edge[u][v]['pc-model'] = \
                 data["pc"].copulaTournament()
 
     def treeLLH(self):
@@ -158,11 +169,11 @@ class Ctree(object):
         """
         pass
 
-    def buildNodes(self):
+    def evalH(self):
         """!
         @brief Define nodes of the next level tree.  Use the dependence function
         ("H" function) to obtain marginal distributions at the next tree level.
         """
         for u, v, data in self.tree.edges(data=True):
-            pass
-
+            self.tree.edge[u][v]["h-dist"] = \
+                data["pc-model"][0].h(self.tree.node[u], self.tree.node[v], 0, data["pc-model"][1])

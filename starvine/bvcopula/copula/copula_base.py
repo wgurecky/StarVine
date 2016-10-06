@@ -45,6 +45,12 @@ class CopulaBase(object):
         # expand parameter list
         return self._pdf(u, v, rotation, *theta)
 
+    def h(self, u, v, rotation=0, theta=None):
+        return self._h(u, v, rotation, *theta)
+
+    def hinv(self, u, v, rotation=0, theta=None):
+        return self._hinv(u, v, rotation, *theta)
+
     def fitMLE(self, u, v, rotation=0, *theta0, **kwargs):
         """!
         @brief Maximum likelyhood copula fit.
