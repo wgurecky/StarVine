@@ -22,6 +22,7 @@ class CopulaBase(object):
     def __init__(self, rotation=0):
         # Set orientation of copula
         self.rotation = rotation
+        self.fittedParams = None
 
     # ---------------------------- PUBLIC METHODS ------------------------------ #
     def cdf(self, u, v, rotation=0, *theta):
@@ -69,7 +70,9 @@ class CopulaBase(object):
                      bounds=kwargs.pop("bounds", self.thetaBounds),
                      tol=kwargs.pop("tol", 1e-8),
                      method=kwargs.pop("method", 'SLSQP'))
-        return res.x  # return best fit theta(s)
+        # store optimal copula params
+        self.fittedParams = res.x
+        return res.x  # return best fit coupula params (theta(s))
 
     def sample(self, n=1000, rotation=0, *theta):
         """!
@@ -326,6 +329,9 @@ class CopulaBase(object):
         def wrapper(self, *args, **kwargs):
             u, v = args[0], args[1]
             nargs = args[2:]
+            if not nargs:
+                nargs = self.fittedParams
+                # raise  error if Not fittedParams and no *args
             if self.rotation == 0:
                 # 0 deg rotation
                 return f(self, *args, **kwargs)

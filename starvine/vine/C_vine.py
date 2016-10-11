@@ -52,7 +52,7 @@ class Cvine(BaseVine):
     \f$ h(x, v, \theta) = F(x|v) = \frac{\partial C_{xv}(x,v,\theta}{\partial v} \f$
 
     Where we have defined the convinience conditional distribution
-    as \f$ h() \f$
+    \f$ h(\cdot) \f$
 
     The nodes of the lower level trees are formed by using \f$ h(x,v,\theta) \f$
     to compute marginal distirbution of the RV \f$ x \f$ given the parent
@@ -66,17 +66,28 @@ class Cvine(BaseVine):
     def __init__(self, data):
         self.data = data
         self.nLevels = int(data.shape[1] - 1)
-        self.vine = nx.Graph()
+        self.vine = []
 
     def constructVine(self):
         """!
         @brief Sequentially construct the vine structure.
-        Construct the top-level tree first.
+        Construct the top-level tree first, then recursively
+        build all tree levels.
         """
-        # In the top level tree, each node is univariate data set
-        # Each edge stores a nested nx.Graph() & has weight
-        # == to kendall's tau
-        pass
+        tree0 = Ctree(self.data, lvl=0)
+        tree0.seqCopulaFit()
+        self.vine.append(tree0)
+        self.buildDeepTrees()
+
+    def buildDeepTrees(self, level=1):
+        """!
+        @brief Recursivley build each tree in the vine.
+        """
+        treeT = Ctree(self.tree[level - 1].evalH(), lvl=level)
+        treeT.seqCopulaFit()
+        self.vin.append(treeT)
+        if level <= self.nLevels:
+            self._computeTree(level + 1)
 
     def vineLLH(self, plist, **kwargs):
         """!
@@ -102,38 +113,36 @@ class Ctree(object):
     """
     def __init__(self, data, lvl=None, **kwargs):
         """!
-        @brief A single tree withen the overall vine.
+        @brief A single tree within vine.
         @param data <DataFrame>  multivariate data set, each data
             column will be assigned to a node.
         @param lvl <int> tree level in the vine
         @param weights <DataFrame> (optional) data weights
+        @param labels <list of str or ints> (optional) data labels
         """
         assert(len(self.data.shape) == 2)
         if type(data) is DataFrame:
             self.data = data
         else:
+            # if data is supplied as a np array convert to pandas DataFrame
             self.data = DataFrame(data)
-            # default data column labels are integers
+            # import custom data col labels if specified
             dataLabels = kwargs.pop("labels", range(data.shape[1]))
             self.data.columns = dataLabels
         self.nT = data.shape[1]
         self.level = lvl
         #
         self.tree = nx.Graph()
-        self._buildNodes()
+        self.buildNodes()  # Construct nodes
+        self.setEdges()    # Build edges between nodes
 
-    def setEdges(self, treeStructure=None):
+    def setEdges(self, existingTree=None):
         """!
         @brief Computes the optimal C-tree structure based on maximizing
         kendall's tau summed over all edges.
-        Optionally accepts a user input for the C-tree structure.
-        @param treeStructure <list of <tuples>> pairs of nodes which must
-            adhear to C-tree structure
+        @param existingTree (optional) A pre-computed C-tree
         """
-        if treeStructure:
-            nodePairs = self._setTreeStructure(treeStructure)
-        else:
-            nodePairs = self._selectSpanningTree()
+        nodePairs = self._selectSpanningTree()
         for pair in nodePairs:
             self.tree.add_edge(pair[0], pair[1], weight=pair[2],
                                attr_dict={"pc":
@@ -142,63 +151,20 @@ class Ctree(object):
                                           },
                                )
 
-    def _buildNodes(self):
+    def buildNodes(self):
         """!
         @brief Assign each data column to a node
         """
         for colName in self.data:
             self.tree.add_node(colName, attr_dict={"data": self.data[colName]})
 
-    def _setTreeStructure(self, nodePairs):
-        """!
-        @brief Checks tree pairs for correctness
-        """
-        # Check that each pair contains the root node
-        # compute edge weights
-        treeStructure = []
-        for pair in nodePairs:
-            trialPair = \
-                pc.PairCopula(self.tree.node[pair[0]]["data"].values,
-                              self.tree.node[pair[1]]["data"].values)
-            treeStructure.append((pair[0], pair[1], trialPair.empKTau()[0]))
-        return treeStructure
-
-    def _selectSpanningTree(self):
-        """!
-        @brief Selects the tree which maximizes the sum
-        over all edge weights provided the constraint of
-        a C-tree stucture.
-
-        It is feasible to try all C-tree configuations
-        since if we have nT variables in the top level tree
-        the number of _unique_ C-trees is == nT.
-        @return <nd_array> [nT-1, 2] size array with PCC pairs
-        """
-        nodeIDs = self.data.columns
-        trialKtauSum = np.zeros(len(nodeIDs))
-        trialPairings = []
-        # Generate all possible node pairings
-        for i, rootNodeID in enumerate(nodeIDs):
-            trialPairings.append([])
-            for nodeID in nodeIDs:
-                # iterate though all child nodes
-                if nodeID is not rootNodeID:
-                    trialPair = pc.PairCopula(self.tree.node[rootNodeID]["data"].values,
-                                              self.tree.node[nodeID]["data"].values)
-                    trialKtau, trialP = trialPair.empKTau
-                    trialKtauSum[i] += trialKtau
-                    trialPairings[i].append((rootNodeID, nodeID, trialKtau))
-                else:
-                    # root dataset cannot be paired with itself
-                    pass
-        # Find max trialKtauSum
-        bestPairingIndex = np.argmax(np.abs(trialKtauSum))
-        return trialPairings[bestPairingIndex]
-
-    def fitCopula(self):
+    def seqCopulaFit(self):
         """!
         @brief Iterate through all edges in tree, fit copula models
-        at each edge.
+        at each edge.  This is a sequential fitting operation.
+
+        See simultaneousCopulaFit() for a tree-wide simulltaneous
+        parameter estimation.
         """
         for u, v, data in self.tree.edges(data=True):
             # (copulaModel <Copula>, copulaParams <list>)
@@ -217,9 +183,75 @@ class Ctree(object):
 
     def evalH(self):
         """!
-        @brief Define nodes of the next level tree.  Use the conditional distribution
+        @brief Define nodes of the T+1 level tree.  Use the conditional distribution
         (h()) to obtain marginal distributions at the next tree level.
         """
         for u, v, data in self.tree.edges(data=True):
             self.tree.edge[u][v]["h-dist"] = \
-                data["pc-model"][0].h(self.tree.node[u], self.tree.node[v], 0, data["pc-model"][1])
+                data["pc-model"][0].h(self.tree.node[u]["data"],
+                                      self.tree.node[v]["data"],
+                                      0,
+                                      data["pc-model"][1])
+        return self._edgesToDataFrame()
+
+    ####################################################
+    # ---------------- PRIVATE METHODS ----------------#
+    ####################################################
+    def _importTree(self, existingTreeStruct):
+        """!
+        @brief Imports an existing tree.
+        Checks tree pairs for correctness.
+        """
+        # Check that each pair contains the root node
+        # compute edge weights
+        treeStructure = []
+        for pair in existingTreeStruct:
+            trialPair = \
+                pc.PairCopula(self.tree.node[pair[0]]["data"].values,
+                              self.tree.node[pair[1]]["data"].values)
+            treeStructure.append((pair[0], pair[1], trialPair.empKTau()[0]))
+        return treeStructure
+
+    def _selectSpanningTree(self):
+        """!
+        @brief Selects the tree which maximizes the sum
+        over all edge weights provided the constraint of
+        a C-tree stucture.
+
+        It is feasible to try all C-tree configuations
+        since if we have nT variables in the top level tree
+        the number of _unique_ C-trees is == nT.
+        @return <nd_array> (nT-1, 3) shape array with PCC pairs
+                Each row is a len 3 tuple: (rootNodeID, nodeID, kTau)
+        """
+        nodeIDs = self.data.columns
+        trialKtauSum = np.zeros(len(nodeIDs))
+        trialPairings = []
+        # Generate all possible node pairings
+        for i, rootNodeID in enumerate(nodeIDs):
+            trialPairings.append([])
+            for nodeID in nodeIDs:
+                # iterate though all child nodes
+                if nodeID is not rootNodeID:
+                    trialPair = pc.PairCopula(self.tree.node[rootNodeID]["data"].values,
+                                              self.tree.node[nodeID]["data"].values)
+                    trialKtau, trialP = trialPair.empKTau
+                    trialKtauSum[i] += abs(trialKtau)
+                    trialPairings[i].append((rootNodeID, nodeID, trialKtau))
+                else:
+                    # root dataset cannot be paired with itself
+                    pass
+        # Find max trialKtauSum
+        bestPairingIndex = np.argmax(np.abs(trialKtauSum))
+        return trialPairings[bestPairingIndex]
+
+    def _edgesToDataFrame(self):
+        """!
+        @brief Converts the univariate \f$ F(x|v) \f$ data sets at each node
+        into a pandas data frame for use in the next level tree.
+        """
+        depData = DataFrame()
+        for u, v, data in self.tree.edges(data=True):
+            # eval h() of pair-copula model at current edge
+            depData[(u, v)] = data["pc-model"][u][v]["h-dist"]
+        return depData
