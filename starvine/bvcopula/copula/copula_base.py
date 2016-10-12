@@ -219,8 +219,7 @@ class CopulaBase(object):
 
     def _gen(self, t, *theta):
         """!
-        @brief Copula generator function.  Related to kendall's tau
-        distribtuion.  See self._kTau
+        @brief Copula generator function.
         """
         raise NotImplementedError
 
@@ -263,6 +262,9 @@ class CopulaBase(object):
         def wrapper(self, *args, **kwargs):
             u, v = args[0], args[1]
             nargs = args[2:]
+            if not nargs:
+                nargs = self.fittedParams
+                # TODO: raise  error if Not fittedParams and no *args
             if self.rotation == 0:
                 # 0 deg rotation
                 return f(self, *args, **kwargs)
@@ -285,6 +287,9 @@ class CopulaBase(object):
         def wrapper(self, *args, **kwargs):
             u, v = args[0], args[1]
             nargs = args[2:]
+            if not nargs:
+                nargs = self.fittedParams
+                # TODO: raise  error if Not fittedParams and no *args
             if self.rotation == 0:
                 # 0 deg rotation
                 return f(self, *args, **kwargs)
@@ -307,6 +312,9 @@ class CopulaBase(object):
         def wrapper(self, *args, **kwargs):
             u, v = args[0], args[1]
             nargs = args[2:]
+            if not nargs:
+                nargs = self.fittedParams
+                # TODO: raise  error if Not fittedParams and no *args
             if self.rotation == 0:
                 # 0 deg rotation
                 return f(self, *args, **kwargs)
@@ -331,7 +339,7 @@ class CopulaBase(object):
             nargs = args[2:]
             if not nargs:
                 nargs = self.fittedParams
-                # raise  error if Not fittedParams and no *args
+                # TODO: raise  error if Not fittedParams and no *args
             if self.rotation == 0:
                 # 0 deg rotation
                 return f(self, *args, **kwargs)

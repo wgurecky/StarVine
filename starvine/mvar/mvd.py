@@ -5,13 +5,9 @@ import numpy as np
 import pandas as pd
 from scipy.stats import gaussian_kde
 from sklearn.preprocessing import StandardScaler
-<<<<<<< HEAD:starvine/mvar/mvd.py
-import mv_plot as mvp
-=======
 from uvar.uvd import Uvd
 from mv_plot import matrixPairPlot as mpp
 
->>>>>>> 64709293e1723de6815ffee27d4385f6e59c7274:starvine/mvar/mvd.py
 
 class Mvd(object):
     """!
@@ -39,19 +35,15 @@ class Mvd(object):
                 pd.DataFrame(np.ones(self.mvdData.values.shape))
         self.nDims = self.mvdData.shape
 
-<<<<<<< HEAD:starvine/mvar/mvd.py
     def plot(self, **kwargs):
         """!
         @brief generate pairwise scatter plots
         Ex:
         >>> self.plot(savefig='outfig.png')
         """
-        mvp.matrixPairPlot(self.mvdData, **kwargs)
+        mpp.matrixPairPlot(self.mvdData, **kwargs)
 
-    def computeUVDMoments(self, maxMoment=6):
-=======
     def setUVD(self, uvdList):
->>>>>>> 64709293e1723de6815ffee27d4385f6e59c7274:starvine/mvar/mvd.py
         """!
         @brief  Collect uni-variate data sets into a multivariate data object.
         @param  uvdList <list> of <uvar.Uvd> instances
@@ -153,11 +145,3 @@ class Mvd(object):
         number of principal components retained.
         """
         pass
-
-    def plot(self, **kwargs):
-        """!
-        @biref generates matrix pair plot.  Data labels
-        are determined by the column names of the pandas
-        dataframe: self.mvdData
-        """
-        mpp(self.mvdData, **kwargs)
