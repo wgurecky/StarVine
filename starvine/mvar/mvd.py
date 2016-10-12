@@ -41,7 +41,7 @@ class Mvd(object):
         Ex:
         >>> self.plot(savefig='outfig.png')
         """
-        mpp.matrixPairPlot(self.mvdData, **kwargs)
+        mpp(self.mvdData, **kwargs)
 
     def setUVD(self, uvdList):
         """!
