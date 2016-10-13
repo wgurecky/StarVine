@@ -11,7 +11,7 @@ class GumbelCopula(CopulaBase):
     \f$\theta \in [1, \infty) \f$
     """
     def __init__(self, rotation=0):
-        self.thetaBounds = ((1+1e-9, np.inf),)
+        self.thetaBounds = ((1 + 1e-9, np.inf),)
         self.theta0 = (2.0, )
         self.rotation = rotation
         self.name = 'gumbel'
@@ -79,6 +79,7 @@ class GumbelCopula(CopulaBase):
             uu[i] = self._invhfun_bisect(uu, vv, rotation, *theta)
         return uu
 
+    @CopulaBase._rotGen
     def _gen(self, t, *theta):
         return np.power(-np.log(t), theta[0])
 

@@ -14,10 +14,12 @@ class GaussCopula(CopulaBase):
     \f$\theta[0] \in (-1, 1)\f$
     """
     def __init__(self, rotation=0):
-        self.thetaBounds = ((-1+1e-9, 1-1e-9),)
+        self.thetaBounds = ((-1 + 1e-9, 1 - 1e-9),)
         self.theta0 = (0.7,)
         self.name = 'gauss'
+        self.rotation = 0
 
+    @CopulaBase._rotPDF
     def _pdf(self, u, v, rotation=0, *theta):
         """!
         @brief Probability density function of Gauss copula.
@@ -29,7 +31,7 @@ class GaussCopula(CopulaBase):
         """
         # Constants
         rho2 = np.power(theta[0], 2.0)
-        h1 = 1-rho2
+        h1 = 1.0 - rho2
         h2 = rho2 / (2.0 * h1)
         h3 = theta[0] / h1
         norm_rv = stats.norm(scale=1.0, loc=0.0)
@@ -50,6 +52,7 @@ class GaussCopula(CopulaBase):
         p = np.exp(h3 * x  * y - h2 * (np.power(x, 2) + np.power(y, 2))) / np.sqrt(h1)
         return p
 
+    @CopulaBase._rotCDF
     def _cdf(self, u, v, rotation=0, *theta):
         rho = theta[0]
         dof = 0
@@ -74,7 +77,7 @@ class GaussCopula(CopulaBase):
             p[i] = value
         return p
 
-
+    @CopulaBase._rotH
     def _h(self, u, v, rotation=0, *theta):
         """!
         @brief H function (Conditional distribution) of Gauss copula.
@@ -93,7 +96,7 @@ class GaussCopula(CopulaBase):
         uu = dist.cdf((x - theta[0] * y) / h1)
         return uu
 
-
+    @CopulaBase._rotHinv
     def _hinv(self, u, v, rotation=0, *theta):
         """!
         @brief Inverse H function (Inv Conditional distribution) of Gauss copula.
@@ -112,6 +115,7 @@ class GaussCopula(CopulaBase):
         uu = dist.cdf(x * h1 + theta[0] * y)
         return uu
 
+    @CopulaBase._rotGen
     def _gen(self, t, *theta):
         """!
         @brief Copula generating function

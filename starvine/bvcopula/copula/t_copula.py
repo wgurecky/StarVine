@@ -22,7 +22,9 @@ class StudentTCopula(CopulaBase):
         self.thetaBounds = ((-1 + 1e-9, 1 - 1e-9), (2.0, np.inf),)
         self.theta0 = (0.7, 10.0)
         self.name = 't'
+        self.rotation = 0
 
+    @CopulaBase._rotPDF
     def _pdf(self, u, v, rotation=0, *theta):
         """!
         @brief Probability density function of T copula.
@@ -61,6 +63,7 @@ class StudentTCopula(CopulaBase):
             print("WARNING: INF probability returned by PDF")
         return p
 
+    @CopulaBase._rotCDF
     def _cdf(self, u, v, rotation=0, *theta):
         rho = theta[0]
         dof = int(round(theta[1]))
@@ -85,6 +88,7 @@ class StudentTCopula(CopulaBase):
             p[i] = value
         return p
 
+    @CopulaBase._rotH
     def _h(self, u, v, rotation=0, *theta):
         """!
         @brief H function (Conditional distribution) of T copula.
@@ -106,7 +110,7 @@ class StudentTCopula(CopulaBase):
         # todo check bounds of output should be in [0, 1]
         return uu
 
-
+    @CopulaBase._rotHinv
     def _hinv(self, u, v, rotation=0, *theta):
         """!
         @brief Inverse H function (Inv Conditional distribution) of T copula.

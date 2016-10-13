@@ -125,12 +125,13 @@ class PairCopula(object):
         self.empPRho_, self.pval_ = pearsonr(self.x, self.y)
         return self.empPRho_, self.pval_
 
-    def copulaTournament(self, criterion='AIC'):
+    def copulaTournament(self, criterion='AIC', **kwargs):
         """!
         @brief Determines the copula that best fits the rank transformed data
         based on the AIC criterion.
-        All copula in the trial_family set are considered.
+        All Copula in self.trialFamily set are considered.
         """
+        vb = kwargs.pop("verbosity", True)
         self.empKTau()
         if self.pval_ >= 0.99:
             print("Independence Coplua selected")
@@ -138,37 +139,38 @@ class PairCopula(object):
         # Find best fitting copula as judged by the AIC
         maxAIC, goldCopula, goldParams = 0, None, None
         for trialCopulaName, rotation in iteritems(self.trialFamily):
-            print("Fitting trial copula " + trialCopulaName + "...", end="")
+            if vb: print("Fitting trial copula " + trialCopulaName + "...", end="")
             copula = self.copulaBank[trialCopulaName]
             fittedCopulaParams = self.fitCopula(copula)
             trialAIC = abs(fittedCopulaParams[2])
-            print(" |AIC|: " + str(trialAIC))
+            if vb: print(" |AIC|: " + str(trialAIC))
             if trialAIC > maxAIC:
                 goldCopula = copula
                 goldParams = fittedCopulaParams
                 maxAIC = trialAIC
-        print(goldCopula.name + " copula selected")
+        if vb: print(goldCopula.name + " copula selected")
         self.copulaModel = goldCopula
         self.copulaParams = goldParams
         return (self.copulaModel, self.copulaParams)
 
-    def fitCopula(self, copula, thetaGuess=(None,None,)):
+    def fitCopula(self, copula, thetaGuess=(None, None, )):
         """!
         @brief fit specified copula to data.
+        @param copula <CopulaBase>  Copula instance
+        @param thetaGuess <tuple> (optional) initial guess for copula params
         @return (copula type <string>, fitted copula params <np_array>)
         """
         thetaHat = copula.fitMLE(self.UU, self.VV, 0, *thetaGuess)
         AIC = copula._AIC(self.UU, self.VV, 0, *thetaHat)
+        self.copulaModel = copula
         return (copula.name, thetaHat, AIC, self.rotation)
 
     def rotateData(self, u, v, rotation=-1):
         """!
         @brief Rotates the ranked data on the unit square.
-        Allows for modeling of negative dependence with the
-        standard archimedean copulas.
         @param u  Ranked data vector
         @param v  Ranked data vector
-        @param rotation <int>
+        @param rotation <int> 1==90deg, 2==180deg, 3==270, 0==0deg
         """
         if rotation >= 0:
             self.setRotation(rotation)

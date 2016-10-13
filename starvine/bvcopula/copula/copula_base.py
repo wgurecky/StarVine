@@ -74,7 +74,7 @@ class CopulaBase(object):
         self.fittedParams = res.x
         return res.x  # return best fit coupula params (theta(s))
 
-    def sample(self, n=1000, rotation=0, *theta):
+    def sample(self, n=1000, rotation=0, *mytheta):
         """!
         @brief Draw N samples from the copula.
         @param n Number of samples
@@ -86,7 +86,7 @@ class CopulaBase(object):
         u = np.random.uniform(1e-9, 1 - 1e-9, n)
         v = np.random.uniform(1e-9, 1 - 1e-9, n)
         u_hat = u
-        v_hat = self._hinv(u_hat, v, rotation, *theta)
+        v_hat = self._hinv(u_hat, v, rotation, *mytheta)
         return (u_hat, v_hat)
 
     def setRotation(self, rotation=0):
@@ -264,7 +264,8 @@ class CopulaBase(object):
             nargs = args[2:]
             if not nargs:
                 nargs = self.fittedParams
-                # TODO: raise  error if Not fittedParams and no *args
+            if not nargs:
+                raise RuntimeError("Parameter missing")
             if self.rotation == 0:
                 # 0 deg rotation
                 return f(self, *args, **kwargs)
@@ -289,7 +290,8 @@ class CopulaBase(object):
             nargs = args[2:]
             if not nargs:
                 nargs = self.fittedParams
-                # TODO: raise  error if Not fittedParams and no *args
+            if not nargs:
+                raise RuntimeError("Parameter missing")
             if self.rotation == 0:
                 # 0 deg rotation
                 return f(self, *args, **kwargs)
@@ -311,10 +313,38 @@ class CopulaBase(object):
         """
         def wrapper(self, *args, **kwargs):
             u, v = args[0], args[1]
+            rot = args[2]
+            nargs = args[3:]
+            if not nargs:
+                nargs = self.fittedParams
+            if not nargs:
+                raise RuntimeError("Parameter missing")
+            if self.rotation == 0:
+                # 0 deg rotation
+                return f(self, u, v, rot, *nargs, **kwargs)
+            elif self.rotation == 1:
+                # 90 deg rotation
+                return 1. - f(self, 1. - u, v, rot, *nargs)
+            elif self.rotation == 2:
+                # 180 deg rotation
+                return 1. - f(self, 1. - u, 1. - v, rot, *nargs)
+            elif self.rotation == 3:
+                # 270 deg rotation
+                return f(self, u, 1. - v, rot, *nargs)
+        return wrapper
+
+    @classmethod
+    def _rotH(cls, f):
+        """!
+        @brief Define copula inverse dependence function rotation.
+        """
+        def wrapper(self, *args, **kwargs):
+            u, v = args[0], args[1]
             nargs = args[2:]
             if not nargs:
                 nargs = self.fittedParams
-                # TODO: raise  error if Not fittedParams and no *args
+            if not nargs:
+                raise RuntimeError("Parameter missing")
             if self.rotation == 0:
                 # 0 deg rotation
                 return f(self, *args, **kwargs)
@@ -330,26 +360,16 @@ class CopulaBase(object):
         return wrapper
 
     @classmethod
-    def _rotH(cls, f):
+    def _rotGen(cls, f):
         """!
-        @brief Define copula inverse dependence function rotation.
+        @brief Copula generator wrapper
         """
         def wrapper(self, *args, **kwargs):
-            u, v = args[0], args[1]
-            nargs = args[2:]
+            t = args[0]
+            nargs = args[1:]
             if not nargs:
                 nargs = self.fittedParams
-                # TODO: raise  error if Not fittedParams and no *args
-            if self.rotation == 0:
-                # 0 deg rotation
-                return f(self, *args, **kwargs)
-            elif self.rotation == 1:
-                # 90 deg rotation
-                return 1. - f(self, 1. - u, v, *nargs)
-            elif self.rotation == 2:
-                # 180 deg rotation
-                return 1. - f(self, 1. - u, 1. - v, *nargs)
-            elif self.rotation == 3:
-                # 270 deg rotation
-                return f(self, u, 1. - v, *nargs)
+            if not nargs:
+                raise RuntimeError("Parameter missing")
+            return f(self, t, *nargs)
         return wrapper

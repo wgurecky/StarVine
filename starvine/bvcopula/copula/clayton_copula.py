@@ -13,11 +13,7 @@ class ClaytonCopula(CopulaBase):
     def __init__(self, rotation=0):
         self.thetaBounds = ((1e-9, np.inf),)
         self.theta0 = (1.0, )
-        #
         self.rotation = rotation
-        if self.rotation == 1 or self.rotation == 3:
-            pass
-        #
         self.name = 'clayton'
 
     @CopulaBase._rotPDF
@@ -55,24 +51,24 @@ class ClaytonCopula(CopulaBase):
         p = np.power(hu + hv - 1.0, h2)
         return p
 
-
     @CopulaBase._rotH
     def _h(self, u, v, rotation=0, *theta):
         h1 = -(1.0 + theta[0]) / theta[0]
-        UU = np.array(u);
-        VV = np.array(v);
+        UU = np.array(u)
+        VV = np.array(v)
         uu = np.power(np.power(VV,theta[0])*(np.power(UU,-theta[0])-1.0)+1.0,h1);
         return uu
 
     @CopulaBase._rotHinv
     def _hinv(self, U, V, rotation=0, *theta):
         h1 = -1.0 / theta[0]
-        h2 = -theta[0]/(1.0+theta[0])
-        UU = np.array(U);
-        VV = np.array(V);
+        h2 = -theta[0] / (1.0 + theta[0])
+        UU = np.array(U)
+        VV = np.array(V)
         uu = np.power(np.power(VV,-theta[0])*(np.power(UU,h2)-1.0)+1.0,h1);
         return uu
 
+    @CopulaBase._rotGen
     def _gen(self, t, *theta):
         return (1.0 / theta[0]) * (np.power(t, theta[0]) - 1.0)
 

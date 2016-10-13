@@ -68,9 +68,10 @@ class FrankCopula(CopulaBase):
         VV = np.array(V)
         h4 = np.power(h1, VV)
 
-        uu = h3*np.log(1+h2/(h4*(1/UU-1)+1))
+        uu = h3 * np.log(1 + h2 / (h4 * (1 / UU - 1) + 1))
         return uu
 
+    @CopulaBase._rotGen
     def _gen(self, t, *theta):
         return -np.log((np.exp(-theta[0] * t) - 1.0) / (np.exp(-theta[0]) - 1.0))
 
