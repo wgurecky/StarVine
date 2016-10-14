@@ -30,18 +30,26 @@ class TestGaussFrozen(unittest.TestCase):
         self.assertAlmostEqual(stockModel.copulaParams[1], 0.73874003, 4)
 
         # Eval the frozen model
-        frzU, frzV = stockModel.copulaModel.sample(2000000)
+        frzU, frzV = stockModel.copulaModel.sample(10000)
 
         # Eval a model with specified params
-        setU, setV = stockModel.copulaModel.sample(2000000, (0.73874003,))
+        setU, setV = stockModel.copulaModel.sample(10000, (0.73874003,))
 
         # Ensure both frozen model and specified param model produce same result
         frzModel = PairCopula(frzU, frzV)
         setModel = PairCopula(setU, setV)
         frzKtau, fp = frzModel.empKTau()
         setKtau, sp = setModel.empKTau()
-        self.assertAlmostEqual(frzKtau, setKtau, places=3)
-        self.assertAlmostEqual(fp, sp, places=3)
+        self.assertAlmostEqual(frzKtau, setKtau, places=2)
+        self.assertAlmostEqual(fp, sp, places=2)
+
+        # Eval a model with different specified params
+        setU2, setV2 = stockModel.copulaModel.sample(10000, (0.3,))
+        setModel2 = PairCopula(setU2, setV2)
+        setKtau2, sp2 = setModel2.empKTau()
+        self.assertTrue(setKtau2 != setKtau)
+        self.assertTrue(abs(setKtau2 - setKtau) > 0.2)
+
 
     def testFrankFrozen(self):
         # Load matlab data set
@@ -54,15 +62,15 @@ class TestGaussFrozen(unittest.TestCase):
         stockModel.copulaTournament(verbosity=0)
 
         # Eval the frozen model
-        frzU, frzV = stockModel.copulaModel.sample(1000000)
+        frzU, frzV = stockModel.copulaModel.sample(10000)
 
         # Eval a model with specified params
-        setU, setV = stockModel.copulaModel.sample(1000000, *stockModel.copulaParams[1])
+        setU, setV = stockModel.copulaModel.sample(10000, *stockModel.copulaParams[1])
 
         # Ensure both frozen model and specified param model produce same result
         frzModel = PairCopula(frzU, frzV)
         setModel = PairCopula(setU, setV)
         frzKtau, fp = frzModel.empKTau()
         setKtau, sp = setModel.empKTau()
-        self.assertAlmostEqual(frzKtau, setKtau, places=3)
-        self.assertAlmostEqual(fp, sp, places=3)
+        self.assertAlmostEqual(frzKtau, setKtau, places=2)
+        self.assertAlmostEqual(fp, sp, places=2)
