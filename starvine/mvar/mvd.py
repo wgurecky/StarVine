@@ -15,11 +15,12 @@ class Mvd(object):
     Performs principal component analysis to reduce the dimensionality
     of a large data set.
     """
-    def __init__(self):
+    def __init__(self, mvdData=pd.DataFrame(), mvdWeights=pd.DataFrame()):
         self.uvdPool = {}  # Univariate data model storage
-        # Pandas DataFrame storage for multi-variate data
-        self.mvdData = pd.DataFrame()
-        self.mvdDataWeights = pd.DataFrame()
+        # TODO: accept single pandas data frame with datagroup: "weights"
+        self.mvdData = mvdData
+        self.mvdDataWeights = mvdWeights
+        self.nDims = self.mvdData.shape
 
     def setData(self, dataDict, weights=None):
         """!
@@ -38,8 +39,6 @@ class Mvd(object):
     def plot(self, **kwargs):
         """!
         @brief generate pairwise scatter plots
-        Ex:
-        >>> self.plot(savefig='outfig.png')
         """
         mpp(self.mvdData, **kwargs)
 
