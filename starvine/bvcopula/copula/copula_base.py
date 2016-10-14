@@ -25,34 +25,35 @@ class CopulaBase(object):
         self.fittedParams = None
 
     # ---------------------------- PUBLIC METHODS ------------------------------ #
-    def cdf(self, u, v, rotation=0, *theta):
+    def cdf(self, u, v, *theta):
         """!
         @brief Evaluate the copula's CDF function.
         @param u <np_1darray> Rank data vector
         @param v <np_1darray> Rank data vector
-        @param rotation <int> copula rotation parameter
         @param theta  <list> of <float> Copula parameter list
         """
+        rotation = 0
         return self._cdf(u, v, rotation, *theta)
 
-    def pdf(self, u, v, rotation=0, theta=None):
+    def pdf(self, u, v, *theta):
         """!
         @brief Public facing PDF function.
         @param u <np_1darray> Rank data vector
         @param v <np_1darray> Rank data vector
-        @param rotation <int> copula rotation parameter
         @param theta  <list> of <float> Copula parameter list
         """
-        # expand parameter list
+        rotation = 0
         return self._pdf(u, v, rotation, *theta)
 
-    def h(self, u, v, rotation=0, theta=None):
+    def h(self, u, v, *theta):
+        rotation = 0
         return self._h(u, v, rotation, *theta)
 
-    def hinv(self, u, v, rotation=0, theta=None):
+    def hinv(self, u, v, *theta):
+        rotation = 0
         return self._hinv(u, v, rotation, *theta)
 
-    def fitMLE(self, u, v, rotation=0, *theta0, **kwargs):
+    def fitMLE(self, u, v, *theta0, **kwargs):
         """!
         @brief Maximum likelyhood copula fit.
         @param u <np_1darray> Rank data vector
@@ -60,6 +61,7 @@ class CopulaBase(object):
         @param theta0 Initial guess for copula parameter list
         @return <np_array> Array of MLE fit copula parameters
         """
+        rotation = 0
         if None in theta0:
             params0 = self.theta0
         else:
@@ -74,7 +76,7 @@ class CopulaBase(object):
         self.fittedParams = res.x
         return res.x  # return best fit coupula params (theta(s))
 
-    def sample(self, n=1000, rotation=0, *mytheta):
+    def sample(self, n=1000, *mytheta):
         """!
         @brief Draw N samples from the copula.
         @param n Number of samples
@@ -83,9 +85,9 @@ class CopulaBase(object):
         @return <np_array> (n, 2) size vector.  Resampled (U, V)
         data pairs from copula with paramters: *theta
         """
-        u = np.random.uniform(1e-9, 1 - 1e-9, n)
+        rotation = 0
+        u_hat = np.random.uniform(1e-9, 1 - 1e-9, n)
         v = np.random.uniform(1e-9, 1 - 1e-9, n)
-        u_hat = u
         v_hat = self._hinv(u_hat, v, rotation, *mytheta)
         return (u_hat, v_hat)
 
@@ -260,24 +262,24 @@ class CopulaBase(object):
         @brief Define copula probability density function rotation.
         """
         def wrapper(self, *args, **kwargs):
-            u, v = args[0], args[1]
-            nargs = args[2:]
+            u, v, rot = args[0], args[1], args[2]
+            nargs = args[3:]
             if not nargs:
                 nargs = self.fittedParams
             if not nargs:
                 raise RuntimeError("Parameter missing")
             if self.rotation == 0:
                 # 0 deg rotation
-                return f(self, *args, **kwargs)
+                return f(self, u, v, rot, *nargs, **kwargs)
             elif self.rotation == 1:
                 # 90 deg rotation
-                return f(self, 1. - u, v, *nargs)
+                return f(self, 1. - u, v, rot, *nargs)
             elif self.rotation == 2:
                 # 180 deg rotation
-                return f(self, 1. - u, 1. - v, *nargs)
+                return f(self, 1. - u, 1. - v, rot, *nargs)
             elif self.rotation == 3:
                 # 270 deg rotation
-                return f(self, u, 1. - v, *nargs)
+                return f(self, u, 1. - v, rot, *nargs)
         return wrapper
 
     @classmethod
@@ -286,24 +288,24 @@ class CopulaBase(object):
         @brief Define copula cumulative density function rotation.
         """
         def wrapper(self, *args, **kwargs):
-            u, v = args[0], args[1]
-            nargs = args[2:]
+            u, v, rot = args[0], args[1], args[2]
+            nargs = args[3:]
             if not nargs:
                 nargs = self.fittedParams
             if not nargs:
                 raise RuntimeError("Parameter missing")
             if self.rotation == 0:
                 # 0 deg rotation
-                return f(self, *args, **kwargs)
+                return f(self, u, v, rot, *nargs, **kwargs)
             elif self.rotation == 1:
                 # 90 deg rotation
-                return v - f(self, 1. - u, v, *nargs)
+                return v - f(self, 1. - u, v, rot, *nargs)
             elif self.rotation == 2:
                 # 180 deg rotation
-                return f(self, 1. - u, 1. - v, *nargs) + u + v - 1.
+                return f(self, 1. - u, 1. - v, rot, *nargs) + u + v - 1.
             elif self.rotation == 3:
                 # 270 deg rotation
-                return u - f(self, u, 1. - v, *nargs)
+                return u - f(self, u, 1. - v, rot, *nargs)
         return wrapper
 
     @classmethod
@@ -312,8 +314,7 @@ class CopulaBase(object):
         @brief Define copula dependence function rotation.
         """
         def wrapper(self, *args, **kwargs):
-            u, v = args[0], args[1]
-            rot = args[2]
+            u, v, rot = args[0], args[1], args[2]
             nargs = args[3:]
             if not nargs:
                 nargs = self.fittedParams
@@ -339,24 +340,24 @@ class CopulaBase(object):
         @brief Define copula inverse dependence function rotation.
         """
         def wrapper(self, *args, **kwargs):
-            u, v = args[0], args[1]
-            nargs = args[2:]
+            u, v, rot = args[0], args[1], args[2]
+            nargs = args[3:]
             if not nargs:
                 nargs = self.fittedParams
             if not nargs:
                 raise RuntimeError("Parameter missing")
             if self.rotation == 0:
                 # 0 deg rotation
-                return f(self, *args, **kwargs)
+                return f(self, u, v, rot, *nargs, **kwargs)
             elif self.rotation == 1:
                 # 90 deg rotation
-                return 1. - f(self, 1. - u, v, *nargs)
+                return 1. - f(self, 1. - u, v, rot, *nargs)
             elif self.rotation == 2:
                 # 180 deg rotation
-                return 1. - f(self, 1. - u, 1. - v, *nargs)
+                return 1. - f(self, 1. - u, 1. - v, rot, *nargs)
             elif self.rotation == 3:
                 # 270 deg rotation
-                return f(self, u, 1. - v, *nargs)
+                return f(self, u, 1. - v, rot, *nargs)
         return wrapper
 
     @classmethod

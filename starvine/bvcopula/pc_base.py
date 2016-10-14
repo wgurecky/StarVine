@@ -160,7 +160,7 @@ class PairCopula(object):
         @param thetaGuess <tuple> (optional) initial guess for copula params
         @return (copula type <string>, fitted copula params <np_array>)
         """
-        thetaHat = copula.fitMLE(self.UU, self.VV, 0, *thetaGuess)
+        thetaHat = copula.fitMLE(self.UU, self.VV, *thetaGuess)
         AIC = copula._AIC(self.UU, self.VV, 0, *thetaHat)
         self.copulaModel = copula
         return (copula.name, thetaHat, AIC, self.rotation)

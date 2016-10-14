@@ -56,29 +56,29 @@ class TestTcopulaFit(unittest.TestCase):
         thetat0 = [0.7, 30]
         thetag0 = [0.2]
         g_copula = stg()
-        theta_g_fit = g_copula.fitMLE(u, v, 0, *thetag0, bounds=((-0.99, 0.99),))
+        theta_g_fit = g_copula.fitMLE(u, v, *thetag0, bounds=((-0.99, 0.99),))
         aic_g_fit = g_copula._AIC(u, v, 0, *theta_g_fit)
         print("Gaussian copula MLE paramter [rho]: " + str(theta_g_fit) + " AIC =" + str(aic_g_fit))
         t_copula = stc()
-        theta_t_fit = t_copula.fitMLE(u, v, 0, *thetat0, bounds=((-0.99, 0.99),(1, 1e8),))
+        theta_t_fit = t_copula.fitMLE(u, v, *thetat0, bounds=((-0.99, 0.99),(1, 1e8),))
         aic_t_fit = t_copula._AIC(u, v, 0, *theta_t_fit)
         print("T copula MLE parameters [rho, DoF]: " + str(theta_t_fit) + " AIC =" + str(aic_t_fit))
 
         # Alternative fit to CDF transformed data
-        theta_t_fit_c = t_copula.fitMLE(u_c, v_c, 0, *thetat0, bounds=((-0.99, 0.99),(1, 1e8),))
+        theta_t_fit_c = t_copula.fitMLE(u_c, v_c, *thetat0, bounds=((-0.99, 0.99),(1, 1e8),))
 
         # check fits
         self.assertAlmostEqual(theta_g_fit[0], theta_t_fit[0], places=3)
         self.assertTrue(abs(aic_g_fit) > abs(aic_t_fit))
 
         # Sample from the fitted gaussian copula and plot
-        ug_hat, vg_hat = g_copula.sample(1000, 0, *theta_g_fit)
+        ug_hat, vg_hat = g_copula.sample(1000, *theta_g_fit)
         pl.figure(2)
         plt2 = sns.jointplot(ug_hat, vg_hat, stat_func=kendalltau)
         plt2.savefig("gaussian_copula_hat.png")
 
         # Sample from the fitted t copula and plot
-        ut_hat, vt_hat = t_copula.sample(1000, 0, *theta_t_fit)
+        ut_hat, vt_hat = t_copula.sample(1000, *theta_t_fit)
         pl.figure(3)
         plt3 = sns.jointplot(ut_hat, vt_hat, stat_func=kendalltau)
         plt3.savefig("t_copula_hat.png")

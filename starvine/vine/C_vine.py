@@ -161,12 +161,7 @@ class Ctree(object):
         parameter estimation.
         """
         for u, v, data in self.tree.edges(data=True):
-            # (copulaModel <Copula>, copulaParams <list>)
-            # [pc-model][0] == copula function
-            # [pc-model][1] == fitted copula parameters
-            # TODO: Freeze copula model and parameters after fit
-            self.tree.edge[u][v]['pc-model'] = \
-                data["pc"].copulaTournament()
+            data["pc"].copulaTournament()
 
     def treeLLH(self):
         """!
@@ -182,8 +177,8 @@ class Ctree(object):
         (h()) to obtain marginal distributions at the next tree level.
         """
         for u, v, data in self.tree.edges(data=True):
-            self.tree.edge[u][v]["h-dist"] = data["pc-model"][0].h
-        return self._edgesToDataFrame()
+            self.tree.edge[u][v]["h-dist"] = data["pc"].copulaModel.h
+        return self._evalH()
 
     # ---------------------------- PRIVATE METHODS ------------------------------ #
     def _importTree(self, existingTreeStruct):
@@ -220,7 +215,8 @@ class Ctree(object):
         for i, rootNodeID in enumerate(nodeIDs):
             trialPairings.append([])
             for nodeID in nodeIDs:
-                # iterate though all child nodes, root dataset cannot be paired with itself
+                # iterate though all child nodes,
+                # root dataset cannot be paired with itself
                 if nodeID is not rootNodeID:
                     trialPair = pc.PairCopula(self.tree.node[rootNodeID]["data"].values,
                                               self.tree.node[nodeID]["data"].values)
@@ -230,7 +226,7 @@ class Ctree(object):
         bestPairingIndex = np.argmax(np.abs(trialKtauSum))
         return trialPairings[bestPairingIndex]
 
-    def _edgesToDataFrame(self):
+    def _evalH(self):
         """!
         @brief Converts the univariate \f$ F(x|v) \f$ data sets at each node
         into a pandas data frame for use in the next level tree.
@@ -242,7 +238,5 @@ class Ctree(object):
         for u, v, data in self.tree.edges(data=True):
             # eval h() of pair-copula model at current edge
             condData[(u, v)] = data["h-dist"](self.tree.node[u]["data"],
-                                             self.tree.node[v]["data"],
-                                             0,
-                                             data["pc-model"][1])
+                                              self.tree.node[v]["data"])
         return condData

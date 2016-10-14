@@ -27,7 +27,6 @@ class GaussCopula(CopulaBase):
         @param v <np_1darary>
         @param rotation <int>  Optional copula rotation.
         @param theta  Gaussian copula parameter
-            [Shape, DoF]
         """
         # Constants
         rho2 = np.power(theta[0], 2.0)
@@ -49,7 +48,7 @@ class GaussCopula(CopulaBase):
         x = norm_rv.ppf(UU)
         y = norm_rv.ppf(VV)
 
-        p = np.exp(h3 * x  * y - h2 * (np.power(x, 2) + np.power(y, 2))) / np.sqrt(h1)
+        p = np.exp(h3 * x * y - h2 * (np.power(x, 2) + np.power(y, 2))) / np.sqrt(h1)
         return p
 
     @CopulaBase._rotCDF

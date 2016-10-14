@@ -40,7 +40,7 @@ class ClaytonCopula(CopulaBase):
     @CopulaBase._rotCDF
     def _cdf(self, u, v, rotation=0, *theta):
         h1 = -theta[0]
-        h2 = 1 / h1
+        h2 = 1. / h1
 
         UU = np.array(u)
         VV = np.array(v)
