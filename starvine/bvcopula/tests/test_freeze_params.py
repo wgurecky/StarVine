@@ -10,9 +10,9 @@ dataDir = pwd_ + "/tests/data/"
 np.random.seed(123)
 
 
-class TestBivariateBase(unittest.TestCase):
-    def testBivariateBase(self):
-        print("----------------- COPULA FREEZE PARAMS TEST --------------------")
+class TestGaussFrozen(unittest.TestCase):
+    print("---------------------- COPULA FREEZE PARAMS TEST ---------------------")
+    def testGaussFrozen(self):
         # Load matlab data set
         stocks = np.loadtxt(dataDir + 'stocks.csv', delimiter=',')
         x = stocks[:, 0]
@@ -30,4 +30,39 @@ class TestBivariateBase(unittest.TestCase):
         self.assertAlmostEqual(stockModel.copulaParams[1], 0.73874003, 4)
 
         # Eval the frozen model
-        resampledU, resampledV = stockModel.copulaModel.sample(1000)
+        frzU, frzV = stockModel.copulaModel.sample(2000000)
+
+        # Eval a model with specified params
+        setU, setV = stockModel.copulaModel.sample(2000000, (0.73874003,))
+
+        # Ensure both frozen model and specified param model produce same result
+        frzModel = PairCopula(frzU, frzV)
+        setModel = PairCopula(setU, setV)
+        frzKtau, fp = frzModel.empKTau()
+        setKtau, sp = setModel.empKTau()
+        self.assertAlmostEqual(frzKtau, setKtau, places=3)
+        self.assertAlmostEqual(fp, sp, places=3)
+
+    def testFrankFrozen(self):
+        # Load matlab data set
+        stocks = np.loadtxt(dataDir + 'stocks.csv', delimiter=',')
+        x = stocks[:, 0]
+        y = stocks[:, 1]
+        stockModel = PairCopula(x, y, family={'frank': 0, })
+
+        # Try to fit all copula
+        stockModel.copulaTournament(verbosity=0)
+
+        # Eval the frozen model
+        frzU, frzV = stockModel.copulaModel.sample(1000000)
+
+        # Eval a model with specified params
+        setU, setV = stockModel.copulaModel.sample(1000000, *stockModel.copulaParams[1])
+
+        # Ensure both frozen model and specified param model produce same result
+        frzModel = PairCopula(frzU, frzV)
+        setModel = PairCopula(setU, setV)
+        frzKtau, fp = frzModel.empKTau()
+        setKtau, sp = setModel.empKTau()
+        self.assertAlmostEqual(frzKtau, setKtau, places=3)
+        self.assertAlmostEqual(fp, sp, places=3)
