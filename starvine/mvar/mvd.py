@@ -27,20 +27,23 @@ class Mvd(object):
         @brief Collect data from dictionary with {<str>: <np_1darray>}
         {key, value} pairs into a pandas dataFrame
         """
+        self.mvdData, self.mvdDataWeights = pd.DataFrame(), pd.DataFrame()
         for dataName, data in iteritems(dataDict):
             self.uvdPool[dataName] = Uvd(data, dataName=dataName)
             # TODO: check all datasets are of equal length
             self.mvdData[dataName] = pd.Series(data)
         if weights is None:
             self.mvdDataWeights = \
-                pd.DataFrame(np.ones(self.mvdData.values.shape))
+                pd.DataFrame(np.ones(self.mvdData.shape[0]))
+        else:
+            self.mvdDataWeights = pd.DataFrame(weights)
         self.nDims = self.mvdData.shape
 
     def plot(self, **kwargs):
         """!
         @brief generate pairwise scatter plots
         """
-        mpp(self.mvdData, **kwargs)
+        mpp(self.mvdData, self.mvdDataWeights, **kwargs)
 
     def setUVD(self, uvdList):
         """!

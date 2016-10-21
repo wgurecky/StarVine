@@ -3,11 +3,10 @@
 from scipy.stats import kendalltau, spearmanr, pearsonr, linregress
 import seaborn as sns
 import matplotlib.pyplot as plt
-from pandas import DataFrame
 import numpy as np
 
 
-def matrixPairPlot(data, corr_stat="kendalltau", **kwargs):
+def matrixPairPlot(data, weights, corr_stat="kendalltau", **kwargs):
     """!
     @brief Plots a matrix of pair plots.
     @param data <pandas dataframe> nDim data set
@@ -23,12 +22,14 @@ def matrixPairPlot(data, corr_stat="kendalltau", **kwargs):
         pair_plot.map_upper(xy_slope)
     #
     # LOWER
-    pair_plot.map_lower(plt.scatter, s=28.0/np.log(data.shape[0]))
+    weightArray = weights.values.flatten()
+    meanWeight = np.mean(weightArray)
+    pair_plot.map_lower(plt.scatter, s=25.0/np.log(data.shape[0]) * weightArray / meanWeight )
     pair_plot.map_lower(corrfunc, cstat=corr_stat)
     #
     # DIAG
-    # pair_plot.map_diag(sns.distplot, kde=True, norm_hist=True)
-    pair_plot.map_diag(plt.hist, edgecolor="white")
+    # pair_plot.map_diag(sns.distplot, kde=True, norm_hist=True, hist_kws={'weights': weightArray})
+    pair_plot.map_diag(plt.hist, edgecolor="white", weights=weightArray, bins=20)
     #
     plt.ticklabel_format(style='sci', scilimits=(0,0))
     outfile = kwargs.pop("savefig", None)

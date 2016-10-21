@@ -18,13 +18,15 @@ def h5Load(store, grpName):
 
 def main():
     # read data from external h5 file
-    h5file = 'Cicada_binned_ex.h5'
+    h5file = 'Cicada_cfd_180x_cht.h5.post.binned.h5'
     store = pd.HDFStore(h5file)
-    bounds = h5Load(store, "Water/UO2/Temperature_bounds")[0]
-    temperature = h5Load(store, "Water/UO2/Temperature")[0]
-    tke = h5Load(store, "Water/UO2/TurbulentKineticEnergy")[0]
-    crud_thick = h5Load(store, "Water/UO2/CrudThickness")[0]
-    b10 = h5Load(store, "Water/UO2/CrudBoronDensity")[0]
+    bounds = h5Load(store, "Water/UO2 [Interface 1]/Temperature_bounds")[0]
+    temperature = h5Load(store, "Water/UO2 [Interface 1]/Temperature")[0]
+    tke = h5Load(store, "Water/UO2 [Interface 1]/TurbulentKineticEnergy")[0]
+    crud_thick = h5Load(store, "Water/UO2 [Interface 1]/CrudThickness")[0]
+    b10 = h5Load(store, "Water/UO2 [Interface 1]/CrudBoronDensity")[0]
+    weight = h5Load(store, "Water/UO2 [Interface 1]/Temperature_weights")[0]
+    bhf = h5Load(store, "Water/UO2 [Interface 1]/BoundaryHeatFlux")[0]
     store.close()
 
     # create multi-variate dataset for span 1
@@ -36,32 +38,31 @@ def main():
         tkes = tke.values[:, zone][~np.isnan(tke.values[:, zone])]
         cruds = crud_thick.values[:, zone][~np.isnan(crud_thick.values[:, zone])]
         b10s = b10.values[:, zone][~np.isnan(b10.values[:, zone])]
-        editIdx = (cruds >= 1e-9)
-        span_1_dataDict = {"Temperature [K]": temps[editIdx],
-                           "TKE [J/kg]": tkes[editIdx],
-                           "CRUD Thickness [micron]": cruds[editIdx] * 1e6,
-                           "B10 Mass [g/cm^2]": b10s[editIdx] * 1e3 * 1e2,
+        bhfs = bhf.values[:, zone][~np.isnan(bhf.values[:, zone])]
+        weights = weight.values[:, zone][~np.isnan(weight.values[:, zone])]
+        span_1_dataDict = {"Residual Temperature [K]": temps,
+                           "Residual TKE [J/kg]": tkes,
+                           "Residual BHF [W/m^2]": bhfs,
                            }
         span_1_mvd = mvd.Mvd()
-        span_1_mvd.setData(span_1_dataDict)
+        span_1_mvd.setData(span_1_dataDict, weights)
         span_1_mvd.plot(savefig="mvd_" + str(round(lower_b, 3)) + ".png")
 
     # full span plot
-    tsat = 618.5
-    zones = range(69, 80)
+    tsat = -618.5
+    zones = range(70, 79)
     temps = temperature.values[:, zones][~np.isnan(temperature.values[:, zones])]
     tkes = tke.values[:, zones][~np.isnan(tke.values[:, zones])]
     cruds = crud_thick.values[:, zones][~np.isnan(crud_thick.values[:, zones])]
     b10s = b10.values[:, zones][~np.isnan(b10.values[:, zones])]
-    # editIdx = (cruds >= 1e-9)
-    editIdx = (temps >= tsat)
-    span_1_dataDict = {"Temperature [K]": temps[editIdx],
-                       "TKE [J/kg]": tkes[editIdx],
-                       "CRUD Thickness [micron]": cruds[editIdx] * 1e6,
-                       "B10 Mass [g/cm^2]": b10s[editIdx] * 1e3 * 1e2,
+    bhfs = bhf.values[:, zones][~np.isnan(bhf.values[:, zones])]
+    weights = weight.values[:, zones][~np.isnan(weight.values[:, zones])]
+    span_1_dataDict = {"Residual Temperature [K]": temps,
+                       "Residual TKE [J/kg]": tkes,
+                       "Residual BHF [W/m^2]": bhfs,
                        }
     span_1_mvd = mvd.Mvd()
-    span_1_mvd.setData(span_1_dataDict)
+    span_1_mvd.setData(span_1_dataDict, weights)
     span_1_mvd.plot(savefig="mvd_span.png")
 
     """
