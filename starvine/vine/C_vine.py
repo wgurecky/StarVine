@@ -25,15 +25,19 @@ class Cvine(BaseVine):
 
     Tree level 1
     -------
+    ```
     X1 ---C_13--- X3
     |
     C_12
     |
     X2
+    ```
 
     Tree level 2
     ------
+    ```
     F(X2|X1) ---C_23|1--- F(X3|X1)
+    ```
 
     The nodes of the top level tree are the rank transformed,
     uniformly distributed marginals (defined on [0, 1]).
@@ -62,6 +66,9 @@ class Cvine(BaseVine):
     The n-dimensional density of a C-vine copula is given by:
 
     \f$ \prod_{k=1}^n f(x_k) \prod_{j=1}^{n-1} \prod_{i=1}^{n-j} c_{j,j+i|1,...j-1}(F(x_j|x_1...,x_{j-1}), F(x_{j+1}|x_1...,x_{j-1}))\f$
+
+    Where the outer product index represents the tree level, and the inner product indicies represent
+    the pair copula constructions withen the given tree.
     """
     def __init__(self, data):
         self.data = data
