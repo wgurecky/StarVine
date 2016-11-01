@@ -46,11 +46,11 @@ def main():
                            }
         span_1_mvd = mvd.Mvd()
         span_1_mvd.setData(span_1_dataDict, weights)
-        span_1_mvd.plot(savefig="mvd_" + str(round(lower_b, 3)) + ".png")
+        span_1_mvd.plot(savefig="mvd_" + str(round(lower_b, 3)) + ".png", kde=False)
 
     # full span plot
     tsat = -618.5
-    zones = range(70, 79)
+    zones = range(71, 78)
     temps = temperature.values[:, zones][~np.isnan(temperature.values[:, zones])]
     tkes = tke.values[:, zones][~np.isnan(tke.values[:, zones])]
     cruds = crud_thick.values[:, zones][~np.isnan(crud_thick.values[:, zones])]
@@ -63,7 +63,7 @@ def main():
                        }
     span_1_mvd = mvd.Mvd()
     span_1_mvd.setData(span_1_dataDict, weights)
-    span_1_mvd.plot(savefig="mvd_span.png")
+    span_1_mvd.plot(savefig="mvd_span.png", kde=False)
 
     """
     # create multi-variate dataset for span 2
