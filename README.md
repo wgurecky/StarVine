@@ -1,7 +1,9 @@
 About
 ========
 
-StarVine provides tools to construct C- and D-vine copula.
+StarVine provides tools to construct C- and D-vines.
+
+StarVine can also be used as a standalone copula fitting tool.
 
 Similar Projects
 ----------------
@@ -20,7 +22,7 @@ Prep package:
 
 Execute unit tests:
 
-    python setup.py test
+    python -m unittest discover
 
 To install a development version:
 
@@ -41,7 +43,7 @@ Requires:
 Optional:
 
 - statsmodels: Generalized method of moments fitting (optional)
-- mpi4py : MCMC parallelization (optional)
+- mpi4py : parallel MCMC (optional)
 
 Docs
 =====
@@ -51,7 +53,6 @@ Documentation is provided in the `/doc` directory.
 Build the docs from `starvine` directory:
 
     doxygen Doxyfile.in
-    make html
 
 Requires:
 

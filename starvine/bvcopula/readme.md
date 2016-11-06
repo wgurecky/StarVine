@@ -1,4 +1,4 @@
-StarVine/bvcopula
+starvine/bvcopula
 =================
 
 Bivariate copula

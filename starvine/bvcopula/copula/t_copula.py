@@ -13,10 +13,12 @@ class StudentTCopula(CopulaBase):
     @brief Student T copula
     2 parameter model
 
-    theta[0] == rho (shape param, related to pearson's corr coeff)
-    theta[1] == nu (degrees of freedom)
-    \f$\theta[0] \in (-1, 1) \f$
-    \f$\theta[1] \in (2, \infty) \f$
+    \f$ \theta_0 == \rho \f$ (shape param, related to pearson's corr coeff)
+
+    \f$ \theta_1 == \nu \f$  (degrees of freedom)
+
+    \f$ \theta_0 \in (-1, 1), \f$
+    \f$ \theta_1 \in (2, \infty) \f$
     """
     def __init__(self, rotation=0):
         self.thetaBounds = ((-1 + 1e-9, 1 - 1e-9), (2.0, np.inf),)

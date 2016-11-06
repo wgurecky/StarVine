@@ -1,5 +1,5 @@
 PROJECT_NAME           = StarVine
-PROJECT_LOGO           = ./doc/images/logo.png
+PROJECT_LOGO           = ./doc/images/logo_sm.png
 OUTPUT_DIRECTORY       = ./doc/documentation
 IMAGE_PATH             = ./doc/images
 FILE_PATTERNS          = *.h \
@@ -8,6 +8,9 @@ FILE_PATTERNS          = *.h \
                          *.hpp \
                          *.py \
                          *.md
+EXCLUDE_PATTERNS       = */build/*
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
 RECURSIVE              = YES
 USE_MDFILE_AS_MAINPAGE = ./README.md
 DISABLE_INDEX          = NO

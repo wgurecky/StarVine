@@ -20,8 +20,7 @@ class Cvine(BaseVine):
     Additional methods are provided to draw samples from a
     constructed C-vine.
 
-    Example 3 variable C-vine structure
-    +++++++++++++++++++++++++++++++++++
+    Example 3 variable C-vine structure:
 
     Tree level 1
     -------
@@ -45,27 +44,27 @@ class Cvine(BaseVine):
     The formation of the lower level trees
     involve computing conditional distributions of the form:
 
-    \f$ F(x|v) \f$
+    \f[ F(x|v) \f]
 
     For the bivariate case, Joe (1996) showed that:
 
-    \f$ F(x|v) = \frac{\partial C_{x,v}(F(x), F(v))}{\partial F_v(v)} \f$
+    \f[ F(x|v) = \frac{\partial C_{x,v}(F(x), F(v))}{\partial F_v(v)} \f]
 
     Which simplifies further if x and v are uniform:
 
-    \f$ h(x, v, \theta) = F(x|v) = \frac{\partial C_{xv}(x,v,\theta}{\partial v} \f$
+    \f[ h(x| v, \theta) = F(x|v, \theta) = \frac{\partial C_{xv}(x,v,\theta)}{\partial v} \f]
 
     Where we have defined the convinience conditional distribution
     \f$ h(\cdot) \f$
 
-    The nodes of the lower level trees are formed by using \f$ h(x,v,\theta) \f$
+    The nodes of the lower level trees are formed by using \f$ h(x| v,\theta) \f$
     to compute marginal distirbution of the RV \f$ x \f$ given the parent
     copula's parameters \f$ \theta \f$ and the root node's uniformly distributed
     \f$ v \f$.
 
     The n-dimensional density of a C-vine copula is given by:
 
-    \f$ \prod_{k=1}^n f(x_k) \prod_{j=1}^{n-1} \prod_{i=1}^{n-j} c_{j,j+i|1,...j-1}(F(x_j|x_1...,x_{j-1}), F(x_{j+1}|x_1...,x_{j-1}))\f$
+    \f[ \prod_{k=1}^n f(x_k) \prod_{j=1}^{n-1} \prod_{i=1}^{n-j} c_{j,j+i|1,...j-1}(F(x_j|x_1...,x_{j-1}), F(x_{j+1}|x_1...,x_{j-1}))\f]
 
     Where the outer product index represents the tree level, and the inner product indicies represent
     the pair copula constructions withen the given tree.

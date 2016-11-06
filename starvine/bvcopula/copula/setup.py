@@ -9,6 +9,7 @@ def configuration(parent_package='', top_path=None):
     config.add_extension('mvtdstpack',
                          sources=['mvtdstpack/mvtdstpack_custom.pyf',
                                   'mvtdstpack/mvtdstpack.f'])
+    config.add_subpackage('mvtdstpack')
     return config
 
 

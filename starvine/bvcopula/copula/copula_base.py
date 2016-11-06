@@ -154,8 +154,10 @@ class CopulaBase(object):
     def _h(self, u, v, rotation=0, *theta):
         """!
         @brief Copula conditional distribution function.
-        Provides \f$ h \f$  given \f$ V \f$  and \f$ \theta \f$
-        \f$ h(u|v, \theta) = \frac{\partial C( F(u|v), F(u|v) | \theta) }{\partial F(u|v)} \f$
+        Provides \f$ h \f$  given \f$ V \f$  and \f$ \theta \f$ .
+        \f[
+        h(u|v, \theta) = \frac{\partial C( F(u|v), F(u|v) | \theta) }{\partial F(u|v)}
+        \f]
 
         @param u <np_1darray> is uniformly distributed on [0, 1]
         @param v <np_1darray> is distributed acording to some some known DF
@@ -238,10 +240,12 @@ class CopulaBase(object):
         This method should be overridden if an analytic form of
         kendall's tau is avalible.
 
-        Let \f$T = C(u, v)$\f represent a univariate random variable
+        Let \f$ T = C(u, v) \f$ represent a univariate random variable
         which is in turn a function of the random variables, u \& v.
-        \f$ K_c(t) = t - \frac{\phi(t)}{\phi'(t)} $\f
-        where \f$ \phi(t) $\f is the copula generating function.
+        \f[
+        K_c(t) = t - \frac{\phi(t)}{\phi'(t)}
+        \f]
+        where \f$ \phi(t) \f$ is the copula generating function.
 
         Note:
             For the gauss and T copula this should be == (2.0/np.pi) * arcsin(rho)

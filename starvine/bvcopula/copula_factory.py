@@ -12,19 +12,26 @@ def validateRotation(rotation):
 
 
 class Copula(object):
+    """!
+    @brief Returns a bivariate copula instance.
+    """
     def __new__(cls, copulatype, rotation=0):
+        """!
+        @param copulatype <string> Copula type.
+        @param rotation <int>  Copula rotation 1==90 deg, 2==180 deg, 3==270 deg
+        """
         validateRotation(rotation)
-        if re.match( "t", copulatype):
+        if re.match("t", copulatype):
             return t_copula.StudentTCopula(0)
-        elif re.match( "gauss", copulatype):
+        elif re.match("gauss", copulatype):
             return gauss_copula.GaussCopula(0)
-        elif re.match( "frank", copulatype):
+        elif re.match("frank", copulatype):
             return frank_copula.FrankCopula(rotation)
-        elif re.match( "clayton", copulatype):
+        elif re.match("clayton", copulatype):
             return clayton_copula.ClaytonCopula(rotation)
-        elif re.match( "gumbel", copulatype):
+        elif re.match("gumbel", copulatype):
             return gumbel_copula.GumbelCopula(rotation)
-        elif re.match( "indep", copulatype):
+        elif re.match("indep", copulatype):
             return indep_copula.IndepCopula(rotation)
         else:
             # default

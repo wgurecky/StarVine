@@ -89,7 +89,7 @@ class PairCopula(object):
             self.v = v_hat
 
     def rankInv(self):
-        """
+        """!
         @brief Inverse rank transform data
         back to original scale.
         """

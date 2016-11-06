@@ -8,7 +8,9 @@ class ClaytonCopula(CopulaBase):
     """!
     @brief Clayton copula.
     Single parameter model.
-    \f$\theta \in [0, \infty) \f$
+    \f[
+        \theta \in [0, \infty)
+    \f]
     """
     def __init__(self, rotation=0):
         self.thetaBounds = ((1e-9, np.inf),)

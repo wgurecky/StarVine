@@ -61,9 +61,10 @@ class UVmodel(rv_continuous):
         @param w  Data weights
 
         Example General Method of Moments use:
-            my_uvmodel = UVmodel(...)
-            params0 = np.array([2.0, 1.0])
-            my_uvmodel.internalGMM.fit(params0, maxiter=2, optim_method='nm', wargs=dict(centered=False))
+
+            >>> my_uvmodel = UVmodel(...)
+            >>> params0 = np.array([2.0, 1.0])
+            >>> my_uvmodel.internalGMM.fit(params0, maxiter=2, optim_method='nm', wargs=dict(centered=False))
         """
         self.nMomentConditions = max((nMoM, self.nParams))
         nobs = data.shape[0]
@@ -93,7 +94,7 @@ class UVmodel(rv_continuous):
     def setLogPrior(self, logPriorFn):
         """!
         @brief Set log of prior distribution
-        ln(P(\f$\theta$\f))
+        \f[ ln(P(\theta)) \f]
         @param logPriorFn <function> logPrior
         """
         self.logPriorFn = logPriorFn
@@ -126,8 +127,8 @@ class UVmodel(rv_continuous):
 
     def _logPosterior(self, params, data, wgts):
         """!
-        @brief Posterior distribution = P(model)*P(data|model)
-        ln(P(model)*P(data|model)) == P(ln(model)) + P(ln(data|model))
+        @brief Posterior distribution \f$ F(model|data) \propto P(model)*P(data|model) \f$
+        \f[ ln(P(model)*P(data|model)) == P(ln(model)) + P(ln(data|model)) \f]
         """
         return self.logPriorFn(params) + self._loglike(params, data, wgts)
 
