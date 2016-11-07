@@ -242,7 +242,7 @@ class Ctree(Vtree):
         self.treeCopulaParams = []
         edgeList = self.tree.edges(data=True)
         for u, v, data in edgeList:
-            edgeParams = self.getEdgeCopulaParams(u, v)
+            edgeParams = self._getEdgeCopulaParams(u, v)
             for param in edgeParams:
                 self.treeCopulaParams.append(param)
             nEdgeParams = len(edgeParams)
