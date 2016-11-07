@@ -1,7 +1,7 @@
 About
 ========
 
-StarVine provides tools to construct C- and D-vines.
+[StarVine](starvine/readme.md) provides tools to construct C- and D-vines.
 
 StarVine can also be used as a standalone copula fitting tool.
 
@@ -34,16 +34,16 @@ Requires:
 - numpy : basic linear algebra operations
 - scipy : additional numerical operations
 - networkx : vine graph structure
-- pandas : data analysis
 - h5py : file I/O
 - emcee : MCMC
 - seaborn : plotting
 - matplotlib : basic plotting, required by seaborn
+- pandas
 
 Optional:
 
-- statsmodels: Generalized method of moments fitting (optional)
-- mpi4py : parallel MCMC (optional)
+- statsmodels: Generalized method of moments fitting
+- mpi4py : parallel MCMC
 
 Docs
 =====
@@ -56,7 +56,7 @@ Build the docs from `starvine` directory:
 
 Requires:
 
-    - Doxygen
+- Doxygen
 
 Example
 ========

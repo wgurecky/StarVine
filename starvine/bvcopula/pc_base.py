@@ -28,12 +28,14 @@ class PairCopula(object):
     def __init__(self, x, y, weights=None, **kwargs):
         """!
         @brief Bivariate data set init.
-        @param x  <np_1darray> first marginal data set
-        @param y  <np_1darray> second marginal data set
-        @param weights <np_1darray> (optional) data weights
+        @param x  <b>np_1darray</b> first marginal data set
+        @param y  <b>np_1darray</b> second marginal data set
+        @param weights <b>np_1darray</b> (optional) data weights
                normalized or unormalized weights accepted
         Note: len(u) == len(v) == len(weights)
         """
+        self.copulaModel, self.copulaParams = None, (None, None, )
+        #
         self.x = np.array(x)
         self.y = np.array(y)
         self.u, self.v = None, None  # ranked data
@@ -68,7 +70,7 @@ class PairCopula(object):
     def rank(self, method=0):
         """!
         @brief rank transfom the data
-        @param method <int>
+        @param method <b>int</b>
                if == 0: use standard rank transform,
                else: use CDF data transform.
         """
@@ -104,7 +106,7 @@ class PairCopula(object):
     def empKTau(self):
         """!
         @brief Returns emperical kendall's tau of rank transformed data.
-        @return <float> Kendall's tau rank correlation coeff
+        @return <b>float</b> Kendall's tau rank correlation coeff
         """
         self.empKTau_, self.pval_ = kendalltau(self.u, self.v)
         return self.empKTau_, self.pval_
@@ -112,7 +114,7 @@ class PairCopula(object):
     def empSRho(self):
         """!
         @brief Returns emperical spearman rho, the rank correlation coefficient.
-        @return <float> Spearman's rank correlation coeff
+        @return <b>float</b> Spearman's rank correlation coeff
         """
         self.empSRho_, self.pval_ = spearmanr(self.u, self.v)
         return self.empSRho_, self.pval_
@@ -120,7 +122,7 @@ class PairCopula(object):
     def empPRho(self):
         """!
         @brief Returns linear correlation coefficient, pearson's rho.
-        @return <float> pearson's correlation coefficient
+        @return <b>float</b> pearson's correlation coefficient
         """
         self.empPRho_, self.pval_ = pearsonr(self.x, self.y)
         return self.empPRho_, self.pval_
@@ -156,9 +158,9 @@ class PairCopula(object):
     def fitCopula(self, copula, thetaGuess=(None, None, )):
         """!
         @brief fit specified copula to data.
-        @param copula <CopulaBase>  Copula instance
-        @param thetaGuess <tuple> (optional) initial guess for copula params
-        @return (copula type <string>, fitted copula params <np_array>)
+        @param copula <b>CopulaBase</b>  Copula instance
+        @param thetaGuess <b>tuple</b> (optional) initial guess for copula params
+        @return (copula type <b>string</b>, fitted copula params <b>np_array</b>)
         """
         thetaHat = copula.fitMLE(self.UU, self.VV, *thetaGuess)
         AIC = copula._AIC(self.UU, self.VV, 0, *thetaHat)
@@ -170,7 +172,7 @@ class PairCopula(object):
         @brief Rotates the ranked data on the unit square.
         @param u  Ranked data vector
         @param v  Ranked data vector
-        @param rotation <int> 1==90deg, 2==180deg, 3==270, 0==0deg
+        @param rotation <b>int</b> 1==90deg, 2==180deg, 3==270, 0==0deg
         """
         if rotation >= 0:
             self.setRotation(rotation)

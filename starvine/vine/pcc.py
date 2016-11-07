@@ -1,13 +1,13 @@
-#!/usr/bin/python2
 ##
 # \brief Pair copula construction.
 # Stores copula model, two marginal disitribution models,
 # aware of location in Vine,
 # aware of node in next tree.
-from starvine.bvcopula import pc_base as pc
+#
+from starvine.bvcopula.pc_base import PairCopula
 
 
-def PairCopulaConstruction(pc.PairCopula):
+class PairCopulaConstruction(PairCopula):
     """!
     @brief Pair copula constructions are comprised of
     two "nodes" and one "edge" connecting them.
@@ -17,9 +17,9 @@ def PairCopulaConstruction(pc.PairCopula):
     PairCopula class.  This class extends the base
     class to provided awareness of the Vine's structure.
     """
-    def __init__(self, *args, **kargs):
+    def __init__(self, *args, **kwargs):
         self.treeLevel = kwargs.pop("treeLevel", 0)
-        super(PairCopulaConstruction, self).__init__(*args, **kwargs)
+        super(self, PairCopulaConstruction).__init__(*args, **kwargs)
 
     def genConditionalDist(self):
         pass
@@ -29,6 +29,9 @@ def PairCopulaConstruction(pc.PairCopula):
 
     @property
     def lowerNode(self):
+        """!
+        @returns  Node in tree below this edge.
+        """
         return 0
 
     @lowerNode.setter
