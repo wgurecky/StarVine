@@ -5,7 +5,7 @@
 from __future__ import print_function, absolute_import
 import numpy as np
 import scipy.integrate as spi
-from scipy.optimize import bisect
+from scipy.optimize import bisect, newton
 from scipy.optimize import minimize
 from scipy.misc import derivative
 
@@ -86,9 +86,11 @@ class CopulaBase(object):
         data pairs from copula with paramters: *theta
         """
         rotation = 0
-        u_hat = np.random.uniform(1e-9, 1 - 1e-9, n)
-        v = np.random.uniform(1e-9, 1 - 1e-9, n)
-        v_hat = self._hinv(u_hat, v, rotation, *mytheta)
+        u_iid_uniform = np.random.uniform(1e-9, 1 - 1e-9, n)
+        v_iid_uniform = np.random.uniform(1e-9, 1 - 1e-9, n)
+        # sample from copula
+        u_hat = u_iid_uniform
+        v_hat = self._hinv(u_iid_uniform, v_iid_uniform, rotation, *mytheta)
         return (u_hat, v_hat)
 
     def setRotation(self, rotation=0):
@@ -201,11 +203,14 @@ class CopulaBase(object):
     def _invhfun_bisect(self, U, V, rotation, *theta):
         """!
         @brief Compute inverse of H function using bisection.
-        TODO: Improve performance: finish with newton iterations
+        Update (11/08/2016) performance improvement: finish with newton iterations
         """
         # Freeze U, V, rotation, and model parameter, theta
         reducedHfn = lambda u: self._h(u, V, rotation, *theta) - U
-        return bisect(reducedHfn, 1e-10, 1.0 - 1e-10, maxiter=500)[0]
+        # return bisect(reducedHfn, 1e-10, 1.0 - 1e-10, maxiter=500)
+        v_bisect_est_ = bisect(reducedHfn, 1e-10, 1.0 - 1e-10, maxiter=10)
+        v_newton_est_ = newton(reducedHfn, v_bisect_est_, maxiter=30)
+        return v_newton_est_
 
     def _AIC(self, u, v, rotation=0, *theta):
         """!
@@ -329,13 +334,13 @@ class CopulaBase(object):
                 return f(self, u, v, rot, *nargs, **kwargs)
             elif self.rotation == 1:
                 # 90 deg rotation
-                return 1. - f(self, 1. - u, v, rot, *nargs)
+                return f(self, u, 1. - v, rot, *nargs)
             elif self.rotation == 2:
                 # 180 deg rotation
                 return 1. - f(self, 1. - u, 1. - v, rot, *nargs)
             elif self.rotation == 3:
                 # 270 deg rotation
-                return f(self, u, 1. - v, rot, *nargs)
+                return 1. - f(self, u, 1. - v, rot, *nargs)
         return wrapper
 
     @classmethod
@@ -355,13 +360,13 @@ class CopulaBase(object):
                 return f(self, u, v, rot, *nargs, **kwargs)
             elif self.rotation == 1:
                 # 90 deg rotation
-                return 1. - f(self, 1. - u, v, rot, *nargs)
+                return f(self, u, 1. - v, rot, *nargs)
             elif self.rotation == 2:
                 # 180 deg rotation
                 return 1. - f(self, 1. - u, 1. - v, rot, *nargs)
             elif self.rotation == 3:
                 # 270 deg rotation
-                return f(self, u, 1. - v, rot, *nargs)
+                return 1. - f(self, u, 1. - v, rot, *nargs)
         return wrapper
 
     @classmethod

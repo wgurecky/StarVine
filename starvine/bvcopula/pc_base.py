@@ -8,7 +8,7 @@ from scipy.stats import kendalltau, spearmanr, pearsonr
 from scipy.stats import gaussian_kde
 from scipy.stats.mstats import rankdata
 # COPULA IMPORTS
-from copula_factory import Copula
+from starvine.bvcopula.copula_factory import Copula
 
 
 class PairCopula(object):

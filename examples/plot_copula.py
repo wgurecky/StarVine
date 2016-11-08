@@ -61,7 +61,7 @@ def plot_pdfs():
     bv_plot.bvContourf(u.flatten(), v.flatten(), p, savefig="t_copula_pdf.png")
 
     c = gauss_copula.GaussCopula()
-    p = c.pdf(u.flatten(), v.flatten(), *[0.2])
+    p = c.pdf(u.flatten(), v.flatten(), *[-0.7])
     bv_plot.bvContourf(u.flatten(), v.flatten(), p, savefig="gauss_copula_pdf.png")
 
     # FRANK PDFS

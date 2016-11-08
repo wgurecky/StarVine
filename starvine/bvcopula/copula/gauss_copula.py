@@ -81,10 +81,14 @@ class GaussCopula(CopulaBase):
         """!
         @brief H function (Conditional distribution) of Gauss copula.
         """
+        kT = self.kTau(*theta)
+        kTs = kT / abs(kT)
+        kTM = 1 if kTs < 0 else 0
+
         h1 = np.sqrt(1.0 - np.power(np.array(theta[0]), 2))
         dist = stats.norm(scale=1.0, loc=0.0)
 
-        UU = np.array(u)  # TODO: check input bounds
+        UU = np.array(kTM + kTs * u)  # TODO: check input bounds
         VV = np.array(v)
 
         # inverse CDF yields quantiles
@@ -96,14 +100,19 @@ class GaussCopula(CopulaBase):
         return uu
 
     @CopulaBase._rotHinv
-    def _hinv(self, u, v, rotation=0, *theta):
+    def _hinv(self, v, u, rotation=0, *theta):
         """!
         @brief Inverse H function (Inv Conditional distribution) of Gauss copula.
         """
+        # TODO: check v, u ordering!
+        kT = self.kTau(*theta)
+        kTs = kT / abs(kT)
+        kTM = 1 if kTs < 0 else 0
+
         h1 = np.sqrt(1.0 - np.power(np.array(theta[0]), 2))
         dist = stats.norm(scale=1.0, loc=0.0)
 
-        UU = np.array(u)  # TODO: check input bounds
+        UU = np.array(kTM + kTs * u)  # TODO: check input bounds
         VV = np.array(v)
 
         # inverse CDF yields quantiles
