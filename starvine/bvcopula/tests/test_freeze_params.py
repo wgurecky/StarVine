@@ -30,10 +30,10 @@ class TestGaussFrozen(unittest.TestCase):
         self.assertAlmostEqual(stockModel.copulaParams[1], 0.73874003, 4)
 
         # Eval the frozen model
-        frzU, frzV = stockModel.copulaModel.sample(10000)
+        frzU, frzV = stockModel.copulaModel.sample(30000)
 
         # Eval a model with specified params
-        setU, setV = stockModel.copulaModel.sample(10000, (0.73874003,))
+        setU, setV = stockModel.copulaModel.sample(30000, (0.73874003,))
 
         # Ensure both frozen model and specified param model produce same result
         frzModel = PairCopula(frzU, frzV)
@@ -62,10 +62,10 @@ class TestGaussFrozen(unittest.TestCase):
         stockModel.copulaTournament(verbosity=0)
 
         # Eval the frozen model
-        frzU, frzV = stockModel.copulaModel.sample(10000)
+        frzU, frzV = stockModel.copulaModel.sample(40000)
 
         # Eval a model with specified params
-        setU, setV = stockModel.copulaModel.sample(10000, *stockModel.copulaParams[1])
+        setU, setV = stockModel.copulaModel.sample(40000, *stockModel.copulaParams[1])
 
         # Ensure both frozen model and specified param model produce same result
         frzModel = PairCopula(frzU, frzV)

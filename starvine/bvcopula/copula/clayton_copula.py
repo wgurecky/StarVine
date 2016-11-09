@@ -54,22 +54,26 @@ class ClaytonCopula(CopulaBase):
         return p
 
     @CopulaBase._rotH
-    def _h(self, u, v, rotation=0, *theta):
+    def _h(self, v, u, rotation=0, *theta):
+        """
+        TODO: CHECK UU and VV ordering!
+        """
         h1 = -(1.0 + theta[0]) / theta[0]
         UU = np.array(u)
         VV = np.array(v)
-        # TODO: CHECK UU and VV ordering!
         uu = np.power(np.power(VV,theta[0])*(np.power(UU,-theta[0])-1.0)+1.0,h1);
         return uu
 
     @CopulaBase._rotHinv
-    def _hinv(self, U, V, rotation=0, *theta):
+    def _hinv(self, v, u, rotation=0, *theta):
+        """
+        TODO: CHECK UU and VV ordering!
+        """
         h1 = -1.0 / theta[0]
         h2 = -theta[0] / (1.0 + theta[0])
-        UU = np.array(U)
-        VV = np.array(V)
-        # TODO: CHECK UU and VV ordering!
-        uu = np.power(np.power(UU,-theta[0])*(np.power(VV,h2)-1.0)+1.0,h1);
+        UU = np.array(u)
+        VV = np.array(v)
+        uu = np.power(np.power(VV,-theta[0])*(np.power(UU,h2)-1.0)+1.0,h1);
         return uu
 
     @CopulaBase._rotGen

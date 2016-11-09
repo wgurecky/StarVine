@@ -91,16 +91,21 @@ class StudentTCopula(CopulaBase):
         return p
 
     @CopulaBase._rotH
-    def _h(self, u, v, rotation=0, *theta):
+    def _h(self, v, u, rotation=0, *theta):
         """!
         @brief H function (Conditional distribution) of T copula.
+        TODO: CHECK UU and VV ordering!
         """
+        kT = self.kTau(*theta)
+        kTs = kT / abs(kT)
+        kTM = 1 if kTs < 0 else 0
+
         h1 = 1.0 - np.power(theta[0], 2.0)
         nu1 = theta[1] + 1.0
         dist1 = stats.t(df=theta[1], scale=1.0, loc=0.0)
         dist2 = stats.t(df=nu1, scale=1.0, loc=0.0)
 
-        UU = np.array(u)  # TODO: check input bounds
+        UU = np.array(kTM + kTs * u)  # TODO: check input bounds
         VV = np.array(v)
 
         # inverse CDF yields quantiles
@@ -113,16 +118,21 @@ class StudentTCopula(CopulaBase):
         return uu
 
     @CopulaBase._rotHinv
-    def _hinv(self, u, v, rotation=0, *theta):
+    def _hinv(self, v, u, rotation=0, *theta):
         """!
         @brief Inverse H function (Inv Conditional distribution) of T copula.
+        TODO: CHECK UU and VV ordering!
         """
+        kT = self.kTau(*theta)
+        kTs = kT / abs(kT)
+        kTM = 1 if kTs < 0 else 0
+
         h1 = 1.0 - np.power(theta[0], 2.0)
         nu1 = theta[1] + 1.0
         dist1 = stats.t(df=theta[1], scale=1.0, loc=0.0)
         dist2 = stats.t(df=nu1, scale=1.0, loc=0.0)
 
-        UU = np.array(u)  # TODO: check input bounds
+        UU = np.array(kTM + kTs * u)  # TODO: check input bounds
         VV = np.array(v)
 
         # inverse CDF yields quantiles

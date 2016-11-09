@@ -49,7 +49,10 @@ class FrankCopula(CopulaBase):
         return p
 
     @CopulaBase._rotH
-    def _h(self, u, v, rotation=0, *theta):
+    def _h(self, v, u, rotation=0, *theta):
+        """
+        TODO: CHECK UU and VV ordering!
+        """
         h1 = np.exp(-theta[0])
         UU = np.array(u)
         VV = np.array(v)
@@ -60,7 +63,10 @@ class FrankCopula(CopulaBase):
         return uu
 
     @CopulaBase._rotHinv
-    def _hinv(self, U, V, rotation=0, *theta):
+    def _hinv(self, V, U, rotation=0, *theta):
+        """
+        TODO: CHECK UU and VV ordering!
+        """
         h1 = np.exp(-theta[0])
         h2 = expm1(-theta[0])
         h3 = -1.0 / theta[0]

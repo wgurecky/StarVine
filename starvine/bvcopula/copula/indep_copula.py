@@ -17,10 +17,10 @@ class IndepCopula(CopulaBase):
         return u * v
 
     def _h(self, u, v, rotation=0, *args):
-        return u
+        return v
 
     def _hinv(self, u, v, rotation=0, *args):
-        return u
+        return v
 
     def _gen(self, t, rotation=0, *theta):
         return -np.log(t)

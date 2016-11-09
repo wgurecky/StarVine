@@ -53,7 +53,10 @@ class GumbelCopula(CopulaBase):
         return p
 
     @CopulaBase._rotH
-    def _h(self, u, v, rotation=0, *theta):
+    def _h(self, v, u, rotation=0, *theta):
+        """
+        TODO: CHECK UU and VV ordering!
+        """
         h1 = theta[0] - 1.0
         h2 = (1.0 - theta[0]) / theta[0]
         h3 = 1.0 / theta[0]
@@ -70,7 +73,7 @@ class GumbelCopula(CopulaBase):
     @CopulaBase._rotHinv
     def _hinv(self, v, u, rotation=0, *theta):
         """!
-        TODO: Computing hinv by bisection is slow. speed up needed!
+        TODO: CHECK UU and VV ordering!
         """
         U = np.array(u)
         V = np.array(v)

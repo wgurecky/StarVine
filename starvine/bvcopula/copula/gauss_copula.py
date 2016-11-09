@@ -77,9 +77,10 @@ class GaussCopula(CopulaBase):
         return p
 
     @CopulaBase._rotH
-    def _h(self, u, v, rotation=0, *theta):
+    def _h(self, v, u, rotation=0, *theta):
         """!
         @brief H function (Conditional distribution) of Gauss copula.
+        TODO: CHECK UU and VV ordering!
         """
         kT = self.kTau(*theta)
         kTs = kT / abs(kT)
@@ -103,8 +104,8 @@ class GaussCopula(CopulaBase):
     def _hinv(self, v, u, rotation=0, *theta):
         """!
         @brief Inverse H function (Inv Conditional distribution) of Gauss copula.
+        TODO: CHECK UU and VV ordering!
         """
-        # TODO: check v, u ordering!
         kT = self.kTau(*theta)
         kTs = kT / abs(kT)
         kTM = 1 if kTs < 0 else 0
