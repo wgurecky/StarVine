@@ -72,7 +72,7 @@ def main():
     #span_1_mvd.plot(savefig="mvd_span.png", kde=False)
 
     # fit bivariate copula to span plot; T vs TKE:
-    copula = bvc.PairCopula(temps, tkes, family={'gumbel': 3})
+    copula = bvc.PairCopula(temps, tkes, family={"t": 0})
     copula.copulaTournament()
 
     # plot original

@@ -208,8 +208,8 @@ class CopulaBase(object):
         # Freeze U, V, rotation, and model parameter, theta
         reducedHfn = lambda u: self._h(u, V, rotation, *theta) - U
         # return bisect(reducedHfn, 1e-10, 1.0 - 1e-10, maxiter=500)
-        v_bisect_est_ = bisect(reducedHfn, 1e-10, 1.0 - 1e-10, maxiter=10)
-        v_newton_est_ = newton(reducedHfn, v_bisect_est_, maxiter=30)
+        v_bisect_est_ = bisect(reducedHfn, 1e-10, 1.0 - 1e-10, maxiter=50, disp=False)
+        v_newton_est_ = newton(reducedHfn, v_bisect_est_, tol=1e-4, maxiter=30)
         return v_newton_est_
 
     def _AIC(self, u, v, rotation=0, *theta):
@@ -273,9 +273,9 @@ class CopulaBase(object):
         def wrapper(self, *args, **kwargs):
             u, v, rot = args[0], args[1], args[2]
             nargs = args[3:]
-            if not nargs:
+            if not any(nargs):
                 nargs = self.fittedParams
-            if not nargs:
+            if not any(nargs):
                 raise RuntimeError("Parameter missing")
             if self.rotation == 0:
                 # 0 deg rotation
@@ -299,9 +299,9 @@ class CopulaBase(object):
         def wrapper(self, *args, **kwargs):
             u, v, rot = args[0], args[1], args[2]
             nargs = args[3:]
-            if not nargs:
+            if not any(nargs):
                 nargs = self.fittedParams
-            if not nargs:
+            if not any(nargs):
                 raise RuntimeError("Parameter missing")
             if self.rotation == 0:
                 # 0 deg rotation
@@ -325,9 +325,9 @@ class CopulaBase(object):
         def wrapper(self, *args, **kwargs):
             u, v, rot = args[0], args[1], args[2]
             nargs = args[3:]
-            if not nargs:
+            if not any(nargs):
                 nargs = self.fittedParams
-            if not nargs:
+            if not any(nargs):
                 raise RuntimeError("Parameter missing")
             if self.rotation == 0:
                 # 0 deg rotation
@@ -351,9 +351,9 @@ class CopulaBase(object):
         def wrapper(self, *args, **kwargs):
             u, v, rot = args[0], args[1], args[2]
             nargs = args[3:]
-            if not nargs:
+            if not any(nargs):
                 nargs = self.fittedParams
-            if not nargs:
+            if not any(nargs):
                 raise RuntimeError("Parameter missing")
             if self.rotation == 0:
                 # 0 deg rotation
@@ -377,9 +377,9 @@ class CopulaBase(object):
         def wrapper(self, *args, **kwargs):
             t = args[0]
             nargs = args[1:]
-            if not nargs:
+            if not any(nargs):
                 nargs = self.fittedParams
-            if not nargs:
+            if not any(nargs):
                 raise RuntimeError("Parameter missing")
             return f(self, t, *nargs)
         return wrapper
