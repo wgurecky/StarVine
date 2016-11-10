@@ -13,6 +13,7 @@ class PairCopulaConstruction(PairCopula):
     two "nodes" and one "edge" connecting them.
     The nodes are marginal distributions and the edge is a
     bivariate copula.
+
     @note:  The base implementation is provided by the
     PairCopula class.  This class extends the base
     class to provided awareness of the Vine's structure.
@@ -21,7 +22,22 @@ class PairCopulaConstruction(PairCopula):
         self.treeLevel = kwargs.pop("treeLevel", 0)
         super(self, PairCopulaConstruction).__init__(*args, **kwargs)
 
-    def genConditionalDist(self):
+    @property
+    def marginals(self):
+        """!
+        @brief Marginal distributions.
+        Marginal distribution models are stored in a tuple: (uModel, vModel)
+        Ex maginal model access:
+
+            >>> self.marginals[0]
+        """
+        pass
+
+    @property.setter
+    def setMarginals(self):
+        pass
+
+    def genH(self):
         pass
 
     def traverseDown(self):
