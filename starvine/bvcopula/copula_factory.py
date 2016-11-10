@@ -17,8 +17,8 @@ class Copula(object):
     """
     def __new__(cls, copulatype, rotation=0):
         """!
-        @param copulatype <string> Copula type.
-        @param rotation <int>  Copula rotation 1==90 deg, 2==180 deg, 3==270 deg
+        @param copulatype <b>string</b> Copula type.
+        @param rotation <b>int</b>  Copula rotation 1==90 deg, 2==180 deg, 3==270 deg
         """
         validateRotation(rotation)
         if re.match("t", copulatype):

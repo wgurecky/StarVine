@@ -30,10 +30,10 @@ class StudentTCopula(CopulaBase):
     def _pdf(self, u, v, rotation=0, *theta):
         """!
         @brief Probability density function of T copula.
-        @param u <np_1darary>
-        @param v <np_1darary>
-        @param rotation <int>  Optional copula rotation.
-        @param theta <list of float> list of parameters to T-copula
+        @param u <b>np_1darary</b>
+        @param v <b>np_1darary</b>
+        @param rotation <b>int</b>  Optional copula rotation.
+        @param theta <b>list of float</b> list of parameters to T-copula
                [Shape, DoF]
         """
         # Constants

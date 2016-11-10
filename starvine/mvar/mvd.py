@@ -24,7 +24,7 @@ class Mvd(object):
 
     def setData(self, dataDict, weights=None):
         """!
-        @brief Collect data from dictionary with {<str>: <np_1darray>}
+        @brief Collect data from dictionary with {<b>str</b>: <b>np_1darray</b>}
         {key, value} pairs into a pandas dataFrame
         """
         self.mvdData, self.mvdDataWeights = pd.DataFrame(), pd.DataFrame()
@@ -48,7 +48,7 @@ class Mvd(object):
     def setUVD(self, uvdList):
         """!
         @brief  Collect uni-variate data sets into a multivariate data object.
-        @param  uvdList <list> of <uvar.Uvd> instances
+        @param  uvdList <b>list</b> of <b>uvar.Uvd</b> instances
         """
         for i, uvd in enumerate(uvdList):
             dataName = uvd.dataName if uvd.dataName is not None else i
@@ -65,7 +65,7 @@ class Mvd(object):
         @brief Computes mulitvariate kernel density function.  A kernel density function is
         constructed by combining many locally supported "mini PDFs".  This is
         a data smoothing operation.
-        @param <float> (optional) bandwidth.  Default is to use the "scott" factor:
+        @param <b>float</b> (optional) bandwidth.  Default is to use the "scott" factor:
         \f$n^{\frac{-1}{d+4}}\f$
         """
         self.mvdKDEpdf = gaussian_kde(self.mvdData.values, bw_method=bandwidth)
@@ -74,7 +74,7 @@ class Mvd(object):
     def computeCov(self, weighted=False):
         """!
         @brief computes cov matrix
-        @param weighted <bool> if True, utilizes mvdDataWeights (vols or areas)
+        @param weighted <b>bool</b> if True, utilizes mvdDataWeights (vols or areas)
             as frequency weights, essentially counting samples which represent more
             "area" or "volume" in the domain more times. True by default.
         """
@@ -90,7 +90,7 @@ class Mvd(object):
         @brief Computes principal components of multivariate data set.
         Provides a measure of explained varience per principal component,
         the principal compenent directions and magnitudes.
-        @return <list>
+        @return <b>list</b>
             [eigen_pairs, frac explained variance, cummulative_explained_var]
         """
         # shift data so that mean ==0 and var==1 on all axes
@@ -111,9 +111,9 @@ class Mvd(object):
         """!
         @brief Computes a projection matrix.
         Maps from the original data space to a reduced param space.
-        @param retainFracVar <double> Desired fraction of explained varience to retain
-        @param reducedDim <int> Target reduced data dimension
-        @return <np_ndarray> PC projection matrix
+        @param retainFracVar <b>double</b> Desired fraction of explained varience to retain
+        @param reducedDim <b>int</b> Target reduced data dimension
+        @return <b>np_ndarray</b> PC projection matrix
         """
         if not hasattr(self, "eig_pairs"):
             self.computePC()

@@ -1,5 +1,5 @@
 ##
-# \brief Concrete univariate model factory class
+# \brief Univariate model factory class
 from uvmodels import *
 import sys
 

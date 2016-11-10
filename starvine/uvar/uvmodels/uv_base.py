@@ -95,7 +95,7 @@ class UVmodel(rv_continuous):
         """!
         @brief Set log of prior distribution
         \f[ ln(P(\theta)) \f]
-        @param logPriorFn <function> logPrior
+        @param logPriorFn <b>function</b> logPrior
         """
         self.logPriorFn = logPriorFn
 
@@ -157,9 +157,9 @@ class UVmodel(rv_continuous):
     @_paramCheck
     def _loglike(self, params, data, wgts):
         """!
-        @param params <array-like> model parameters
-        @param data  <np_array> input data
-        @param wgts  <np_array> input data weights
+        @param params <b>array-like</b> model parameters
+        @param data  <b>np_array</b> input data
+        @param wgts  <b>np_array</b> input data weights
         """
         return np.sum(wgts * np.log(self.pdf(data, *list(params))) /
                       np.sum(wgts))

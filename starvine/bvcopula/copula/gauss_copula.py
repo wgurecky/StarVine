@@ -23,9 +23,9 @@ class GaussCopula(CopulaBase):
     def _pdf(self, u, v, rotation=0, *theta):
         """!
         @brief Probability density function of Gauss copula.
-        @param u <np_1darary>
-        @param v <np_1darary>
-        @param rotation <int>  Optional copula rotation.
+        @param u <b>np_1darary</b>
+        @param v <b>np_1darary</b>
+        @param rotation <b>int</b>  Optional copula rotation.
         @param theta  Gaussian copula parameter
         """
         # Constants
