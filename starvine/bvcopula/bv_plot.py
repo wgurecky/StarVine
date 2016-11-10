@@ -59,7 +59,7 @@ def bvJointPlot(u, v, corr_stat="kendalltau", vs=None, **kwargs):
     if vsData is not None:
         joint_plt.x, joint_plt.y = vsData[0], vsData[1]
         sb_color = sns.xkcd_palette(["faded green"])[0]
-        joint_plt.plot_joint(plt.scatter, s=6, alpha=0.3, c=sb_color, marker='o', edgecolors='face')
+        joint_plt.plot_joint(plt.scatter, s=4, alpha=0.2, c=sb_color, marker='o', edgecolors='face')
     if outfile:
         joint_plt.savefig(outfile)
     return joint_plt

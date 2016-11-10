@@ -79,18 +79,18 @@ def main():
     copula.copulaTournament()
 
     # plot original
-    bvc.bvJointPlot(temps, tkes, savefig="t_tke_original.png")
+    bvc.bvJointPlot(temps, tkes, savefig="upper_t_tke_original.png")
 
     # sample from copula
     print("Copula Params: " + str(copula.copulaParams))
-    t_hat, tke_hat = copula.copulaModel.sample(100)
-    bvc.bvJointPlot(t_hat, tke_hat, savefig="t_tke_copula_sample.png")
+    t_hat, tke_hat = copula.copulaModel.sample(500)
+    bvc.bvJointPlot(t_hat, tke_hat, savefig="upper_t_tke_copula_sample.png")
 
     rand_u = np.linspace(0.05, 0.95, 40)
     rand_v = np.linspace(0.05, 0.95, 40)
     u, v = np.meshgrid(rand_u, rand_v)
     copula_pdf = copula.copulaModel.pdf(u.flatten(), v.flatten())
-    bvc.bvContourf(u.flatten(), v.flatten(), copula_pdf, savefig="t_tke_copula_pdf.png")
+    bvc.bvContourf(u.flatten(), v.flatten(), copula_pdf, savefig="upper_t_tke_copula_pdf.png")
 
     # Resample original data
     def icdf_uv_bisect(ux, X, marginalCDFModel):
@@ -110,7 +110,7 @@ def main():
     resampled_t = icdf_uv_bisect(temps, t_hat, kde_cdf)
     kde_cdf = gaussian_kde(tkes).integrate_box
     resampled_tke = icdf_uv_bisect(tkes, tke_hat, kde_cdf)
-    bvc.bvJointPlot(resampled_t, resampled_tke, vs=[temps, tkes], savefig="t_tke_resampled.png")
+    bvc.bvJointPlot(resampled_t, resampled_tke, vs=[temps, tkes], savefig="upper_t_tke_resampled.png")
 
     # LOWER SPAN
     tsat = -618.5
@@ -134,18 +134,18 @@ def main():
     copula.copulaTournament()
 
     # plot original
-    bvc.bvJointPlot(temps, tkes, savefig="t_tke_original.png")
+    bvc.bvJointPlot(temps, tkes, savefig="lower_t_tke_original.png")
 
     # sample from copula
     print("Copula Params: " + str(copula.copulaParams))
-    t_hat, tke_hat = copula.copulaModel.sample(100)
-    bvc.bvJointPlot(t_hat, tke_hat, savefig="t_tke_copula_sample.png")
+    t_hat, tke_hat = copula.copulaModel.sample(500)
+    bvc.bvJointPlot(t_hat, tke_hat, savefig="lower_t_tke_copula_sample.png")
 
     rand_u = np.linspace(0.05, 0.95, 40)
     rand_v = np.linspace(0.05, 0.95, 40)
     u, v = np.meshgrid(rand_u, rand_v)
     copula_pdf = copula.copulaModel.pdf(u.flatten(), v.flatten())
-    bvc.bvContourf(u.flatten(), v.flatten(), copula_pdf, savefig="t_tke_copula_pdf.png")
+    bvc.bvContourf(u.flatten(), v.flatten(), copula_pdf, savefig="lower_t_tke_copula_pdf.png")
 
     # Resample original data
     def icdf_uv_bisect(ux, X, marginalCDFModel):
@@ -165,7 +165,7 @@ def main():
     resampled_t = icdf_uv_bisect(temps, t_hat, kde_cdf)
     kde_cdf = gaussian_kde(tkes).integrate_box
     resampled_tke = icdf_uv_bisect(tkes, tke_hat, kde_cdf)
-    bvc.bvJointPlot(resampled_t, resampled_tke, vs=[temps, tkes], savefig="t_tke_resampled.png")
+    bvc.bvJointPlot(resampled_t, resampled_tke, vs=[temps, tkes], savefig="lower_t_tke_resampled.png")
 
     # Clean up
     store.close()
