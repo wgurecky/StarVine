@@ -38,7 +38,7 @@ def main():
 
     """
     # create multi-variate dataset for span 1
-    # for zone in range(70, 75):
+    # for zone in range(69, 81):
     for zone in range(69, 78):
         lower_b = bounds.read()[:, zone][0]
         print("Generating plot for zone: " + str(zone))
@@ -57,9 +57,9 @@ def main():
         span_1_mvd.plot(savefig="mvd_" + str(round(lower_b, 3)) + ".png", kde=False)
     """
 
-    # full span plot
+    # upper span plot
     tsat = -618.5
-    zones = range(69, 80)
+    zones = range(75, 80)
     temps = temperature.read()[:, zones][~np.isnan(temperature.read()[:, zones])]
     tkes = tke.read()[:, zones][~np.isnan(tke.read()[:, zones])]
     cruds = crud_thick.read()[:, zones][~np.isnan(crud_thick.read()[:, zones])]
@@ -72,7 +72,62 @@ def main():
                        }
     span_1_mvd = mvd.Mvd()
     span_1_mvd.setData(span_1_dataDict, weights)
-    span_1_mvd.plot(savefig="mvd_span.png", kde=False)
+    span_1_mvd.plot(savefig="upper_span.png", kde=False)
+
+    # fit bivariate copula to span plot; T vs TKE:
+    copula = bvc.PairCopula(temps, tkes)
+    copula.copulaTournament()
+
+    # plot original
+    bvc.bvJointPlot(temps, tkes, savefig="t_tke_original.png")
+
+    # sample from copula
+    print("Copula Params: " + str(copula.copulaParams))
+    t_hat, tke_hat = copula.copulaModel.sample(100)
+    bvc.bvJointPlot(t_hat, tke_hat, savefig="t_tke_copula_sample.png")
+
+    rand_u = np.linspace(0.05, 0.95, 40)
+    rand_v = np.linspace(0.05, 0.95, 40)
+    u, v = np.meshgrid(rand_u, rand_v)
+    copula_pdf = copula.copulaModel.pdf(u.flatten(), v.flatten())
+    bvc.bvContourf(u.flatten(), v.flatten(), copula_pdf, savefig="t_tke_copula_pdf.png")
+
+    # Resample original data
+    def icdf_uv_bisect(ux, X, marginalCDFModel):
+        icdf = np.zeros(np.array(X).size)
+        for i, xx in enumerate(X):
+            kde_cdf_err = lambda m: xx - marginalCDFModel(-np.inf, m)
+            try:
+                icdf[i] = bisect(kde_cdf_err,
+                                 min(ux) - np.abs(0.5 * min(ux)),
+                                 max(ux) + np.abs(0.5 * max(ux)),
+                                 xtol=1e-2, maxiter=10)
+                icdf[i] = newton(kde_cdf_err, icdf[i], tol=1e-6, maxiter=20)
+            except:
+                icdf[i] = np.nan
+        return icdf
+    kde_cdf = gaussian_kde(temps).integrate_box
+    resampled_t = icdf_uv_bisect(temps, t_hat, kde_cdf)
+    kde_cdf = gaussian_kde(tkes).integrate_box
+    resampled_tke = icdf_uv_bisect(tkes, tke_hat, kde_cdf)
+    bvc.bvJointPlot(resampled_t, resampled_tke, vs=[temps, tkes], savefig="t_tke_resampled.png")
+
+    # LOWER SPAN
+    tsat = -618.5
+    zones = range(69, 75)
+    temps = temperature.read()[:, zones][~np.isnan(temperature.read()[:, zones])]
+    tkes = tke.read()[:, zones][~np.isnan(tke.read()[:, zones])]
+    cruds = crud_thick.read()[:, zones][~np.isnan(crud_thick.read()[:, zones])]
+    b10s = b10.read()[:, zones][~np.isnan(b10.read()[:, zones])]
+    bhfs = bhf.read()[:, zones][~np.isnan(bhf.read()[:, zones])]
+    weights = weight.read()[:, zones][~np.isnan(weight.read()[:, zones])]
+    span_1_dataDict = {"Residual Temperature [K]": temps,
+                       "Residual TKE [J/kg]": tkes,
+                       "Residual BHF [W/m^2]": bhfs,
+                       }
+    span_1_mvd = mvd.Mvd()
+    span_1_mvd.setData(span_1_dataDict, weights)
+    span_1_mvd.plot(savefig="lower_span.png", kde=False)
 
     # fit bivariate copula to span plot; T vs TKE:
     copula = bvc.PairCopula(temps, tkes)

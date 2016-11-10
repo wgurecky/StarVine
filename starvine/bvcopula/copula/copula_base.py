@@ -86,7 +86,7 @@ class CopulaBase(object):
                          tol=kwargs.pop("tol", 1e-8),
                          method=kwargs.pop("altMethod", 'Nelder-Mead'))
         if not res.success:
-            print("\nWARNING: Copula parameter fitting failed to converge!")
+            print("WARNING: Copula parameter fitting failed to converge!")
         self.fittedParams = res.x
         return res.x, res.success  # return best fit coupula params (theta(s))
 
