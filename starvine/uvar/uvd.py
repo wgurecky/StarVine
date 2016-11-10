@@ -9,12 +9,21 @@ class Uvd(object):
     """!
     @brief Container for univariate data.
     """
-    def __init__(self, *args, **kwargs):
-        self.fieldData = (args[0] if args else None)
-        self.dataWeights = (args[1] if len(args) > 1 else None)
-        self.dataName = kwargs.pop("dataName", None)
-        self.boundingPlanes = kwargs.pop("boundingPlanes", None)
-        self.uvmodel = uvf.Uvm("gauss")  # default gaussian univariate model
+    def __init__(self, fData=None, dWeights=None, dName=None, bPlanes=None,
+                 uvModelName="gauss", *args, **kwargs):
+        """!
+        @brief Init univariate model distirbution
+        @param fData
+        @param dWeights
+        @param dName
+        @param bPlanes
+        @param uvModelName
+        """
+        self.fieldData = fData
+        self.dataWeights = dWeights
+        self.dataName = dName
+        self.boundingPlanes = bPlanes
+        self.uvmodel = uvf.Uvm(uvModelName)
 
     def setUVM(self, uvModelName):
         """!

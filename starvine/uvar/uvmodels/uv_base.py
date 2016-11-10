@@ -102,6 +102,10 @@ class UVmodel(rv_continuous):
     def setupMCMC(self, nwalkers, params, data, wgts=None, *args):
         """!
         @brief Initilize the MCMC sampler
+        @param nwalkers <b>int</b> Number of walkers
+        @param params <b>list</b> of <b>doubles</b> Model parameter list
+        @param data <b>np_array</b> data array
+        @param wgts <b>np_array</b> data weights
         """
         wgts = 1.0 if not wgts else wgts
         assert(wgts == 1.0 or len(np.array([wgts])) == len(data))
@@ -118,9 +122,13 @@ class UVmodel(rv_continuous):
 
     def fitMCMC(self, iters, pos=None):
         """!
-        @brief Execute MCMC model parameter fitting
+        @brief Execute MCMC model parameter fitting.  Must call setupMCMC before
+        calling this method.
+        @param iters <b>int</b> number of MCMC iterations
         @param pos Initial position of walkers
         """
+        if not hasattr(self, "nwalkers"):
+            raise RuntimeError("MCMC has not been setup. Call setupMCMC before fitting.")
         if pos:
             self.walker_pos = pos
         self.sampler.run_mcmc(self.walker_pos, iters)

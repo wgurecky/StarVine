@@ -20,7 +20,10 @@ class CopulaBase(object):
     negative dependence.
     """
     def __init__(self, rotation=0):
-        # Set orientation of copula
+        """!
+        @brief Init copula
+        @param rotation <b>int</b>  Copula orientation
+        """
         self.rotation = rotation
         self.fittedParams = None
 
@@ -28,9 +31,9 @@ class CopulaBase(object):
     def cdf(self, u, v, *theta):
         """!
         @brief Evaluate the copula's CDF function.
-        @param u <np_1darray> Rank data vector
-        @param v <np_1darray> Rank data vector
-        @param theta  <list> of <float> Copula parameter list
+        @param u <b>np_1darray</b> Rank data vector
+        @param v <b>np_1darray</b> Rank data vector
+        @param theta  <b>list</b> of <b>float</b> Copula parameter list
         """
         rotation = 0
         return self._cdf(u, v, rotation, *theta)
@@ -38,9 +41,9 @@ class CopulaBase(object):
     def pdf(self, u, v, *theta):
         """!
         @brief Public facing PDF function.
-        @param u <np_1darray> Rank data vector
-        @param v <np_1darray> Rank data vector
-        @param theta  <list> of <float> Copula parameter list
+        @param u <b>np_1darray</b> Rank data vector
+        @param v <b>np_1darray</b> Rank data vector
+        @param theta  <b>list</b> of <b>float</b> Copula parameter list
         """
         rotation = 0
         return self._pdf(u, v, rotation, *theta)
@@ -56,10 +59,10 @@ class CopulaBase(object):
     def fitMLE(self, u, v, *theta0, **kwargs):
         """!
         @brief Maximum likelyhood copula fit.
-        @param u <np_1darray> Rank data vector
-        @param v <np_1darray> Rank data vector
+        @param u <b>np_1darray</b> Rank data vector
+        @param v <b>np_1darray</b> Rank data vector
         @param theta0 Initial guess for copula parameter list
-        @return <np_array> Array of MLE fit copula parameters
+        @return <b>np_array</b> Array of MLE fit copula parameters
         """
         rotation = 0
         if None in theta0:
@@ -82,7 +85,7 @@ class CopulaBase(object):
         @param n Number of samples
         @param theta  Parameter list
         @param rotation Copula rotation parameter
-        @return <np_array> (n, 2) size vector.  Resampled (U, V)
+        @return <b>np_array</b> (n, 2) size vector.  Resampled (U, V)
         data pairs from copula with paramters: *theta
         """
         rotation = 0
@@ -96,13 +99,14 @@ class CopulaBase(object):
     def setRotation(self, rotation=0):
         """!
         @brief  Set the copula's orientation:
-            0 == 0 deg
-            1 == 90 deg rotation
-            2 == 180 deg rotation
-            3 == 270 deg rotation
         Allows for modeling negative dependence with the
         frank, gumbel, and clayton copulas (Archimedean Copula family is
         non-symmetric)
+        @param rotation <b>int</b> Copula rotation.
+            0 == 0 deg,
+            1 == 90 deg rotation,
+            2 == 180 deg rotation,
+            3 == 270 deg rotation
         """
         self.rotation = rotation
 
@@ -110,9 +114,9 @@ class CopulaBase(object):
     def _pdf(self, u, v, rotation=0, *theta):
         """!
         @brief Pure virtual density function.
-        @param u <np_1darray> Rank CDF data vector
-        @param v <np_1darray> Rank CDF data vector
-        @param rotation_theta <int> Copula rotation (0 == 0deg, 1==90deg, ...)
+        @param u <b>np_1darray</b> Rank CDF data vector
+        @param v <b>np_1darray</b> Rank CDF data vector
+        @param rotation_theta <b>int</b> Copula rotation (0 == 0deg, 1==90deg, ...)
         """
         raise NotImplementedError
 
@@ -121,9 +125,9 @@ class CopulaBase(object):
         @brief Default implementation of the cumulative density function. Very slow.
         Recommended to replace with an analytic CDF if possible.
         @param theta  Copula parameter list
-        @param rotation <int> copula rotation parameter
-        @param u <np_1darray> Rank CDF data vector
-        @param v <np_1darray> Rank CDF data vector
+        @param rotation <b>int</b> copula rotation parameter
+        @param u <b>np_1darray</b> Rank CDF data vector
+        @param v <b>np_1darray</b> Rank CDF data vector
         """
         # for i, (ui, vi) in enumerate(zip(u, v)):
         #     reducedPPF = lambda pu, pv: \
@@ -161,8 +165,8 @@ class CopulaBase(object):
         h(u|v, \theta) = \frac{\partial C( F(u|v), F(u|v) | \theta) }{\partial F(u|v)}
         \f]
 
-        @param u <np_1darray> is uniformly distributed on [0, 1]
-        @param v <np_1darray> is distributed acording to some some known DF
+        @param u <b>np_1darray</b> is uniformly distributed on [0, 1]
+        @param v <b>np_1darray</b> is distributed acording to some some known DF
         @param rotation Copula rotation paramter
         @param theta  Known copula paramter list
         @return h \f$ h(u|v, \theta) \f$
@@ -259,15 +263,15 @@ class CopulaBase(object):
         kendall's tau is avalible.
 
         Let \f$ T = C(u, v) \f$ represent a random variable and
-        t is an RV distributed according to T().
-        \f[
-        K_c(t) = \frac{\phi(t)}{\phi'(t)}
-        \f]
-        \tau = 1 + 4 \int_0^1 K_c(t) dt
+        \f$ t \f$ is an RV distributed according to \f$ T() \f$.
+        \f[ K_c(t) = \frac{\phi(t)}{\phi'(t)} \f]
+        \f[ \tau = 1 + 4 \int_0^1 K_c(t) dt \f]
         where \f$ \phi(t) \f$ is the copula generating function.
 
         Note:
-        For the gauss and students-t copula this should be == (2.0/np.pi) * arcsin(rho)
+        For the gauss and students-t copula:
+        \f[ \tau = \frac{2.0}{\pi}  arcsin(\rho) \f]
+        where \f$ \rho \f$ is the linear correlation coefficient.
         """
         t_range = np.array([[1e-8, 1 - 1e-8], ])
         reduced_gen = lambda t: self._gen(t, *theta)
