@@ -9,6 +9,7 @@ class IndepCopula(CopulaBase):
         self.name = 'indep'
         self.theta0 = (1.0, )
         self.fittedParams = [1.0]
+        self.thetaBounds = ((-np.inf, np.inf),)
 
     def _pdf(self, u, v, rotation=0, *args):
         return np.ones(len(u))

@@ -35,8 +35,8 @@ def main():
 
     """
     # create multi-variate dataset for span 1
-    # for zone in range(68, 80):
-    for zone in range(71, 78):
+    # for zone in range(70, 75):
+    for zone in range(69, 78):
         lower_b = bounds.values[:, zone][0]
         print("Generating plot for zone: " + str(zone))
         temps = temperature.values[:, zone][~np.isnan(temperature.values[:, zone])]
@@ -56,7 +56,7 @@ def main():
 
     # full span plot
     tsat = -618.5
-    zones = range(71, 72)
+    zones = range(70, 71)
     temps = temperature.values[:, zones][~np.isnan(temperature.values[:, zones])]
     tkes = tke.values[:, zones][~np.isnan(tke.values[:, zones])]
     cruds = crud_thick.values[:, zones][~np.isnan(crud_thick.values[:, zones])]
@@ -68,11 +68,11 @@ def main():
                        "Residual BHF [W/m^2]": bhfs,
                        }
     span_1_mvd = mvd.Mvd()
-    #span_1_mvd.setData(span_1_dataDict, weights)
-    #span_1_mvd.plot(savefig="mvd_span.png", kde=False)
+    span_1_mvd.setData(span_1_dataDict, weights)
+    span_1_mvd.plot(savefig="mvd_span.png", kde=False)
 
     # fit bivariate copula to span plot; T vs TKE:
-    copula = bvc.PairCopula(temps, tkes, family={"t": 0})
+    copula = bvc.PairCopula(temps, tkes, family={"gumbel": 1})
     copula.copulaTournament()
 
     # plot original
@@ -107,7 +107,7 @@ def main():
     resampled_t = icdf_uv_bisect(temps, t_hat, kde_cdf)
     kde_cdf = gaussian_kde(tkes).integrate_box
     resampled_tke = icdf_uv_bisect(tkes, tke_hat, kde_cdf)
-    bvc.bvJointPlot(resampled_t, resampled_tke, savefig="t_tke_resampled.png")
+    bvc.bvJointPlot(resampled_t, resampled_tke, vs=[temps, tkes], savefig="t_tke_resampled.png")
 
 
 if __name__ == "__main__":

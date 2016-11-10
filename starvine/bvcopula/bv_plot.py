@@ -49,12 +49,17 @@ def bvContourf(x1, x2, z, **kwargs):
     return contour_plot
 
 
-def bvJointPlot(u, v, corr_stat="kendalltau", **kwargs):
+def bvJointPlot(u, v, corr_stat="kendalltau", vs=None, **kwargs):
     stat_funcs = {"kendalltau": kendalltau,
                   "spearmanr": spearmanr,
                   "pearsonr": pearsonr}
     outfile = kwargs.pop("savefig", None)
-    joint_plt = sns.jointplot(u, v, stat_func=stat_funcs[corr_stat], **kwargs)
+    joint_plt = sns.jointplot(x=u, y=v, stat_func=stat_funcs[corr_stat], **kwargs)
+    vsData = vs
+    if vsData is not None:
+        joint_plt.x, joint_plt.y = vsData[0], vsData[1]
+        sb_color = sns.xkcd_palette(["faded green"])[0]
+        joint_plt.plot_joint(plt.scatter, s=6, alpha=0.3, c=sb_color, marker='o', edgecolors='face')
     if outfile:
         joint_plt.savefig(outfile)
     return joint_plt

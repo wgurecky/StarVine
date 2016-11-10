@@ -205,12 +205,26 @@ class CopulaBase(object):
         @brief Compute inverse of H function using bisection.
         Update (11/08/2016) performance improvement: finish with newton iterations
         """
-        # Freeze U, V, rotation, and model parameter, theta
+        # Apply rotation
+        if self.rotation == 0 or self.rotation == 3:
+            V = 1. - V
+        # Apply limiters
+        if U > 0.999:
+            U = 0.999
+        elif U < 0.001:
+            U = 0.001
         reducedHfn = lambda u: self._h(u, V, rotation, *theta) - U
-        # return bisect(reducedHfn, 1e-10, 1.0 - 1e-10, maxiter=500)
-        v_bisect_est_ = bisect(reducedHfn, 1e-10, 1.0 - 1e-10, maxiter=50, disp=False)
-        v_newton_est_ = newton(reducedHfn, v_bisect_est_, tol=1e-4, maxiter=30)
-        return v_newton_est_
+        v_bisect_est_ = bisect(reducedHfn, 1e-60, 1.0 - 1e-60, maxiter=20, disp=False)
+        try:
+            v_est_ = newton(reducedHfn, v_bisect_est_, tol=1e-4, maxiter=30)
+        except:
+            # fallback if newton fails to converge
+            v_est_ = bisect(reducedHfn, 1e-60, 1.0 - 1e-60, maxiter=100, disp=False)
+        # return v_est_
+        if self.rotation == 1 or self.rotation == 2:
+            return 1. - v_est_
+        else:
+            return v_est_
 
     def _AIC(self, u, v, rotation=0, *theta):
         """!
@@ -240,21 +254,20 @@ class CopulaBase(object):
 
     def _kTau(self, rotation=0, *theta):
         """!
-        @brief Computes Kendall's tau.  Requires that
-        the copula has a _gen() method implemented.
-        This method should be overridden if an analytic form of
+        @brief Computes Kendall's tau.  Requires that the copula has a _gen()
+        method implemented. This method should be overridden if an analytic form of
         kendall's tau is avalible.
 
-        Let \f$ T = C(u, v) \f$ represent a univariate random variable
-        which is in turn a function of the random variables, u \& v.
+        Let \f$ T = C(u, v) \f$ represent a random variable and
+        t is an RV distributed according to T().
         \f[
         K_c(t) = t - \frac{\phi(t)}{\phi'(t)}
         \f]
+        \tau = 3 - 4 \int_0^1 K_c(t) dt
         where \f$ \phi(t) \f$ is the copula generating function.
 
         Note:
-            For the gauss and T copula this should be == (2.0/np.pi) * arcsin(rho)
-            where rho is the T and gauss correlation parameter.
+        For the gauss and students-t copula this should be == (2.0/np.pi) * arcsin(rho)
         """
         t_range = np.array([[1e-9, 1 - 1e-9], ])
         # Kendall's tau distribution
@@ -276,6 +289,7 @@ class CopulaBase(object):
             if not any(nargs):
                 nargs = self.fittedParams
             if not any(nargs):
+                # Raise error if fittedParams not set
                 raise RuntimeError("Parameter missing")
             if self.rotation == 0:
                 # 0 deg rotation
@@ -334,7 +348,7 @@ class CopulaBase(object):
                 return f(self, u, v, rot, *nargs, **kwargs)
             elif self.rotation == 1:
                 # 90 deg rotation
-                return f(self, u, 1. - v, rot, *nargs)
+                return f(self, 1. - u, v, rot, *nargs)
             elif self.rotation == 2:
                 # 180 deg rotation
                 return 1. - f(self, 1. - u, 1. - v, rot, *nargs)
@@ -360,12 +374,15 @@ class CopulaBase(object):
                 return f(self, u, v, rot, *nargs, **kwargs)
             elif self.rotation == 1:
                 # 90 deg rotation
-                return f(self, u, 1. - v, rot, *nargs)
+                return f(self, 1. - u, v, rot, *nargs)
             elif self.rotation == 2:
                 # 180 deg rotation
                 return 1. - f(self, 1. - u, 1. - v, rot, *nargs)
             elif self.rotation == 3:
                 # 270 deg rotation
+                # Clayton is flipped!
+                # TODO: Fix GUMBEL 270 rotation
+                # return 1. - f(self, 1. - u, v, rot, *nargs)  # works for gumbel
                 return 1. - f(self, u, 1. - v, rot, *nargs)
         return wrapper
 
