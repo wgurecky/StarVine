@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 # copula imports
 import starvine.bvcopula as bvc
+import tables as pt
 
 
 def h5Load(store, grpName):
@@ -16,14 +17,17 @@ def h5Load(store, grpName):
     @param store <pd.HDFStore> instance
     @param grpName HDF5 group name locating data in h5 store
     """
-    data = store[grpName]
+    if grpName[0] is not "/":
+        grpName = "/" + grpName
+    data = store.get_node(grpName, "block0_values")
     return data
 
 
 def main():
     # read data from external h5 file
     h5file = 'Cicada_cfd_180x_cht.h5.post.binned.h5'
-    store = pd.HDFStore(h5file)
+    # store = pd.HDFStore(h5file)
+    store = pt.open_file(h5file)
     bounds = h5Load(store, "Water/UO2 [Interface 1]/Temperature_bounds")
     temperature = h5Load(store, "Water/UO2 [Interface 1]/Temperature")
     tke = h5Load(store, "Water/UO2 [Interface 1]/TurbulentKineticEnergy")
@@ -31,20 +35,19 @@ def main():
     b10 = h5Load(store, "Water/UO2 [Interface 1]/CrudBoronDensity")
     weight = h5Load(store, "Water/UO2 [Interface 1]/Temperature_weights")
     bhf = h5Load(store, "Water/UO2 [Interface 1]/BoundaryHeatFlux")
-    store.close()
 
     """
     # create multi-variate dataset for span 1
     # for zone in range(70, 75):
     for zone in range(69, 78):
-        lower_b = bounds.values[:, zone][0]
+        lower_b = bounds.read()[:, zone][0]
         print("Generating plot for zone: " + str(zone))
-        temps = temperature.values[:, zone][~np.isnan(temperature.values[:, zone])]
-        tkes = tke.values[:, zone][~np.isnan(tke.values[:, zone])]
-        cruds = crud_thick.values[:, zone][~np.isnan(crud_thick.values[:, zone])]
-        b10s = b10.values[:, zone][~np.isnan(b10.values[:, zone])]
-        bhfs = bhf.values[:, zone][~np.isnan(bhf.values[:, zone])]
-        weights = weight.values[:, zone][~np.isnan(weight.values[:, zone])]
+        temps = temperature.read()[:, zone][~np.isnan(temperature.read()[:, zone])]
+        tkes = tke.read()[:, zone][~np.isnan(tke.read()[:, zone])]
+        cruds = crud_thick.read()[:, zone][~np.isnan(crud_thick.read()[:, zone])]
+        b10s = b10.read()[:, zone][~np.isnan(b10.read()[:, zone])]
+        bhfs = bhf.read()[:, zone][~np.isnan(bhf.read()[:, zone])]
+        weights = weight.read()[:, zone][~np.isnan(weight.read()[:, zone])]
         span_1_dataDict = {"Residual Temperature [K]": temps,
                            "Residual TKE [J/kg]": tkes,
                            "Residual BHF [W/m^2]": bhfs,
@@ -57,12 +60,12 @@ def main():
     # full span plot
     tsat = -618.5
     zones = range(70, 71)
-    temps = temperature.values[:, zones][~np.isnan(temperature.values[:, zones])]
-    tkes = tke.values[:, zones][~np.isnan(tke.values[:, zones])]
-    cruds = crud_thick.values[:, zones][~np.isnan(crud_thick.values[:, zones])]
-    b10s = b10.values[:, zones][~np.isnan(b10.values[:, zones])]
-    bhfs = bhf.values[:, zones][~np.isnan(bhf.values[:, zones])]
-    weights = weight.values[:, zones][~np.isnan(weight.values[:, zones])]
+    temps = temperature.read()[:, zones][~np.isnan(temperature.read()[:, zones])]
+    tkes = tke.read()[:, zones][~np.isnan(tke.read()[:, zones])]
+    cruds = crud_thick.read()[:, zones][~np.isnan(crud_thick.read()[:, zones])]
+    b10s = b10.read()[:, zones][~np.isnan(b10.read()[:, zones])]
+    bhfs = bhf.read()[:, zones][~np.isnan(bhf.read()[:, zones])]
+    weights = weight.read()[:, zones][~np.isnan(weight.read()[:, zones])]
     span_1_dataDict = {"Residual Temperature [K]": temps,
                        "Residual TKE [J/kg]": tkes,
                        "Residual BHF [W/m^2]": bhfs,
@@ -72,7 +75,7 @@ def main():
     span_1_mvd.plot(savefig="mvd_span.png", kde=False)
 
     # fit bivariate copula to span plot; T vs TKE:
-    copula = bvc.PairCopula(temps, tkes, family={"gumbel": 1})
+    copula = bvc.PairCopula(temps, tkes)
     copula.copulaTournament()
 
     # plot original
@@ -108,6 +111,9 @@ def main():
     kde_cdf = gaussian_kde(tkes).integrate_box
     resampled_tke = icdf_uv_bisect(tkes, tke_hat, kde_cdf)
     bvc.bvJointPlot(resampled_t, resampled_tke, vs=[temps, tkes], savefig="t_tke_resampled.png")
+
+    # Clean up
+    store.close()
 
 
 if __name__ == "__main__":
