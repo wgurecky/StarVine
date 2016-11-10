@@ -59,7 +59,7 @@ def main():
 
     # full span plot
     tsat = -618.5
-    zones = range(70, 71)
+    zones = range(69, 80)
     temps = temperature.read()[:, zones][~np.isnan(temperature.read()[:, zones])]
     tkes = tke.read()[:, zones][~np.isnan(tke.read()[:, zones])]
     cruds = crud_thick.read()[:, zones][~np.isnan(crud_thick.read()[:, zones])]
@@ -83,7 +83,7 @@ def main():
 
     # sample from copula
     print("Copula Params: " + str(copula.copulaParams))
-    t_hat, tke_hat = copula.copulaModel.sample(500)
+    t_hat, tke_hat = copula.copulaModel.sample(100)
     bvc.bvJointPlot(t_hat, tke_hat, savefig="t_tke_copula_sample.png")
 
     rand_u = np.linspace(0.05, 0.95, 40)

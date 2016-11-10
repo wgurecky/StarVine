@@ -8,6 +8,7 @@
 #
 from base_vine import BaseVine
 from pandas import DataFrame
+from scipy.optimize import minimize
 import networkx as nx
 from starvine.bvcopula import pc_base as pc
 import numpy as np
@@ -20,24 +21,21 @@ class Cvine(BaseVine):
     copula constructions sequentially and simultaneously.
     Additional methods are provided to draw samples from a
     constructed C-vine.
+    Base class starvine.vine.base_vine.BaseVine .
 
     Example 3 variable C-vine structure:
 
-    Tree level 1
-    -------
-    ```
-    X1 ---C_13--- X3
-    |
-    C_12
-    |
-    X2
-    ```
+    ### Tree level 1 ###
 
-    Tree level 2
-    ------
-    ```
-    F(X2|X1) ---C_23|1--- F(X3|X1)
-    ```
+        X1 ---C_13--- X3
+        |
+        C_12
+        |
+        X2
+
+    ### Tree level 2 ###
+
+        F(X2|X1) ---C_23|1--- F(X3|X1)
 
     The nodes of the top level tree are the rank transformed,
     uniformly distributed marginals (defined on [0, 1]).
@@ -73,8 +71,9 @@ class Cvine(BaseVine):
     and the inner product indicies represent
     the pair copula constructions (PCC) withen the given tree.
     """
-    def __init__(self, data):
+    def __init__(self, data, dataWeights=None):
         self.data = data
+        self.weights = dataWeights
         self.nLevels = int(data.shape[1] - 1)
         self.vine = []
 
@@ -102,22 +101,6 @@ class Cvine(BaseVine):
         self.vin.append(treeT)
         if level <= self.nLevels:
             self._computeTree(level + 1)
-
-    def vineLLH(self, plist, **kwargs):
-        """!
-        @brief Compute the vine log likelyhood.  Used for
-        simulatneous MLE estimation of PCC model parameters.
-        """
-        pass
-
-    def treeHfun(self, level=0):
-        """!
-        @brief Operates on a tree, T_(i).
-        The conditional distribution is evaluated
-        at each edge in the tree providing univariate distributions that
-        populate the dataFrame in the tree level T_(i+1)
-        """
-        pass
 
 
 class Ctree(Vtree):
@@ -161,6 +144,8 @@ class Ctree(Vtree):
         {[u, v]: (start, Params_len_0), [u, v]: (start, Params_len), ...}
         """
         if not treeCopulaParams:
+            if not hasattr(self, "treeCopulaParams"):
+                raise RuntimeError("Sequential copula model fitting must be performed first.")
             treeCopulaParams = self.treeCopulaParams
         nLL = 0
         for u, v, data in self.tree.edges(data=True):
@@ -220,14 +205,12 @@ class Ctree(Vtree):
         for use in the next level tree.
         @return <b>DataFame</b> : conditional distributions at tree edges.
         """
+        # TODO: Establish linkage between tree levels
         condData = DataFrame()
         for u, v, data in self.tree.edges(data=True):
             # eval h() of pair-copula model at current edge
             condData[(u, v)] = data["h-dist"](self.tree.node[u]["data"].values,
                                               self.tree.node[v]["data"].values)
-            # TODO: Establish linkage between tree levels
-            # make note of the parent edge - so that we can move back "up"
-            # the tree.
         return condData
 
     def _getEdgeCopulaParams(self, u, v):

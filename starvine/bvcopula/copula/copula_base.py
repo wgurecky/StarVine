@@ -62,7 +62,9 @@ class CopulaBase(object):
         @param u <b>np_1darray</b> Rank data vector
         @param v <b>np_1darray</b> Rank data vector
         @param theta0 Initial guess for copula parameter list
-        @return <b>np_array</b> Array of MLE fit copula parameters
+        @return <b>tuple</b> :
+                (<b>np_array</b> Array of MLE fit copula parameters,
+                <b>int</b> Fitting success flag, 1==success)
         """
         rotation = 0
         if None in theta0:
@@ -75,9 +77,18 @@ class CopulaBase(object):
                      bounds=kwargs.pop("bounds", self.thetaBounds),
                      tol=kwargs.pop("tol", 1e-8),
                      method=kwargs.pop("method", 'SLSQP'))
-        # store optimal copula params
+        if not res.success:
+            # Fallback
+            res = \
+                minimize(lambda args: self._nlogLike(u, v, rotation, *args),
+                         x0=params0,
+                         bounds=kwargs.pop("bounds", self.thetaBounds),
+                         tol=kwargs.pop("tol", 1e-8),
+                         method=kwargs.pop("altMethod", 'Nelder-Mead'))
+        if not res.success:
+            print("\nWARNING: Copula parameter fitting failed to converge!")
         self.fittedParams = res.x
-        return res.x  # return best fit coupula params (theta(s))
+        return res.x, res.success  # return best fit coupula params (theta(s))
 
     def sample(self, n=1000, *mytheta):
         """!

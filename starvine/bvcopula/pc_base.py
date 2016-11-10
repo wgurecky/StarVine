@@ -147,7 +147,7 @@ class PairCopula(object):
             if vb: print("Fitting trial copula " + trialCopulaName + "...", end="")
             copula = self.copulaBank[trialCopulaName]
             fittedCopulaParams = self.fitCopula(copula)
-            trialAIC = abs(fittedCopulaParams[2])
+            trialAIC = abs(fittedCopulaParams[2]) if fittedCopulaParams[:-1] else 0
             if vb: print(" |AIC|: " + str(trialAIC))
             if trialAIC > maxAIC:
                 goldCopula = copula
@@ -165,10 +165,10 @@ class PairCopula(object):
         @param thetaGuess <b>tuple</b> (optional) initial guess for copula params
         @return (copula type <b>string</b>, fitted copula params <b>np_array</b>)
         """
-        thetaHat = copula.fitMLE(self.UU, self.VV, *thetaGuess)
+        thetaHat, successFlag = copula.fitMLE(self.UU, self.VV, *thetaGuess)
         AIC = copula._AIC(self.UU, self.VV, 0, *thetaHat)
         self.copulaModel = copula
-        return (copula.name, thetaHat, AIC, self.rotation)
+        return (copula.name, thetaHat, AIC, copula.rotation, successFlag)
 
     def rotateData(self, u, v, rotation=-1):
         """!

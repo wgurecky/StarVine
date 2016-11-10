@@ -17,7 +17,7 @@ class GaussCopula(CopulaBase):
         self.thetaBounds = ((-1 + 1e-9, 1 - 1e-9),)
         self.theta0 = (0.7,)
         self.name = 'gauss'
-        self.rotation = 0
+        self.rotation = rotation
 
     @CopulaBase._rotPDF
     def _pdf(self, u, v, rotation=0, *theta):

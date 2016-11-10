@@ -15,7 +15,7 @@ import pylab as pl
 import numpy as np
 import os
 import seaborn as sns;
-pwd_ = os.getcwd()
+pwd_ = os.path.dirname(os.path.abspath(__file__))
 dataDir = pwd_ + "/tests/data/"
 np.random.seed(123)
 tol = 0.1

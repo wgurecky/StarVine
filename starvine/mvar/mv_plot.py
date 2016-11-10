@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def matrixPairPlot(data, weights, corr_stat="kendalltau", **kwargs):
+def matrixPairPlot(data, weights=[None], corr_stat="kendalltau", **kwargs):
     """!
     @brief Plots a matrix of pair plots.
     @param data <pandas dataframe> nDim data set
@@ -22,7 +22,10 @@ def matrixPairPlot(data, weights, corr_stat="kendalltau", **kwargs):
         pair_plot.map_upper(xy_slope)
     #
     # LOWER
-    weightArray = weights.values.flatten()
+    if any(weights):
+        weightArray = weights.values.flatten()
+    else:
+        weightArray = np.ones(data.shape[0])
     meanWeight = np.mean(weightArray)
     pair_plot.map_lower(plt.scatter, s=25.0/np.log(data.shape[0]) * weightArray / meanWeight )
     pair_plot.map_lower(corrfunc, cstat=corr_stat)
