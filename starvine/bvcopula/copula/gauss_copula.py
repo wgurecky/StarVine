@@ -131,5 +131,5 @@ class GaussCopula(CopulaBase):
         """
         raise NotImplementedError
 
-    def kTau(self, *theta):
+    def _kTau(self, *theta):
         return (2.0 / np.pi) * np.arcsin(theta[0])

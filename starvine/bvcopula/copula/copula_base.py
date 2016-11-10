@@ -205,16 +205,14 @@ class CopulaBase(object):
         @brief Compute inverse of H function using bisection.
         Update (11/08/2016) performance improvement: finish with newton iterations
         """
-        # Apply rotation
-        if self.rotation == 0 or self.rotation == 3:
-            V = 1. - V
         # Apply limiters
-        if U > 0.999:
-            U = 0.999
-        elif U < 0.001:
-            U = 0.001
+        U = np.clip(U, 1e-8, 1. - 1e-8)
+        V = np.clip(V, 1e-8, 1. - 1e-8)
+        # Apply rotation
+        if self.rotation == 3:
+            V = 1. - V
         reducedHfn = lambda u: self._h(u, V, rotation, *theta) - U
-        v_bisect_est_ = bisect(reducedHfn, 1e-60, 1.0 - 1e-60, maxiter=20, disp=False)
+        v_bisect_est_ = bisect(reducedHfn, 1e-100, 1.0 - 1e-100, maxiter=20, disp=False)
         try:
             v_est_ = newton(reducedHfn, v_bisect_est_, tol=1e-4, maxiter=30)
         except:
@@ -250,7 +248,9 @@ class CopulaBase(object):
         """!
         @brief Public facing kendall's tau function.
         """
-        raise NotImplementedError
+        if not any(theta):
+            theta = self.fittedParams
+        return self._kTau(rotation, *theta)
 
     def _kTau(self, rotation=0, *theta):
         """!
@@ -261,21 +261,24 @@ class CopulaBase(object):
         Let \f$ T = C(u, v) \f$ represent a random variable and
         t is an RV distributed according to T().
         \f[
-        K_c(t) = t - \frac{\phi(t)}{\phi'(t)}
+        K_c(t) = \frac{\phi(t)}{\phi'(t)}
         \f]
-        \tau = 3 - 4 \int_0^1 K_c(t) dt
+        \tau = 1 + 4 \int_0^1 K_c(t) dt
         where \f$ \phi(t) \f$ is the copula generating function.
 
         Note:
         For the gauss and students-t copula this should be == (2.0/np.pi) * arcsin(rho)
         """
-        t_range = np.array([[1e-9, 1 - 1e-9], ])
-        # Kendall's tau distribution
-        K_c = lambda t: t - self._gen(t, *theta) / \
-            derivative(self._gen, t, dx=1e-5, args=(rotation, theta))
-        # Cumulative copula
-        cumCopula = spi.nquad(K_c, t_range, args=(rotation, theta))[0]
-        return 3.0 - 4.0 * cumCopula
+        t_range = np.array([[1e-8, 1 - 1e-8], ])
+        reduced_gen = lambda t: self._gen(t, *theta)
+        def K_c(t):
+            return reduced_gen(t) / \
+                derivative(reduced_gen, t, dx=1e-9)
+        cumCopula = spi.nquad(K_c, t_range)[0]
+        negC = 1.
+        if self.rotation == 1 or self.rotation == 3:
+            negC = -1.
+        return negC * (1.0 + 4.0 * cumCopula)
 
     # -------------------------- COPULA ROTATION METHODS ---------------------------- #
     @classmethod

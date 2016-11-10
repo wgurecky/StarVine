@@ -78,7 +78,11 @@ class ClaytonCopula(CopulaBase):
 
     @CopulaBase._rotGen
     def _gen(self, t, *theta):
-        return (1.0 / theta[0]) * (np.power(t, theta[0]) - 1.0)
+        return (1.0 / theta[0]) * (np.power(t, -theta[0]) - 1.0)
 
-    def kTau(self, rotation=0, *theta):
-        return self._kTau(rotation, *theta)
+    def _kTau(self, rotation=0, *theta):
+        # return self._kTau(rotation, *theta)
+        if self.rotation == 1 or self.rotation == 3:
+            return - theta[0] / (theta[0] + 2)
+        else:
+            return theta[0] / (theta[0] + 2)

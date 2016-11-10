@@ -81,9 +81,6 @@ class FrankCopula(CopulaBase):
     def _gen(self, t, *theta):
         return -np.log((np.exp(-theta[0] * t) - 1.0) / (np.exp(-theta[0]) - 1.0))
 
-    def kTau(self, rotation=0, *theta):
-        return self._kTau(rotation, *theta)
-
 
 def expm1(x):
     """!
