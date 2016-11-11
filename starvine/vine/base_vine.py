@@ -1,5 +1,9 @@
 ##
 # \brief Base vine class
+import matplotlib.pyplot as plt
+from scipy.optimize import minimize
+import networkx as nx
+import numpy as np
 
 
 class BaseVine(object):
@@ -62,4 +66,13 @@ class BaseVine(object):
         """!
         @brief Draws n samples from the vine.
         """
-        pass
+        raise NotImplementedError
+
+    def plotVine(self, plotAll=True, savefig=None):
+        plt.figure(10)
+        for i, treeL in enumerate(self.vine):
+            plt.subplot(2, 1, i + 1)
+            plt.title("Tree Level: %d" % i)
+            nx.draw(treeL.tree, with_labels=True)
+        if savefig is not None:
+            plt.savefig(savefig)
