@@ -71,7 +71,7 @@ class BaseVine(object):
     def plotVine(self, plotAll=True, savefig=None):
         plt.figure(10)
         for i, treeL in enumerate(self.vine):
-            plt.subplot(2, 1, i + 1)
+            plt.subplot(self.nLevels, 1, i + 1)
             plt.title("Tree Level: %d" % i)
             nx.draw(treeL.tree, with_labels=True)
         if savefig is not None:
