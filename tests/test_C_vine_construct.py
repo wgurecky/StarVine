@@ -19,14 +19,16 @@ class TestCvine(unittest.TestCase):
         stocks = np.loadtxt(dataDir + 'stocks.csv', delimiter=',')
         x = stocks[:, 0]
         y = stocks[:, 1]
+        e = stocks[:, 2]
         z = stocks[:, 4]
         # Create pandas data table
         tstData = pd.DataFrame()
         tstData[0] = x
         tstData[1] = y
         tstData[2] = z
+        tstData[3] = e
         # Visualize multivar data
-        matrixPairPlot(tstData, savefig="tri_varaite_ex.png")
+        matrixPairPlot(tstData, savefig="quad_varaite_ex.png")
 
         # Init Cvine
         tstVine = Cvine(tstData)

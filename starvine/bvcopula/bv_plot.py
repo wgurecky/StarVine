@@ -54,12 +54,13 @@ def bvJointPlot(u, v, corr_stat="kendalltau", vs=None, **kwargs):
                   "spearmanr": spearmanr,
                   "pearsonr": pearsonr}
     outfile = kwargs.pop("savefig", None)
-    joint_plt = sns.jointplot(x=u, y=v, stat_func=stat_funcs[corr_stat], **kwargs)
+    joint_plt = sns.jointplot(x=u, y=v, stat_func=stat_funcs[corr_stat], zorder=2, label="resampled", **kwargs)
     vsData = vs
     if vsData is not None:
         joint_plt.x, joint_plt.y = vsData[0], vsData[1]
         sb_color = sns.xkcd_palette(["faded green"])[0]
-        joint_plt.plot_joint(plt.scatter, s=4, alpha=0.2, c=sb_color, marker='o', edgecolors='face')
+        joint_plt.plot_joint(plt.scatter, s=4, alpha=0.7, c=sb_color, marker='o', edgecolors='face', label="original", zorder=1)
+    plt.legend()
     if outfile:
         joint_plt.savefig(outfile)
     return joint_plt
