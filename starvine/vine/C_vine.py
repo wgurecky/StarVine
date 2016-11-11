@@ -104,6 +104,35 @@ class Cvine(BaseVine):
         if level < self.nLevels - 1:
             self.buildDeepTrees(level + 1)
 
+    def sample(self, n=1000):
+        """!
+        @brief Draws n samples from the vine.
+        """
+        nLevels = self.nLevels + 1
+        x_samples = np.random.uniform(1e-10, 1. - 1e-10, (n, nLevels))
+        vs = np.ones(x_samples.shape)
+        for p, w in enumerate(x_samples):
+            v = np.ones((len(w), nLevels))
+            x = np.zeros(len(w))
+            x[0] = w[0]
+            for i in range(1, nLevels):
+                v[i, 0] = w[i]
+                inner_k = range(i - 1)
+                inner_k.reverse()
+                for k in inner_k:
+                    inner_edge = self.vine[k].tree.edge[k][i - k]
+                    v[i, 0] = inner_edge["pc"]["hinv-dist"](np.array([v[i, 0]]),
+                                                            np.array([v[k, k]]))
+                x[i] = v[i, 0]
+                if i == nLevels:
+                    break
+                for j in range(i - 1):
+                    inner_edge = self.vine[j].tree.edge[j][i - j]
+                    v[i, j+1] = inner_edge["pc"]["h-dist"](np.array([v[i, j]]),
+                                                           np.array([v[j, j]]))
+            vs[p, :] = x
+        return vs
+
 
 class Ctree(Vtree):
     """!

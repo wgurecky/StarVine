@@ -69,7 +69,7 @@ class BaseVine(object):
         raise NotImplementedError
 
     def plotVine(self, plotAll=True, savefig=None):
-        plt.figure(10)
+        plt.figure(10, figsize=(6, 3 * self.nLevels))
         for i, treeL in enumerate(self.vine):
             plt.subplot(self.nLevels, 1, i + 1)
             plt.title("Tree Level: %d" % i)

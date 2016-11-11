@@ -37,6 +37,10 @@ class TestCvine(unittest.TestCase):
         # plot vine
         tstVine.plotVine(savefig="c_vine_graph_ex.png")
 
+        # sample from vine
+        # samples = tstVine.sample(n=10)
+        # print(samples)
+
 
 if __name__ == "__main__":
     unittest.main()
