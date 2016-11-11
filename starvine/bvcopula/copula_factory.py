@@ -1,6 +1,9 @@
 ##
 # \brief Concrete Copula factory class
-from copula import *
+try:
+    from copula import *
+except:
+    from starvine.bvcopula.copula import *
 import re
 import sys
 

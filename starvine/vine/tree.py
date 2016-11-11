@@ -17,12 +17,9 @@ class Vtree(object):
         @param weights <b>DataFrame</b>: (optional) data weights
         @param labels <b>list</b> of <b>str</b> or <b>ints</b>: (optional) data labels
         """
-        if parentTree is None:
-            assert(type(data) is DataFrame)
-            assert(len(data.shape) == 2)
-            self.data = data
-        else:
-            self.data = parentTree.evalH() if parentTree is not None else data
+        assert(type(data) is DataFrame)
+        assert(len(data.shape) == 2)
+        self.data = data
         self.parentTree = parentTree
         #
         self.nT = data.shape[1]

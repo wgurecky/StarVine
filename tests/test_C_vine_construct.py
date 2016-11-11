@@ -1,6 +1,10 @@
+#!/usr/bin/python2
 from __future__ import print_function, division
-from C_vine import Cvine
+# starvine imports
+import context
+from starvine.vine.C_vine import Cvine
 from starvine.mvar.mv_plot import matrixPairPlot
+# extra imports
 import unittest
 import os
 import numpy as np
@@ -15,7 +19,7 @@ class TestCvine(unittest.TestCase):
         stocks = np.loadtxt(dataDir + 'stocks.csv', delimiter=',')
         x = stocks[:, 0]
         y = stocks[:, 1]
-        z = stocks[:, 2]
+        z = stocks[:, 4]
         # Create pandas data table
         tstData = pd.DataFrame()
         tstData[0] = x
@@ -26,3 +30,10 @@ class TestCvine(unittest.TestCase):
 
         # Init Cvine
         tstVine = Cvine(tstData)
+
+        # construct the vine
+        tstVine.constructVine()
+
+
+if __name__ == "__main__":
+    unittest.main()

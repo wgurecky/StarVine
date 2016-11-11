@@ -96,11 +96,13 @@ class Cvine(BaseVine):
         Must keep track of edge---node linkages between trees.
         @param level <b>int</b> Current tree level.
         """
-        treeT = Ctree(None, lvl=level, parentTree=self.vine[level - 1])
+        treeT = Ctree(self.vine[level - 1].evalH(),
+                      lvl=level,
+                      parentTree=self.vine[level - 1])
         treeT.seqCopulaFit()
-        self.vin.append(treeT)
-        if level <= self.nLevels:
-            self._computeTree(level + 1)
+        self.vine.append(treeT)
+        if level < self.nLevels - 1:
+            self.buildDeepTrees(level + 1)
 
 
 class Ctree(Vtree):
@@ -117,7 +119,7 @@ class Ctree(Vtree):
         @param weights <b>DataFrame</b>: (optional) data weights
         @param labels <b>list</b> of <b>str</b> or <b>ints</b>: (optional) data labels
         """
-        super(Ctree, self).__init(data, lvl, **kwargs)
+        super(Ctree, self).__init__(data, lvl, **kwargs)
 
     def seqCopulaFit(self):
         """!
@@ -190,10 +192,10 @@ class Ctree(Vtree):
             for nodeID in nodeIDs:
                 # iterate though all child nodes,
                 # root dataset cannot be paired with itself
-                if nodeID is not rootNodeID:
+                if nodeID != rootNodeID:
                     trialPair = pc.PairCopula(self.tree.node[rootNodeID]["data"].values,
                                               self.tree.node[nodeID]["data"].values)
-                    trialKtau, trialP = trialPair.empKTau
+                    trialKtau, trialP = trialPair.empKTau()
                     trialKtauSum[i] += abs(trialKtau)
                     trialPairings[i].append((rootNodeID, nodeID, trialKtau))
         bestPairingIndex = np.argmax(np.abs(trialKtauSum))
@@ -209,8 +211,13 @@ class Ctree(Vtree):
         condData = DataFrame()
         for u, v, data in self.tree.edges(data=True):
             # eval h() of pair-copula model at current edge
-            condData[(u, v)] = data["h-dist"](self.tree.node[u]["data"].values,
-                                              self.tree.node[v]["data"].values)
+            # use rank transformed data as input to conditional dist
+            # Unranked data:
+            # condData[(u, v)] = data["h-dist"](self.tree.node[u]["data"].values,
+            #                                   self.tree.node[v]["data"].values)
+            # Ranked data:
+            condData[(u, v)] = data["h-dist"](data["pc"].UU,
+                                              data["pc"].VV)
         return condData
 
     def _getEdgeCopulaParams(self, u, v):
@@ -226,11 +233,12 @@ class Ctree(Vtree):
         edgeList = self.tree.edges(data=True)
         for u, v, data in edgeList:
             edgeParams = self._getEdgeCopulaParams(u, v)
-            for param in edgeParams:
-                self.treeCopulaParams.append(param)
-            nEdgeParams = len(edgeParams)
+            self.treeCopulaParams.append(edgeParams[1])
+            nEdgeParams = len(edgeParams[1])
             self.tree.edge[u][v]["paramMap"] = \
                 [currentMarker, currentMarker + nEdgeParams]
             currentMarker += nEdgeParams
+        self.treeCopulaParams = [item for sublist in self.treeCopulaParams
+                                 for item in sublist]
         self.treeCopulaParams = np.array(self.treeCopulaParams)
         return self.treeCopulaParams

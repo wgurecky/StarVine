@@ -7,12 +7,6 @@ np.random.seed(123)
 
 
 class TestSampleCopula(unittest.TestCase):
-    def testGaussSample(self):
-        pass
-
-    def testTSample(self):
-        pass
-
     def testClaytonSample(self):
         # 0 deg
         clayton00 = Copula("clayton", 0)
@@ -72,8 +66,8 @@ class TestSampleCopula(unittest.TestCase):
         # we seeded with samples from a gumbel df
         self.assertTrue("gumbel" in gumbel00_model.copulaModel.name)
         # Ensure kTau is nearly the same from resampled data
-        #kTauDelta = c00_kTau - gumbel00_model.copulaModel.kTau()
-        #self.assertTrue(abs(kTauDelta) < 0.01)
+        kTauDelta = c00_kTau - gumbel00_model.copulaModel.kTau()
+        self.assertTrue(abs(kTauDelta) < 0.01)
         self.assertAlmostEqual(c00_kTau, gumbel00_model.copulaModel.kTau(), 2)
 
         # 90 deg
@@ -91,8 +85,51 @@ class TestSampleCopula(unittest.TestCase):
         self.assertTrue("gumbel" in gumbel90_model.copulaModel.name)
         # Ensure kTau is nearly the same from resampled data
         kTauDelta = c90_kTau - gumbel90_model.copulaModel.kTau()
-        #self.assertTrue(abs(kTauDelta) < 0.01)
+        self.assertTrue(abs(kTauDelta) < 0.01)
         self.assertAlmostEqual(c90_kTau, gumbel90_model.copulaModel.kTau(), 2)
 
     def testFrankSample(self):
+        # 0 deg
+        frank00 = Copula("frank", 0)
+        u00, v00 = frank00.sample(30000, *(8.0,))
+        frank00.fittedParams = (8.0,)
+        c00_kTau = frank00.kTau()
+        # check kTau
+        print(c00_kTau)
+        self.assertAlmostEqual(c00_kTau, 0.602619667, 6)
+        # compute rank corr coeff from resampled data
+        frank00_model = PairCopula(u00, v00, family={"frank": 0})
+        frank00_model.copulaTournament()
+        print(frank00_model.copulaParams)
+        # check that frank copula won since
+        # we seeded with samples from a frank df
+        self.assertTrue("frank" in frank00_model.copulaModel.name)
+        # Ensure kTau is nearly the same from resampled data
+        kTauDelta = c00_kTau - frank00_model.copulaModel.kTau()
+        self.assertTrue(abs(kTauDelta) < 0.01)
+        self.assertAlmostEqual(c00_kTau, frank00_model.copulaModel.kTau(), 2)
+
+        # 90 deg
+        frank90 = Copula("frank", 1)
+        u90, v90 = frank90.sample(30000, *(8.0,))
+        frank90.fittedParams = (8.0,)
+        c90_kTau = frank90.kTau()
+        self.assertAlmostEqual(c90_kTau, -0.602619667, 6)
+        # compute rank corr coeff from resampled data
+        frank90_model = PairCopula(u90, v90, family={"frank": 1})
+        frank90_model.copulaTournament()
+        print(frank90_model.copulaParams)
+        # check that frank copula won since
+        # we seeded with samples from a frank df
+        self.assertTrue("frank" in frank90_model.copulaModel.name)
+        # Ensure kTau is nearly the same from resampled data
+        kTauDelta = c90_kTau - frank90_model.copulaModel.kTau()
+        self.assertTrue(abs(kTauDelta) < 0.01)
+        self.assertAlmostEqual(c90_kTau, frank90_model.copulaModel.kTau(), 2)
+
+    def testGaussSample(self):
         pass
+
+    def testTSample(self):
+        pass
+

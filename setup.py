@@ -20,7 +20,7 @@ def setup_package():
           author='William Gurecky',
           test_suite="tests",
           platforms=["Linux", "Mac OS-X"],
-          build_requires=['numpy>=1.8.0'],
+          build_requires=['numpy>=1.8.0', 'setuptools'],
           install_requires=['numpy>=1.8.0', 'scipy>=0.13',
                             'pandas>=0.13.0', 'h5py>=2.2.0',
                             'seaborn>=0.7.0', 'networkx>=1.8.1',

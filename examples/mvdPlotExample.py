@@ -1,13 +1,15 @@
 #!/usr/env/python2
 from __future__ import absolute_import, print_function, division
-from scipy.optimize import bisect, newton
-from scipy.stats import gaussian_kde
+# starvine imports
 import context
 from starvine.mvar import mvd
+import starvine.bvcopula as bvc
+#
+from scipy.optimize import bisect, newton
+from scipy.stats import gaussian_kde
 import pandas as pd
 import numpy as np
 # copula imports
-import starvine.bvcopula as bvc
 import tables as pt
 
 
