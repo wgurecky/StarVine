@@ -138,7 +138,8 @@ class PairCopula(object):
         """
         vb = kwargs.pop("verbosity", True)
         self.empKTau()
-        if self.pval_ >= 0.99:
+        print(self.pval_)
+        if self.pval_ >= 0.95:
             print("Independence Coplua selected")
             return self.copulaBank['indep']
         # Find best fitting copula as judged by the AIC
