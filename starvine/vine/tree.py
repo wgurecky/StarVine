@@ -5,6 +5,7 @@
 from pandas import DataFrame
 from starvine.bvcopula import pc_base as pc
 import networkx as nx
+import numpy as np
 
 
 class Vtree(object):
@@ -20,7 +21,7 @@ class Vtree(object):
         assert(type(data) is DataFrame)
         assert(len(data.shape) == 2)
         self.data = data
-        self.parentTree = parentTree
+        self._upperTree = parentTree
         #
         self.nT = data.shape[1]
         self.level = lvl
@@ -97,4 +98,80 @@ class Vtree(object):
         """!
         @brief Export tree for later use or storage.
         """
+        pass
+
+    @property
+    def lowerTree(self, lowerTree=None):
+        """!
+        @brief Gets lower tree
+        @returns starvine.vine.tree.Vtree object
+        """
+        return self._lowerTree
+
+    @lowerTree.setter
+    def lowerTree(self, lTree):
+        """!
+        @brief Sets lower tree
+        """
+        if type(lTree) != type(self):
+            raise ValueError("Tree setter method takes tree type only.")
+        self._lowerTree = lTree
+
+    @property
+    def upperTree(self, upperTree=None):
+        """!
+        @brief Gets upper tree
+        @returns starvine.vine.tree.Vtree object
+        """
+        return self._upperTree
+
+    @upperTree.setter
+    def upperTree(self, uTree):
+        """!
+        @brief Sets upper tree
+        """
+        if type(uTree) != type(self):
+            raise ValueError("Tree setter method takes tree type only.")
+        self._upperTree = uTree
+
+    def _sampleEdge(self, n0, n1, old_n0, old_n1, size):
+        """!
+        @brief Sample from edge in the tree.
+
+            Old_n0 ---------- Old_edge_0 --------- old_n1 ------------- Old_edge_1 -------------- old_n2
+                                 :                                          :
+                         (old_u1 | Old_u0) ------- edge_0 --------- (old_u1 | old_u2)
+                                n0                                         n1
+
+        To go "up" the vine requires evaluation of hinv-dist
+        To traverse down the vine, evaluate the conditional h-dist function.
+
+        @param n0  Node_0 in current tree (current edge connected)
+        @param n1  Node_1 in current tree (current edge connected)
+        @param old_n0  Node_0 from upperTree parent edge
+        @param old_n0  Node_1 from upperTree
+        @param size <b>int</b>  sample size
+        """
+        current_tree = self.tree
+        next_tree = self._lowerTree
+        edge_info = current_tree[n0][n1]
+
+        # if both marginal samples exist on this edge,
+        # nothing to do - return.
+        if edge_info.has_key('sample'):
+            if len(edge_info['sample']) == 2:
+                return
+
+        # if u_n0 and u_n1 both dont exist, or if only u_n0 exists
+        if not edge_info.has_key('sample') or not edge_info['sample'].has_key(n1):
+            if self.level == 0:
+                u_n1 = np.random.rand(size)
+            # if we are not in the first tree, try to get u_n1
+            # from the H-function.A
+            else:
+                if not hasattr(self, '_upperTree'):
+                    raise RuntimeError("Upper tree requested but unavalible.")
+                pass
+        else:
+            u_n1 = edge_info['sample'][n1]
         pass
