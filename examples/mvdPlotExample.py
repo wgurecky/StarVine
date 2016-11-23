@@ -61,7 +61,7 @@ def main():
 
     # upper span plot
     tsat = -618.5
-    zones = range(75, 80)
+    zones = range(72, 74)
     temps = temperature.read()[:, zones][~np.isnan(temperature.read()[:, zones])]
     tkes = tke.read()[:, zones][~np.isnan(tke.read()[:, zones])]
     cruds = crud_thick.read()[:, zones][~np.isnan(crud_thick.read()[:, zones])]
@@ -116,7 +116,7 @@ def main():
 
     # LOWER SPAN
     tsat = -618.5
-    zones = range(69, 75)
+    zones = range(70, 72)
     temps = temperature.read()[:, zones][~np.isnan(temperature.read()[:, zones])]
     tkes = tke.read()[:, zones][~np.isnan(tke.read()[:, zones])]
     cruds = crud_thick.read()[:, zones][~np.isnan(crud_thick.read()[:, zones])]

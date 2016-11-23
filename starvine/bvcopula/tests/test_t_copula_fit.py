@@ -56,16 +56,16 @@ class TestTcopulaFit(unittest.TestCase):
         thetat0 = [0.7, 30]
         thetag0 = [0.2]
         g_copula = stg()
-        theta_g_fit = g_copula.fitMLE(u, v, *thetag0, bounds=((-0.99, 0.99),))
+        theta_g_fit = g_copula.fitMLE(u, v, *thetag0, bounds=((-0.99, 0.99),))[0]
         aic_g_fit = g_copula._AIC(u, v, 0, *theta_g_fit)
         print("Gaussian copula MLE paramter [rho]: " + str(theta_g_fit) + " AIC =" + str(aic_g_fit))
         t_copula = stc()
-        theta_t_fit = t_copula.fitMLE(u, v, *thetat0, bounds=((-0.99, 0.99),(1, 1e8),))
+        theta_t_fit = t_copula.fitMLE(u, v, *thetat0, bounds=((-0.99, 0.99), (1, 1e8),))[0]
         aic_t_fit = t_copula._AIC(u, v, 0, *theta_t_fit)
         print("T copula MLE parameters [rho, DoF]: " + str(theta_t_fit) + " AIC =" + str(aic_t_fit))
 
         # Alternative fit to CDF transformed data
-        theta_t_fit_c = t_copula.fitMLE(u_c, v_c, *thetat0, bounds=((-0.99, 0.99),(1, 1e8),))
+        theta_t_fit_c = t_copula.fitMLE(u_c, v_c, *thetat0, bounds=((-0.99, 0.99), (1, 1e8),))[0]
 
         # check fits
         self.assertAlmostEqual(theta_g_fit[0], theta_t_fit[0], places=3)

@@ -138,7 +138,6 @@ class PairCopula(object):
         """
         vb = kwargs.pop("verbosity", True)
         self.empKTau()
-        print(self.pval_)
         if self.pval_ >= 0.95:
             print("Independence Coplua selected")
             return self.copulaBank['indep']

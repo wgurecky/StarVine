@@ -241,10 +241,6 @@ class Ctree(Vtree):
         for u, v, data in self.tree.edges(data=True):
             # eval h() of pair-copula model at current edge
             # use rank transformed data as input to conditional dist
-            # Unranked data:
-            # condData[(u, v)] = data["h-dist"](self.tree.node[u]["data"].values,
-            #                                   self.tree.node[v]["data"].values)
-            # Ranked data:
             condData[(u, v)] = data["h-dist"](data["pc"].UU,
                                               data["pc"].VV)
         return condData
