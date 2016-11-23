@@ -140,11 +140,6 @@ class CopulaBase(object):
         @param u <b>np_1darray</b> Rank CDF data vector
         @param v <b>np_1darray</b> Rank CDF data vector
         """
-        # for i, (ui, vi) in enumerate(zip(u, v)):
-        #     reducedPPF = lambda pu, pv: \
-        #         np.abs(np.sum(np.array([ui, vi]) - self._ppf(pu, pv, 0, *theta)))
-        #     cdf_vector[i] = fsolve(reducedPPF, x0=np.array([0.5, 0.5]))[0]
-        # return cdf_vector
         cdf_vector = np.zeros(np.array(u).size)
         for i, (ui, vi) in enumerate(zip(u, v)):
             ranges = np.array([[0, ui], [0, vi]])
@@ -159,10 +154,11 @@ class CopulaBase(object):
         CDF.  Used to draw random samples from the bivariate distribution.
 
         EX: will draw 100 samples from a t-copula with params [0.21, 20]
-        >>> import starvine.bvcopula as bvc
-        >>> My_Copula = bvc.t_copula.StudentTCopula()
-        >>> u, v = np.random.uniform(0, 1, 100)
-        >>> My_Copula._ppf(u, v, rotation=0, 0.21, 20)
+
+            >>> import starvine.bvcopula as bvc
+            >>> My_Copula = bvc.t_copula.StudentTCopula()
+            >>> u, v = np.random.uniform(0, 1, 100)
+            >>> My_Copula._ppf(u, v, rotation=0, 0.21, 20)
         """
         u_hat = u
         v_hat = self._hinv(u_hat, v, rotation, *theta)
