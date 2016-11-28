@@ -8,6 +8,8 @@ import scipy.integrate as spi
 from scipy.optimize import bisect, newton
 from scipy.optimize import minimize
 from scipy.misc import derivative
+import warnings
+warnings.filterwarnings('ignore')
 
 
 class CopulaBase(object):
