@@ -79,21 +79,22 @@ class BaseVine(object):
         edge_info = current_tree.tree[n0][n1]
 
         # sample from edge of last tree
-        u_n1 = edge_info["hinv-dist"](u_n1, u_n0)
+        u_n1 = edge_info["hinv-dist"](u_n0, u_n1)
         edge_sample = {n0: u_n0, n1: u_n1}
 
         # store edge sample inside graph data struct
         current_tree.tree[n0][n1]['sample'] = edge_sample
 
-        # get node triplet:
         # Three nodes in the above tree that contributed to the
         # construction of this edge.
         # Node labels according to  (prev_n0|prev_n2), (prev_n1|prev_n2)
-        prev_n0, prev_n1, prev_n2 = edge_info['one-fold']
+        # Only applicable if the vine has atleast 2 levels
+        if len(self.vine) > 1:
+            prev_n0, prev_n1, prev_n2 = edge_info['one-fold']
 
-        ## \brief Entrance to starvine.vine.tree.Vtree._sampleEdge()
-        current_tree._sampleEdge(prev_n0, prev_n2, n0, n1, n, self.vine)
-        current_tree._sampleEdge(prev_n1, prev_n2, n0, n1, n, self.vine)
+            ## \brief Entrance to starvine.vine.tree.Vtree._sampleEdge()
+            current_tree._sampleEdge(prev_n0, prev_n2, n0, n1, n, self.vine)
+            current_tree._sampleEdge(prev_n1, prev_n2, n0, n1, n, self.vine)
 
         sample_result = {}
         tree_0 = self.vine[0].tree

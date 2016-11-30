@@ -100,7 +100,8 @@ class Cvine(BaseVine):
                       lvl=level,
                       parentTree=self.vine[level - 1])
         treeT.seqCopulaFit()
-        self.vine.append(treeT)
+        if self.nLevels > 1:
+            self.vine.append(treeT)
         if level < self.nLevels - 1:
             self.buildDeepTrees(level + 1)
         elif level == self.nLevels - 1:
@@ -214,8 +215,8 @@ class Ctree(Vtree):
         for u, v, data in self.tree.edges(data=True):
             # eval h() of pair-copula model at current edge
             # use rank transformed data as input to conditional dist
-            condData[(u, v)] = data["h-dist"](data["pc"].UU,
-                                              data["pc"].VV)
+            condData[(v, u)] = data["h-dist"](data["pc"].VV,
+                                              data["pc"].UU)
         return condData
 
     def _getEdgeCopulaParams(self, u, v):

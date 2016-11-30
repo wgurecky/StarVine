@@ -182,7 +182,7 @@ class Vtree(object):
         @param old_n0  Node_1 from upperTree
         @param size <b>int</b>  sample size
         """
-        if type(n0) is int:
+        if type(n0) is int or type(n0) is np.int64:
             tree_num = 0
         else:
             tree_num = len(n0) - 1
@@ -214,7 +214,8 @@ class Vtree(object):
                         len(prev_edge_info['sample']) == 2:
                     u_prev_n0 = prev_edge_info['sample'][prev_n0]
                     u_prev_n2 = prev_edge_info['sample'][prev_n2]
-                    u_n1 = prev_edge_info["h-dist"](u_prev_n0, u_prev_n2)
+                    # u_n1 = prev_edge_info["h-dist"](u_prev_n0, u_prev_n2)
+                    u_n1 = prev_edge_info["h-dist"](u_prev_n2, u_prev_n0)
                 else:
                     u_n1 = np.random.rand(size)
         else:
@@ -222,11 +223,11 @@ class Vtree(object):
 
         next_tree_info = next_tree[old_n0][old_n1]
         try:
-            u_n0 = next_tree_info["hinv-dist"](next_tree_info['sample'][(n0, n1)],
-                                               u_n1)
+            u_n0 = next_tree_info["hinv-dist"](next_tree_info['sample'][(n0, n1)], u_n1)
+            # u_n0 = next_tree_info["hinv-dist"](u_n1, next_tree_info['sample'][(n0, n1)])
         except:
-            u_n0 = next_tree_info["hinv-dist"](next_tree_info['sample'][(n1, n0)],
-                                               u_n1)
+            # u_n0 = next_tree_info["hinv-dist"](next_tree_info['sample'][(n1, n0)], u_n1)
+            u_n0 = next_tree_info["hinv-dist"](u_n1, next_tree_info['sample'][(n1, n0)])
         edge_sample = {n0: u_n0, n1: u_n1}
         current_tree[n0][n1]['sample'] = edge_sample
 
