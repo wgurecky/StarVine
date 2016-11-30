@@ -19,7 +19,7 @@ Execute unit tests:
 
 If everything checks out install the package:
 
-    python setup.py install --user
+    python setup.py install
 
 Requires:
 
@@ -41,13 +41,12 @@ Optional:
 Docs
 =====
 
-Build the docs:
+Documentation can be found online at:
+[wgurecky.github.io/starvine](www.wgurecky.github.io/starvine).
+
+The docs can be manually built using Doxygen:
 
     doxygen Doxyfile.in
-
-Requires:
-
-- Doxygen
 
 Similar Projects
 ----------------

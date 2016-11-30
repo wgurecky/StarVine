@@ -61,9 +61,37 @@ class Vtree(object):
                                attr_dict={"pc":
                                           pc.PairCopula(self.data[pair[0]].values,
                                                         self.data[pair[1]].values),
-                                          "id": i,
-                                          },
-                               )
+                                          "id": i})
+        self._setEdgeTriplets()
+
+    def _setEdgeTriplets(self):
+        """!
+        @brief Applies to all non-zero level trees in the vine.
+        Every edge in the tree has 3 spanning nodes in the
+        tree above.  These nodes comprise a 'one fold triplet'.
+        Sets the one fold triplet for each edge in current tree.
+        """
+        if self.upperTree is None:
+            return
+        else:
+            for u, v in self.tree.edges_iter():
+                # every edge has data nodes (u, v)
+                # u and v  are tuples
+                # each node came from an edge above
+                # Obtain unique nodes, non-unique upper node
+                # is the "anchor" node of the one fold triplet
+                upper_nodes = list((u[0], u[1], v[0], v[1]))
+                n_sides, n_anchors = [], []
+                for node in upper_nodes:
+                    # check for common node
+                    if upper_nodes.count(node) == 2:
+                        n_anchors.append(node)
+                    else:
+                        n_sides.append(node)
+                assert(n_anchors[0] == n_anchors[1])
+                # Set one fold triplet of each edge
+                self.tree[u][v]['one-fold'] = \
+                    (n_sides[0], n_sides[1], n_anchors[0])
 
     def _optimNodePairs(self):
         """!
@@ -134,14 +162,16 @@ class Vtree(object):
             raise ValueError("Tree setter method takes tree type only.")
         self._upperTree = uTree
 
-    def _sampleEdge(self, n0, n1, old_n0, old_n1, size):
+    def _sampleEdge(self, n0, n1, old_n0, old_n1, size, vine):
         """!
         @brief Sample from edge in the tree.
 
+            Current Tree:
+            (n0)                                   (n1)
             Old_n0 ---------- Old_edge_0 --------- old_n1 ------------- Old_edge_1 -------------- old_n2
                                  :                                          :
-                         (old_u1 | Old_u0) ------- edge_0 --------- (old_u1 | old_u2)
-                                n0                                         n1
+            Next Tree:
+                               ( old_n0 ) -------- edge_0 --------- ( old_n1 )
 
         To go "up" the vine requires evaluation of hinv-dist
         To traverse down the vine, evaluate the conditional h-dist function.
@@ -152,26 +182,74 @@ class Vtree(object):
         @param old_n0  Node_1 from upperTree
         @param size <b>int</b>  sample size
         """
-        current_tree = self.tree
-        next_tree = self._lowerTree
+        if type(n0) is int:
+            tree_num = 0
+        else:
+            tree_num = len(n0) - 1
+        current_tree = vine[tree_num].tree
+        next_tree = vine[tree_num + 1].tree
         edge_info = current_tree[n0][n1]
 
         # if both marginal samples exist on this edge,
         # nothing to do - return.
-        if edge_info.has_key('sample'):
-            if len(edge_info['sample']) == 2:
-                return
+        if edge_info.has_key('sample') and \
+                len(edge_info['sample']) == 2:
+            return
 
         # if u_n0 and u_n1 both dont exist, or if only u_n0 exists
         if not edge_info.has_key('sample') or not edge_info['sample'].has_key(n1):
-            if self.level == 0:
+            if tree_num == 0:
                 u_n1 = np.random.rand(size)
             # if we are not in the first tree, try to get u_n1
             # from the H-function.A
             else:
-                if not hasattr(self, '_upperTree'):
+                if not self.upperTree:
                     raise RuntimeError("Upper tree requested but unavalible.")
-                pass
+                prev_n0, prev_n1, prev_n2 = edge_info["one-fold"]
+                prev_tree = vine[tree_num - 1].tree
+                if not (prev_n0, prev_n2) == n1:
+                    prev_n0 = prev_n1
+                prev_edge_info = prev_tree[prev_n0][prev_n2]
+                if prev_edge_info.has_key('sample') and \
+                        len(prev_edge_info['sample']) == 2:
+                    u_prev_n0 = prev_edge_info['sample'][prev_n0]
+                    u_prev_n2 = prev_edge_info['sample'][prev_n2]
+                    u_n1 = prev_edge_info["h-dist"](u_prev_n0, u_prev_n2)
+                else:
+                    u_n1 = np.random.rand(size)
         else:
             u_n1 = edge_info['sample'][n1]
-        pass
+
+        next_tree_info = next_tree[old_n0][old_n1]
+        try:
+            u_n0 = next_tree_info["hinv-dist"](next_tree_info['sample'][(n0, n1)],
+                                               u_n1)
+        except:
+            u_n0 = next_tree_info["hinv-dist"](next_tree_info['sample'][(n1, n0)],
+                                               u_n1)
+        edge_sample = {n0: u_n0, n1: u_n1}
+        current_tree[n0][n1]['sample'] = edge_sample
+
+        # If current tree is 0th tree: copy marginal sample to
+        # neighbor edge
+        if tree_num == 0:
+            for one_node in current_tree.neighbors(n0):
+                if not current_tree[n0][one_node].has_key('sample'):
+                    edge_sample = {n0:u_n0}
+                    current_tree[n0][one_node]['sample'] = edge_sample
+                else:
+                    if not current_tree[n0][one_node]['sample'].has_key(n0):
+                        current_tree[n0][one_node]['sample'][n0] = u_n0
+            for one_node in current_tree.neighbors(n1):
+                if not current_tree[n1][one_node].has_key('sample'):
+                    edge_sample = {n1:u_n1}
+                    current_tree[n1][one_node]['sample'] = edge_sample
+                else:
+                    if not current_tree[n1][one_node]['sample'].has_key(n1):
+                        current_tree[n1][one_node]['sample'][n1] = u_n1
+            return
+
+        prev_n0, prev_n1, prev_n2 = edge_info['one-fold']
+        self._sampleEdge(prev_n0, prev_n2, n0, n1, size, vine)
+        self._sampleEdge(prev_n1, prev_n2, n0, n1, size, vine)
+        return

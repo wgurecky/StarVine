@@ -75,44 +75,51 @@ class BaseVine(object):
 
         # obtain edge from last tree in vine
         current_tree = self.vine[-1]
-        n0, n1 = current_tree.edges()[0]
-        edge_info = current_tree[n0][n1]
+        n0, n1 = current_tree.tree.edges()[0]
+        edge_info = current_tree.tree[n0][n1]
 
         # sample from edge of last tree
         u_n1 = edge_info["hinv-dist"](u_n1, u_n0)
         edge_sample = {n0: u_n0, n1: u_n1}
 
         # store edge sample inside graph data struct
-        current_tree[n0][n1]['sample'] = edge_sample
+        current_tree.tree[n0][n1]['sample'] = edge_sample
 
-        # get node triplet
-        # node labels according to  (prev_n0|prev_n2), (prev_n1|prev_n2)
+        # get node triplet:
+        # Three nodes in the above tree that contributed to the
+        # construction of this edge.
+        # Node labels according to  (prev_n0|prev_n2), (prev_n1|prev_n2)
         prev_n0, prev_n1, prev_n2 = edge_info['one-fold']
 
         ## \brief Entrance to starvine.vine.tree.Vtree._sampleEdge()
-        current_tree._sampleEdge(prev_n0, prev_n2, n0, n1, n)
-        current_tree._sampleEdge(prev_n1, prev_n2, n0, n1, n)
+        current_tree._sampleEdge(prev_n0, prev_n2, n0, n1, n, self.vine)
+        current_tree._sampleEdge(prev_n1, prev_n2, n0, n1, n, self.vine)
 
         sample_result = {}
-        tree_0 = self.vine[0]
+        tree_0 = self.vine[0].tree
         for edge in tree_0.edges():
             n0, n1 = edge
             edge_info = tree_0[n0][n1]
             if not n0 in sample_result.keys():
                 sample_result[n0] = edge_info['sample'][n0]
-            if not n1 in sample_result.key():
+            if not n1 in sample_result.keys():
                 sample_result[n1] = edge_info['sample'][n1]
 
         # clean up
-        for tree in self.vine:
-            for edge in tree.edges():
+        for base_tree in self.vine:
+            for edge in base_tree.tree.edges():
                 n0, n1 = edge
-                tree[n0][n1].pop('sample')
+                base_tree.tree[n0][n1].pop('sample')
 
         # convert sample dict of arrays to dataFrame
         return pd.DataFrame(sample_result)
 
     def plotVine(self, plotAll=True, savefig=None):
+        """!
+        @brief Plots the vine's graph structure.
+        @param plotAll (optional) Plot the entire vine structure
+        @param savefig (optional) filename of output image.
+        """
         plt.figure(10, figsize=(6, 3 * self.nLevels))
         for i, treeL in enumerate(self.vine):
             plt.subplot(self.nLevels, 1, i + 1)

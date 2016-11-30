@@ -103,35 +103,8 @@ class Cvine(BaseVine):
         self.vine.append(treeT)
         if level < self.nLevels - 1:
             self.buildDeepTrees(level + 1)
-
-    def sample(self, n=1000):
-        """!
-        @brief Draws n samples from the vine.
-        """
-        nLevels = self.nLevels + 1
-        x_samples = np.random.uniform(1e-10, 1. - 1e-10, (n, nLevels))
-        vs = np.ones(x_samples.shape)
-        for p, w in enumerate(x_samples):
-            v = np.ones((len(w), nLevels))
-            x = np.zeros(len(w))
-            x[0] = w[0]
-            for i in range(1, nLevels):
-                v[i, 0] = w[i]
-                inner_k = range(i - 1)
-                inner_k.reverse()
-                for k in inner_k:
-                    inner_edge = self.vine[k].tree.edge[k][i - k]
-                    v[i, 0] = inner_edge["pc"]["hinv-dist"](np.array([v[i, 0]]),
-                                                            np.array([v[k, k]]))
-                x[i] = v[i, 0]
-                if i == nLevels:
-                    break
-                for j in range(i - 1):
-                    inner_edge = self.vine[j].tree.edge[j][i - j]
-                    v[i, j+1] = inner_edge["pc"]["h-dist"](np.array([v[i, j]]),
-                                                           np.array([v[j, j]]))
-            vs[p, :] = x
-        return vs
+        elif level == self.nLevels - 1:
+            self.vine[level].evalH()
 
 
 class Ctree(Vtree):
@@ -232,9 +205,9 @@ class Ctree(Vtree):
 
     def _evalH(self):
         """!
-        @brief Computes the univariate \f$ F(x|v, \theta) \f$ data set at each node
+        @brief Computes \f$ F(x|v, \theta) \f$ data set at each node
         for use in the next level tree.
-        @return <b>DataFame</b> : conditional distributions at tree edges.
+        @return <b>DataFame</b> : conditional distribution at tree edges.
         """
         # TODO: Establish linkage between tree levels
         condData = DataFrame()
@@ -246,6 +219,10 @@ class Ctree(Vtree):
         return condData
 
     def _getEdgeCopulaParams(self, u, v):
+        """!
+        @brief Get copula paramters of particular edge in tree.
+        @returns <b>np_1darray</b> Copula parameters of edge
+        """
         cp = self.tree.edge[u][v]["pc"].copulaParams
         if cp is not None:
             return cp
@@ -253,6 +230,10 @@ class Ctree(Vtree):
             raise RuntimeError("ERROR: Must execute sequential fit first")
 
     def _initTreeParamMap(self):
+        """!
+        @brief Pack all copula paramters in the tree into a 1d numpy array for
+        simulatneous MLE optimization.  Sets the tree copula paramters.
+        """
         currentMarker = 0
         self.treeCopulaParams = []
         edgeList = self.tree.edges(data=True)
