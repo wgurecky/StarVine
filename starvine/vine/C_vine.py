@@ -196,11 +196,13 @@ class Ctree(Vtree):
                 # iterate though all child nodes,
                 # root dataset cannot be paired with itself
                 if nodeID != rootNodeID:
+                    ## VV is OK UU is wrong!
                     trialPair = pc.PairCopula(self.tree.node[rootNodeID]["data"].values,
                                               self.tree.node[nodeID]["data"].values)
                     trialKtau, trialP = trialPair.empKTau()
                     trialKtauSum[i] += abs(trialKtau)
                     trialPairings[i].append((rootNodeID, nodeID, trialKtau))
+                    # trialPairings[i].append((nodeID, rootNodeID, trialKtau))
         bestPairingIndex = np.argmax(np.abs(trialKtauSum))
         return trialPairings[bestPairingIndex]
 
@@ -215,7 +217,7 @@ class Ctree(Vtree):
         for u, v, data in self.tree.edges(data=True):
             # eval h() of pair-copula model at current edge
             # use rank transformed data as input to conditional dist
-            condData[(v, u)] = data["h-dist"](data["pc"].VV,
+            condData[(u, v)] = data["h-dist"](data["pc"].VV,
                                               data["pc"].UU)
         return condData
 

@@ -182,7 +182,7 @@ class Vtree(object):
         @param old_n0  Node_1 from upperTree
         @param size <b>int</b>  sample size
         """
-        if type(n0) is int or type(n0) is np.int64:
+        if type(n0) is int or type(n0) is np.int64 or type(n0) is str:
             tree_num = 0
         else:
             tree_num = len(n0) - 1
@@ -223,8 +223,8 @@ class Vtree(object):
 
         next_tree_info = next_tree[old_n0][old_n1]
         try:
-            u_n0 = next_tree_info["hinv-dist"](next_tree_info['sample'][(n0, n1)], u_n1)
-            # u_n0 = next_tree_info["hinv-dist"](u_n1, next_tree_info['sample'][(n0, n1)])
+            # u_n0 = next_tree_info["hinv-dist"](next_tree_info['sample'][(n0, n1)], u_n1)
+            u_n0 = next_tree_info["hinv-dist"](u_n1, next_tree_info['sample'][(n0, n1)])
         except:
             # u_n0 = next_tree_info["hinv-dist"](next_tree_info['sample'][(n1, n0)], u_n1)
             u_n0 = next_tree_info["hinv-dist"](u_n1, next_tree_info['sample'][(n1, n0)])
@@ -242,6 +242,7 @@ class Vtree(object):
                     if not current_tree[n0][one_node]['sample'].has_key(n0):
                         current_tree[n0][one_node]['sample'][n0] = u_n0
             for one_node in current_tree.neighbors(n1):
+                import pdb; pdb.set_trace()
                 if not current_tree[n1][one_node].has_key('sample'):
                     edge_sample = {n1:u_n1}
                     current_tree[n1][one_node]['sample'] = edge_sample

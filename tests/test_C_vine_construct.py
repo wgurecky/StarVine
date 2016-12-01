@@ -24,9 +24,9 @@ class TestCvine(unittest.TestCase):
         #p = stocks[:, 5]
         # Create pandas data table
         tstData = pd.DataFrame()
-        tstData[0] = x
-        tstData[1] = y
-        tstData[2] = z
+        tstData[3] = x
+        tstData[2] = y
+        tstData[1] = z
         #tstData[3] = e
         #tstData[4] = p
         # Visualize multivar data
@@ -45,7 +45,7 @@ class TestCvine(unittest.TestCase):
         tstVine.plotVine(savefig="c_vine_graph_ex.png")
 
         # sample from vine
-        samples = tstVine.sample(n=2000)
+        samples = tstVine.sample(n=1000)
         matrixPairPlot(samples, savefig="quad_varaite_resampled_ex.png")
 
 
