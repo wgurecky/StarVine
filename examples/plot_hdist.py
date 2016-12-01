@@ -20,13 +20,13 @@ def plot_hdist():
         conditioning_v = np.ones(n) * v
         c = t_copula.StudentTCopula()
         h_v = c.h(u, conditioning_v, *[theta, 10])
-        label_str = "cond_v: %.2f, theta: %.1e" % (v, theta)
+        label_str = r"$v$: %.2f, $\theta$: %.1e" % (v, theta)
         ax.plot(u, h_v, label=label_str)
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.75, box.height])
-    ax.legend(loc="center left", bbox_to_anchor=(1., 0.5))
-    plt.xlabel("u")
-    plt.ylabel("h(u;v,theta)")
+    ax.legend(loc="center left", bbox_to_anchor=(1., 0.5), fontsize=14)
+    plt.xlabel(r"$u$", fontsize=16)
+    plt.ylabel(r"$h(u;v,\theta)$", fontsize=16)
     plt.savefig("t_h_dist.png")
 
 
@@ -41,13 +41,13 @@ def plot_hinv_dist():
         conditioning_v = np.ones(n) * v
         c = t_copula.StudentTCopula()
         h_v = c.hinv(u, conditioning_v, *[theta, 10])
-        label_str = "cond_v: %.2f, theta: %.1e" % (v, theta)
+        label_str = r"$v$: %.2f, $\theta$: %.1e" % (v, theta)
         ax.plot(u, h_v, label=label_str)
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.75, box.height])
-    ax.legend(loc="center left", bbox_to_anchor=(1., 0.5))
-    plt.xlabel("u")
-    plt.ylabel("h^-1(u;v,theta)")
+    ax.legend(loc="center left", bbox_to_anchor=(1., 0.5), fontsize=14)
+    plt.xlabel(r"$u$", fontsize=16)
+    plt.ylabel(r"$h^{-1}(u;v,\theta)$", fontsize=16)
     plt.savefig("t_hinv_dist.png")
 
 if __name__ == "__main__":
