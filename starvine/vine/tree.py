@@ -59,9 +59,12 @@ class Vtree(object):
         for i, pair in enumerate(nodePairs):
             self.tree.add_edge(pair[0], pair[1], weight=(1. - pair[2]),
                                attr_dict={"pc":
-                                          pc.PairCopula(self.data[pair[0]].values,
-                                                        self.data[pair[1]].values),
-                                          "id": i})
+                                          pc.PairCopula(self.tree.node[pair[0]]["data"],
+                                                        self.tree.node[pair[1]]["data"]),
+                                          "id": i,
+                                          "edge_data": {pair[0]: self.tree.node[pair[0]]["data"],
+                                                        pair[1]: self.tree.node[pair[1]]["data"]},
+                                           })
         self._setEdgeTriplets()
 
     def _setEdgeTriplets(self):
@@ -167,11 +170,11 @@ class Vtree(object):
         @brief Sample from edge in the tree.
 
             Current Tree:
-            (n0)                                   (n1)
-            Old_n0 ---------- Old_edge_0 --------- old_n1 ------------- Old_edge_1 -------------- old_n2
+            (prev_n0)                             (prev_n2)                                     (prev_n1)
+             u_n0 ---------- Old_edge_0 -----------   _n2 ------------- Old_edge_1 -------------- u_n1
                                  :                                          :
             Next Tree:
-                               ( old_n0 ) -------- edge_0 --------- ( old_n1 )
+                           ( next_u_n0 ) -------- next_edge --------- ( next_u_n1 )
 
         To go "up" the vine requires evaluation of hinv-dist
         To traverse down the vine, evaluate the conditional h-dist function.
@@ -228,7 +231,7 @@ class Vtree(object):
         except:
             # u_n0 = next_tree_info["hinv-dist"](next_tree_info['sample'][(n1, n0)], u_n1)
             u_n0 = next_tree_info["hinv-dist"](u_n1, next_tree_info['sample'][(n1, n0)])
-        edge_sample = {n0: u_n0, n1: u_n1}
+        edge_sample = {n0: u_n1, n1: u_n0}
         current_tree[n0][n1]['sample'] = edge_sample
 
         # If current tree is 0th tree: copy marginal sample to
@@ -242,7 +245,6 @@ class Vtree(object):
                     if not current_tree[n0][one_node]['sample'].has_key(n0):
                         current_tree[n0][one_node]['sample'][n0] = u_n0
             for one_node in current_tree.neighbors(n1):
-                import pdb; pdb.set_trace()
                 if not current_tree[n1][one_node].has_key('sample'):
                     edge_sample = {n1:u_n1}
                     current_tree[n1][one_node]['sample'] = edge_sample
@@ -251,7 +253,10 @@ class Vtree(object):
                         current_tree[n1][one_node]['sample'][n1] = u_n1
             return
 
+        # Traverse up the vine one level
         prev_n0, prev_n1, prev_n2 = edge_info['one-fold']
-        self._sampleEdge(prev_n0, prev_n2, n0, n1, size, vine)
-        self._sampleEdge(prev_n1, prev_n2, n0, n1, size, vine)
+        # self._sampleEdge(prev_n0, prev_n2, n0, n1, size, vine)
+        # self._sampleEdge(prev_n1, prev_n2, n0, n1, size, vine)
+        self._sampleEdge(prev_n2, prev_n0, n0, n1, size, vine)
+        self._sampleEdge(prev_n2, prev_n1, n0, n1, size, vine)
         return

@@ -111,7 +111,7 @@ class PairCopula(object):
         @brief Returns emperical kendall's tau of rank transformed data.
         @return <b>float</b> Kendall's tau rank correlation coeff
         """
-        self.empKTau_, self.pval_ = kendalltau(self.u, self.v)
+        self.empKTau_, self.pval_ = kendalltau(self.UU, self.VV)
         return self.empKTau_, self.pval_
 
     def empSRho(self):

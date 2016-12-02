@@ -186,23 +186,22 @@ class Ctree(Vtree):
         @return <b>nd_array</b>: (nT-1, 3) shape array with PCC pairs
                 Each row is a len 3 tuple: (rootNodeID, nodeID, kTau)
         """
-        nodeIDs = self.data.columns
-        trialKtauSum = np.zeros(len(nodeIDs))
+        trialKtauSum = np.zeros(len(self.tree.nodes()))
         trialPairings = []
         # Generate all possible node pairings
-        for i, rootNodeID in enumerate(nodeIDs):
+        for i, rootNodeID in enumerate(self.tree.nodes()):
             trialPairings.append([])
-            for nodeID in nodeIDs:
+            for nodeID in self.tree.nodes():
                 # iterate though all child nodes,
                 # root dataset cannot be paired with itself
                 if nodeID != rootNodeID:
                     ## VV is OK UU is wrong!
-                    trialPair = pc.PairCopula(self.tree.node[rootNodeID]["data"].values,
-                                              self.tree.node[nodeID]["data"].values)
+                    trialPair = pc.PairCopula(self.tree.node[nodeID]["data"].values,
+                                              self.tree.node[rootNodeID]["data"].values)
                     trialKtau, trialP = trialPair.empKTau()
-                    trialKtauSum[i] += abs(trialKtau)
-                    trialPairings[i].append((rootNodeID, nodeID, trialKtau))
-                    # trialPairings[i].append((nodeID, rootNodeID, trialKtau))
+                    trialKtauSum[i] += 1. - abs(trialKtau)
+                    # trialPairings[i].append((rootNodeID, nodeID, trialKtau))
+                    trialPairings[i].append((nodeID, rootNodeID, trialKtau))
         bestPairingIndex = np.argmax(np.abs(trialKtauSum))
         return trialPairings[bestPairingIndex]
 
@@ -217,7 +216,7 @@ class Ctree(Vtree):
         for u, v, data in self.tree.edges(data=True):
             # eval h() of pair-copula model at current edge
             # use rank transformed data as input to conditional dist
-            condData[(u, v)] = data["h-dist"](data["pc"].VV,
+            condData[(v, u)] = data["h-dist"](data["pc"].VV,
                                               data["pc"].UU)
         return condData
 
