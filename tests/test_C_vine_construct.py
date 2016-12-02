@@ -20,14 +20,15 @@ class TestCvine(unittest.TestCase):
         x = stocks[:, 0]
         y = stocks[:, 1]
         z = stocks[:, 4]
-        #p = stocks[:, 5]
+        p = stocks[:, 5]
+        e = stocks[:, 6]
         # Create pandas data table
         tstData = pd.DataFrame()
         tstData['1a'] = x
         tstData['2b'] = y
         tstData['3c'] = z
-        #tstData[3] = e
-        #tstData[4] = p
+        tstData['4d'] = p
+        tstData['5e'] = e
         # Visualize multivar data
         matrixPairPlot(tstData, savefig="quad_varaite_ex.png")
         # Visualize multivar ranked data
@@ -44,7 +45,7 @@ class TestCvine(unittest.TestCase):
         tstVine.plotVine(savefig="c_vine_graph_ex.png")
 
         # sample from vine
-        samples = tstVine.sample(n=5000)
+        samples = tstVine.sample(n=2000)
         matrixPairPlot(samples, savefig="quad_varaite_resampled_ex.png")
 
 

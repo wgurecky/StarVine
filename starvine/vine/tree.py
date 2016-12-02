@@ -3,6 +3,7 @@
 # vine can be described as a tree.
 #
 from pandas import DataFrame
+from itertools import chain
 from starvine.bvcopula import pc_base as pc
 import networkx as nx
 import numpy as np
@@ -188,10 +189,18 @@ class Vtree(object):
         @param old_n1  Node_1 from lowerTree
         @param size <b>int</b>  sample size
         """
+        def unrollNodes(l):
+            try:
+                flt = list(chain.from_iterable(l))
+            except:
+                return l
+            return unrollNodes(flt)
+
         if type(n0) is int or type(n0) is np.int64 or type(n0) is str:
             tree_num = 0
         else:
-            tree_num = len(n0) - 1
+            # Determine tree level from number of nodes (#nodes are powers of 2)
+            tree_num = int(np.log(len(unrollNodes(n0))) / np.log(2)) - 1
         current_tree = vine[tree_num].tree
         next_tree = vine[tree_num + 1].tree
         edge_info = current_tree[n0][n1]

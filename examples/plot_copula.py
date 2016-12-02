@@ -74,6 +74,14 @@ def plot_pdfs():
     p = c.pdf(u.flatten(), v.flatten(), *[2.0])
     bv_plot.bvContourf(u.flatten(), v.flatten(), p, savefig="gumbel_copula_pdf.png")
 
+    c = gumbel_copula.GumbelCopula(1)
+    p = c.pdf(u.flatten(), v.flatten(), *[2.0])
+    bv_plot.bvContourf(u.flatten(), v.flatten(), p, savefig="gumbel_90_copula_pdf.png")
+
+    c = gumbel_copula.GumbelCopula(2)
+    p = c.pdf(u.flatten(), v.flatten(), *[2.0])
+    bv_plot.bvContourf(u.flatten(), v.flatten(), p, savefig="gumbel_180_copula_pdf.png")
+
     # CLAYTON PDFS
     c = clayton_copula.ClaytonCopula()
     p = c.pdf(u.flatten(), v.flatten(), *[1.0])

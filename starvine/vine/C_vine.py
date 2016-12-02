@@ -221,14 +221,16 @@ class Ctree(Vtree):
             rootID = self.rootNodeID
             if u is not rootID:
                 nonRootID = u
-                nonRootData = data["pc"].VV
-                rootData = data["pc"].UU
-            else:
-                nonRootID = v
                 nonRootData = data["pc"].UU
                 rootData = data["pc"].VV
+            else:
+                nonRootID = v
+                nonRootData = data["pc"].VV
+                rootData = data["pc"].UU
             condData[(nonRootID, rootID)] = data["h-dist"](data["pc"].VV,
                                                            data["pc"].UU)
+            # condData[(nonRootID, rootID)] = data["h-dist"](nonRootData,
+            #                                                rootData)
         return condData
 
     def _getEdgeCopulaParams(self, u, v):

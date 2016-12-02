@@ -48,6 +48,8 @@ class PairCopula(object):
         if self.weights:
             self.weights = self.weights / np.sum(self.weights)
         # init default copula family
+        """
+        TODO: fix rotated gumbel copula
         defaultFamily = {'t': 0,
                          'gauss': 0,
                          'frank': 0,
@@ -62,6 +64,10 @@ class PairCopula(object):
                          'clayton-90': 1,
                          'clayton-180': 2,
                          'clayton-270': 3,
+                         }
+        """
+        defaultFamily = {'t': 0,
+                         'gauss': 0,
                          }
         #
         self.setTrialCopula(kwargs.pop("family", defaultFamily))

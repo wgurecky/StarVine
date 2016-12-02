@@ -86,7 +86,7 @@ class CopulaBase(object):
                          x0=params0,
                          bounds=kwargs.pop("bounds", self.thetaBounds),
                          tol=kwargs.pop("tol", 1e-8),
-                         method=kwargs.pop("altMethod", 'Nelder-Mead'))
+                         method=kwargs.pop("altMethod", 'L-BFGS-B'))
         if not res.success:
             print("WARNING: Copula parameter fitting failed to converge!")
         self.fittedParams = res.x
@@ -217,6 +217,8 @@ class CopulaBase(object):
         """!
         @brief Compute inverse of H function using bisection.
         Update (11/08/2016) performance improvement: finish with newton iterations
+
+        TODO: Ensure proper orientation of gumbel samples. Write unittest
         """
         # Apply limiters
         U = np.clip(U, 1e-8, 1. - 1e-8)
@@ -225,22 +227,14 @@ class CopulaBase(object):
         if self.rotation == 3:
             V = 1. - V
         reducedHfn = lambda u: self._h(V, u, rotation, *theta) - U
-        try:
-            v_bisect_est_ = bisect(reducedHfn, 1e-200, 1.0 - 1e-200, maxiter=20, disp=False)
-        except:
-            # TODO: CLEAN THIS UP
-            # IF we fail to converge, most likely failed near lower bound??
-            if self.rotation == 1 or self.rotation == 2:
-                return 1. - 1e-9
-            else:
-                return 1e-9
+        v_bisect_est_ = bisect(reducedHfn, 1e-200, 1.0 - 1e-200, maxiter=10, disp=False)
         try:
             v_est_ = newton(reducedHfn, v_bisect_est_, tol=1e-4, maxiter=30)
         except:
             # fallback if newton fails to converge
             v_est_ = bisect(reducedHfn, 1e-60, 1.0 - 1e-60, maxiter=100, disp=False)
         # return v_est_
-        if self.rotation == 1 or self.rotation == 2:
+        if self.rotation == 1 or self.rotation == 3:
             return 1. - v_est_
         else:
             return v_est_
