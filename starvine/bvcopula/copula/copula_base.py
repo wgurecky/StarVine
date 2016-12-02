@@ -224,8 +224,16 @@ class CopulaBase(object):
         # Apply rotation
         if self.rotation == 3:
             V = 1. - V
-        reducedHfn = lambda u: self._h(u, V, rotation, *theta) - U
-        v_bisect_est_ = bisect(reducedHfn, 1e-100, 1.0 - 1e-100, maxiter=20, disp=False)
+        reducedHfn = lambda u: self._h(V, u, rotation, *theta) - U
+        try:
+            v_bisect_est_ = bisect(reducedHfn, 1e-200, 1.0 - 1e-200, maxiter=20, disp=False)
+        except:
+            # TODO: CLEAN THIS UP
+            # IF we fail to converge, most likely failed near lower bound??
+            if self.rotation == 1 or self.rotation == 2:
+                return 1. - 1e-9
+            else:
+                return 1e-9
         try:
             v_est_ = newton(reducedHfn, v_bisect_est_, tol=1e-4, maxiter=30)
         except:

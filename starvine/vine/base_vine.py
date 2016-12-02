@@ -5,6 +5,7 @@ from scipy.optimize import minimize
 import networkx as nx
 import numpy as np
 import pandas as pd
+# from starvine.mvar.mv_plot import matrixPairPlot
 
 
 class BaseVine(object):
@@ -80,7 +81,8 @@ class BaseVine(object):
 
         # sample from edge of last tree
         u_n1 = edge_info["hinv-dist"](u_n0, u_n1)
-        edge_sample = {n0: u_n1, n1: u_n0}
+        edge_sample = {n0: u_n0, n1: u_n1}
+        # matrixPairPlot(pd.DataFrame(edge_sample), savefig="tree_1_edge_sample.png")
 
         # store edge sample inside graph data struct
         current_tree.tree[n0][n1]['sample'] = edge_sample
@@ -93,10 +95,8 @@ class BaseVine(object):
             prev_n0, prev_n1, prev_n2 = edge_info['one-fold']
 
             ## \brief Entrance to starvine.vine.tree.Vtree._sampleEdge()
-            # current_tree._sampleEdge(prev_n0, prev_n2, n0, n1, n, self.vine)
-            # current_tree._sampleEdge(prev_n1, prev_n2, n0, n1, n, self.vine)
-            current_tree._sampleEdge(prev_n2, prev_n0, n0, n1, n, self.vine)
-            current_tree._sampleEdge(prev_n2, prev_n1, n0, n1, n, self.vine)
+            current_tree._sampleEdge(prev_n0, prev_n2, n0, n1, n, self.vine)
+            current_tree._sampleEdge(prev_n1, prev_n2, n0, n1, n, self.vine)
 
         sample_result = {}
         tree_0 = self.vine[0].tree

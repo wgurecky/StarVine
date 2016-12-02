@@ -203,6 +203,7 @@ class Ctree(Vtree):
                     # trialPairings[i].append((rootNodeID, nodeID, trialKtau))
                     trialPairings[i].append((nodeID, rootNodeID, trialKtau))
         bestPairingIndex = np.argmax(np.abs(trialKtauSum))
+        self.rootNodeID = trialPairings[bestPairingIndex][0][1]
         return trialPairings[bestPairingIndex]
 
     def _evalH(self):
@@ -216,8 +217,18 @@ class Ctree(Vtree):
         for u, v, data in self.tree.edges(data=True):
             # eval h() of pair-copula model at current edge
             # use rank transformed data as input to conditional dist
-            condData[(v, u)] = data["h-dist"](data["pc"].VV,
-                                              data["pc"].UU)
+            # identify rootID
+            rootID = self.rootNodeID
+            if u is not rootID:
+                nonRootID = u
+                nonRootData = data["pc"].VV
+                rootData = data["pc"].UU
+            else:
+                nonRootID = v
+                nonRootData = data["pc"].UU
+                rootData = data["pc"].VV
+            condData[(nonRootID, rootID)] = data["h-dist"](data["pc"].VV,
+                                                           data["pc"].UU)
         return condData
 
     def _getEdgeCopulaParams(self, u, v):

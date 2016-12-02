@@ -39,6 +39,7 @@ class PairCopula(object):
         """
         self.copulaModel, self.copulaParams = None, (None, None, )
         #
+        self.id = kwargs.pop("id", None)
         self.x = np.array(x)
         self.y = np.array(y)
         self.u, self.v = None, None  # ranked data
@@ -138,9 +139,17 @@ class PairCopula(object):
         """
         vb = kwargs.pop("verbosity", True)
         self.empKTau()
-        if self.pval_ >= 0.95:
+        if self.pval_ >= 0.05:
             print("Independence Coplua selected")
-            return self.copulaBank['indep']
+            goldCopula = self.copulaBank["gauss"]
+            goldParams = self.fitCopula(goldCopula)
+            self.copulaModel = goldCopula
+            self.copulaParams = goldParams
+            if vb: print("ID: %s. %s copula selected.  fitted params="
+                         % (str(self.id), goldCopula.name) + str(goldParams[1]))
+            if vb: print("-------------------------------------------")
+            # return self.copulaBank['indep']
+            return (self.copulaModel, self.copulaParams)
         # Find best fitting copula as judged by the AIC
         maxAIC, goldCopula, goldParams = 0, None, None
         for trialCopulaName, rotation in iteritems(self.trialFamily):
@@ -153,7 +162,9 @@ class PairCopula(object):
                 goldCopula = copula
                 goldParams = fittedCopulaParams
                 maxAIC = trialAIC
-        if vb: print(goldCopula.name + " copula selected")
+        if vb: print("ID: %s. %s copula selected.  fitted params="
+                     % (str(self.id), goldCopula.name) + str(goldParams[1]))
+        if vb: print("-------------------------------------------")
         self.copulaModel = goldCopula
         self.copulaParams = goldParams
         return (self.copulaModel, self.copulaParams)

@@ -6,6 +6,7 @@ from pandas import DataFrame
 from starvine.bvcopula import pc_base as pc
 import networkx as nx
 import numpy as np
+# from starvine.mvar.mv_plot import matrixPairPlot
 
 
 class Vtree(object):
@@ -60,8 +61,9 @@ class Vtree(object):
             self.tree.add_edge(pair[0], pair[1], weight=(1. - pair[2]),
                                attr_dict={"pc":
                                           pc.PairCopula(self.tree.node[pair[0]]["data"],
-                                                        self.tree.node[pair[1]]["data"]),
-                                          "id": i,
+                                                        self.tree.node[pair[1]]["data"],
+                                                        id=(pair[0], pair[1])),
+                                          "id": (pair[0], pair[1]),
                                           "edge_data": {pair[0]: self.tree.node[pair[0]]["data"],
                                                         pair[1]: self.tree.node[pair[1]]["data"]},
                                            })
@@ -169,20 +171,21 @@ class Vtree(object):
         """!
         @brief Sample from edge in the tree.
 
-            Current Tree:
-            (prev_n0)                             (prev_n2)                                     (prev_n1)
-             u_n0 ---------- Old_edge_0 -----------   _n2 ------------- Old_edge_1 -------------- u_n1
-                                 :                                          :
-            Next Tree:
-                           ( next_u_n0 ) -------- next_edge --------- ( next_u_n1 )
+            Sample edge marked XXX:
+            ### Current Tree ###
+            (prev_n0)          XXX             (prev_n2)                              (prev_n1)
+                n0 ---------- edge_0 ------------- n1 ------------- edge_1 -------------- n0
+                                 :                                    :
+            ### Next Tree ###
+                          (next_u_n0) -------- next_edge --------- (next_u_n1)
 
         To go "up" the vine requires evaluation of hinv-dist
         To traverse down the vine, evaluate the conditional h-dist function.
 
-        @param n0  Node_0 in current tree (current edge connected)
-        @param n1  Node_1 in current tree (current edge connected)
-        @param old_n0  Node_0 from upperTree parent edge
-        @param old_n0  Node_1 from upperTree
+        @param n0  Wing node in current tree
+        @param n1  central node in current tree
+        @param old_n0  Node_0 from lowerTree edge
+        @param old_n1  Node_1 from lowerTree
         @param size <b>int</b>  sample size
         """
         if type(n0) is int or type(n0) is np.int64 or type(n0) is str:
@@ -194,7 +197,7 @@ class Vtree(object):
         edge_info = current_tree[n0][n1]
 
         # if both marginal samples exist on this edge,
-        # nothing to do - return.
+        # nothing to do.
         if edge_info.has_key('sample') and \
                 len(edge_info['sample']) == 2:
             return
@@ -203,8 +206,8 @@ class Vtree(object):
         if not edge_info.has_key('sample') or not edge_info['sample'].has_key(n1):
             if tree_num == 0:
                 u_n1 = np.random.rand(size)
-            # if we are not in the first tree, try to get u_n1
-            # from the H-function.A
+            # if we are not in the first tree:
+            # try to get u_n1 from the H-function
             else:
                 if not self.upperTree:
                     raise RuntimeError("Upper tree requested but unavalible.")
@@ -217,7 +220,6 @@ class Vtree(object):
                         len(prev_edge_info['sample']) == 2:
                     u_prev_n0 = prev_edge_info['sample'][prev_n0]
                     u_prev_n2 = prev_edge_info['sample'][prev_n2]
-                    # u_n1 = prev_edge_info["h-dist"](u_prev_n0, u_prev_n2)
                     u_n1 = prev_edge_info["h-dist"](u_prev_n2, u_prev_n0)
                 else:
                     u_n1 = np.random.rand(size)
@@ -226,12 +228,12 @@ class Vtree(object):
 
         next_tree_info = next_tree[old_n0][old_n1]
         try:
-            # u_n0 = next_tree_info["hinv-dist"](next_tree_info['sample'][(n0, n1)], u_n1)
-            u_n0 = next_tree_info["hinv-dist"](u_n1, next_tree_info['sample'][(n0, n1)])
+            u_n0 = edge_info["hinv-dist"](u_n1, next_tree_info['sample'][(n0, n1)])
         except:
-            # u_n0 = next_tree_info["hinv-dist"](next_tree_info['sample'][(n1, n0)], u_n1)
-            u_n0 = next_tree_info["hinv-dist"](u_n1, next_tree_info['sample'][(n1, n0)])
-        edge_sample = {n0: u_n1, n1: u_n0}
+            u_n0 = edge_info["hinv-dist"](u_n1, next_tree_info['sample'][(n1, n0)])
+        edge_sample = {n0: u_n0, n1: u_n1}
+        # matrixPairPlot(DataFrame(edge_sample),
+        #                savefig="edge" + str(n0) + "_" + str(n1) + "sample.png")
         current_tree[n0][n1]['sample'] = edge_sample
 
         # If current tree is 0th tree: copy marginal sample to
@@ -255,8 +257,6 @@ class Vtree(object):
 
         # Traverse up the vine one level
         prev_n0, prev_n1, prev_n2 = edge_info['one-fold']
-        # self._sampleEdge(prev_n0, prev_n2, n0, n1, size, vine)
-        # self._sampleEdge(prev_n1, prev_n2, n0, n1, size, vine)
-        self._sampleEdge(prev_n2, prev_n0, n0, n1, size, vine)
-        self._sampleEdge(prev_n2, prev_n1, n0, n1, size, vine)
+        self._sampleEdge(prev_n0, prev_n2, n0, n1, size, vine)
+        self._sampleEdge(prev_n1, prev_n2, n0, n1, size, vine)
         return
