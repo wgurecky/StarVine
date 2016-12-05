@@ -9,17 +9,13 @@ StarVine can also be used as a standalone copula fitting tool for bivariate mode
 Install
 ========
 
-Prep package:
-
-    python setup.py build
-
-Execute unit tests:
-
-    python -m unittest discover
-
-If everything checks out install the package:
+Install the package:
 
     python setup.py install
+
+For a developer install:
+
+    python setup.py develop --user
 
 Requires:
 
@@ -42,7 +38,7 @@ Docs
 =====
 
 Documentation can be found online at:
-[wgurecky.github.io/starvine](www.wgurecky.github.io/starvine).
+[wgurecky.github.io/starvine](https://wgurecky.github.io/StarVine).
 
 The docs can be manually built using Doxygen:
 
