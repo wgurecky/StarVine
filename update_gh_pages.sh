@@ -7,7 +7,7 @@
 # def repo vars
 REPONAME=StarVine
 SRCREPO=`pwd`
-SRCDOCS=$SRCREPO/doc/build/html
+SRCDOCS=$SRCREPO/doc/documentation/html
 TMPREPO=/tmp/docs/$REPONAME
 MSG="gh-pages docs for `git log -1 --pretty=short --abbrev-commit`"
 
