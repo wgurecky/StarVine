@@ -230,6 +230,7 @@ class Vtree(object):
                     u_prev_n0 = prev_edge_info['sample'][prev_n0]
                     u_prev_n2 = prev_edge_info['sample'][prev_n2]
                     u_n1 = prev_edge_info["h-dist"](u_prev_n2, u_prev_n0)
+                    # u_n1 = prev_edge_info["h-dist"](u_prev_n0, u_prev_n2)
                 else:
                     u_n1 = np.random.rand(size)
         else:

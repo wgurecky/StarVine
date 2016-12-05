@@ -59,8 +59,10 @@ class ClaytonCopula(CopulaBase):
         TODO: CHECK UU and VV ordering!
         """
         h1 = -(1.0 + theta[0]) / theta[0]
-        UU = np.array(1. - u)
-        VV = np.array(1. - v)
+        # UU = np.array(1. - u)
+        # VV = np.array(1. - v)
+        UU = np.array(u)
+        VV = np.array(v)
         uu = np.power(np.power(VV,theta[0])*(np.power(UU,-theta[0])-1.0)+1.0,h1);
         return uu
 
