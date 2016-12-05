@@ -224,9 +224,12 @@ class CopulaBase(object):
         U = np.clip(U, 1e-8, 1. - 1e-8)
         V = np.clip(V, 1e-8, 1. - 1e-8)
         # Apply rotation
-        if self.rotation == 3:
+        if self.rotation == 1:
             U = 1. - U
-        elif self.rotation == 2 or self.rotation == 1:
+        elif self.rotation == 3:
+            V = 1. - V
+        elif self.rotation == 0:
+            U = 1. - U
             V = 1. - V
         else:
             pass
@@ -242,9 +245,7 @@ class CopulaBase(object):
             return 1.0 - 1e-8
         elif v_est_ < 0.0:
             return 1e-8
-        if self.rotation == 3:
-            return 1. - v_est_
-        elif self.rotation == 2:
+        if self.rotation == 1 or self.rotation == 0:
             return 1. - v_est_
         else:
             return v_est_

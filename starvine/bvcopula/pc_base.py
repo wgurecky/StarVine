@@ -76,6 +76,10 @@ class PairCopula(object):
                          'clayton-90': 1,
                          'clayton-180': 2,
                          'clayton-270': 3,
+                         'gumbel': 0,
+                         'gumbel-90': 1,
+                         'gumbel-180': 2,
+                         'gumbel-270': 3,
                          }
         #
         self.setTrialCopula(kwargs.pop("family", defaultFamily))

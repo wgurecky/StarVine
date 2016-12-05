@@ -45,7 +45,7 @@ class TestCvine(unittest.TestCase):
         tstVine.plotVine(savefig="c_vine_graph_ex.png")
 
         # sample from vine
-        samples = tstVine.sample(n=2000)
+        samples = tstVine.sample(n=5000)
         matrixPairPlot(samples, savefig="quad_varaite_resampled_ex.png")
 
 

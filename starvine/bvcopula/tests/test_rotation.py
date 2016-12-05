@@ -25,7 +25,7 @@ class TestRotateCopula(unittest.TestCase):
         # check kTau
         self.assertAlmostEqual(c00_kTau, 0.8749999999999, 6)
         # compute rank corr coeff from resampled data
-        gumbel00_model = PairCopula(u00, v00, family={"gumbel": 0})
+        gumbel00_model = PairCopula(u00, v00)
         gumbel00_model.copulaTournament()
         print(gumbel00_model.copulaParams)
         # check that gumbel copula won since
@@ -35,6 +35,13 @@ class TestRotateCopula(unittest.TestCase):
         kTauDelta = c00_kTau - gumbel00_model.copulaModel.kTau()
         self.assertTrue(abs(kTauDelta) < 0.01)
         self.assertAlmostEqual(c00_kTau, gumbel00_model.copulaModel.kTau(), delta=0.01)
+        # fit to resampled data
+        u00_model, v00_model = gumbel00_model.copulaModel.sample(10000)
+        gumbel00_refit = PairCopula(u00_model, v00_model)
+        gumbel00_refit.copulaTournament()
+        u00_resample, v00_resample = gumbel00_refit.copulaModel.sample(10000)
+        g00_resample = sns.jointplot(u00_resample, v00_resample, stat_func=kendalltau)
+        g00_resample.savefig("gumbel_resample_pdf_00.png")
 
         # 90 deg
         gumbel90 = Copula("gumbel", 1)
@@ -55,6 +62,13 @@ class TestRotateCopula(unittest.TestCase):
         kTauDelta = c90_kTau - gumbel90_model.copulaModel.kTau()
         self.assertTrue(abs(kTauDelta) < 0.04)
         # self.assertAlmostEqual(c90_kTau, gumbel90_model.copulaModel.kTau(), delta=0.02)
+        # fit to resampled data
+        u90_model, v90_model = gumbel90_model.copulaModel.sample(10000)
+        gumbel90_refit = PairCopula(u90_model, v90_model)
+        gumbel90_refit.copulaTournament()
+        u90_resample, v90_resample = gumbel90_refit.copulaModel.sample(10000)
+        g90_resample = sns.jointplot(u90_resample, v90_resample, stat_func=kendalltau)
+        g90_resample.savefig("gumbel_resample_pdf_90.png")
 
         # 180 deg
         gumbel180 = Copula("gumbel", 2)
@@ -75,6 +89,12 @@ class TestRotateCopula(unittest.TestCase):
         kTauDelta = c180_kTau - gumbel180_model.copulaModel.kTau()
         self.assertTrue(abs(kTauDelta) < 0.04)
         # self.assertAlmostEqual(c180_kTau, gumbel180_model.copulaModel.kTau(), delta=0.02)
+        u180_model, v180_model = gumbel180_model.copulaModel.sample(10000)
+        gumbel180_refit = PairCopula(u180_model, v180_model)
+        gumbel180_refit.copulaTournament()
+        u180_resample, v180_resample = gumbel180_refit.copulaModel.sample(10000)
+        g180_resample = sns.jointplot(u180_resample, v180_resample, stat_func=kendalltau)
+        g180_resample.savefig("gumbel_resample_pdf_180.png")
 
         # 270 deg
         gumbel270 = Copula("gumbel", 3)
@@ -95,6 +115,12 @@ class TestRotateCopula(unittest.TestCase):
         kTauDelta = c270_kTau - gumbel270_model.copulaModel.kTau()
         self.assertTrue(abs(kTauDelta) < 0.04)
         # self.assertAlmostEqual(c270_kTau, gumbel270_model.copulaModel.kTau(), delta=0.02)
+        u270_model, v270_model = gumbel270_model.copulaModel.sample(10000)
+        gumbel270_refit = PairCopula(u270_model, v270_model)
+        gumbel270_refit.copulaTournament()
+        u270_resample, v270_resample = gumbel270_refit.copulaModel.sample(10000)
+        g270_resample = sns.jointplot(u270_resample, v270_resample, stat_func=kendalltau)
+        g270_resample.savefig("gumbel_resample_pdf_270.png")
 
     def testFrankRotate(self):
         # 0 deg

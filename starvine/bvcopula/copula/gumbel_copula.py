@@ -61,8 +61,8 @@ class GumbelCopula(CopulaBase):
         h2 = (1.0 - theta[0]) / theta[0]
         h3 = 1.0 / theta[0]
 
-        UU = np.array(u)
-        VV = np.array(v)
+        UU = np.array(1. - u)
+        VV = np.array(1. - v)
 
         h4 = -np.log(VV)
         h5 = np.power(-np.log(UU), theta[0]) + np.power(h4, theta[0])
