@@ -1,0 +1,36 @@
+\form#0:\[ \theta \in [0, \infty) \]
+\form#1:$ h $
+\form#2:$ V $
+\form#3:$ \theta $
+\form#4:\[ h(u|v, \theta) = \frac{\partial C( F(u|v), F(u|v) | \theta) }{\partial F(u|v)} \]
+\form#5:$ h(u|v, \theta) $
+\form#6:$ V$
+\form#7:$ u $
+\form#8:$ T = C(u, v) $
+\form#9:$ t $
+\form#10:$ T() $
+\form#11:\[ K_c(t) = \frac{\phi(t)}{\phi'(t)} \]
+\form#12:\[ \tau = 1 + 4 \int_0^1 K_c(t) dt \]
+\form#13:$ \phi(t) $
+\form#14:\[ \tau = \frac{2.0}{\pi} arcsin(\rho) \]
+\form#15:$ \rho $
+\form#16:$\theta \in [0, \infty) $
+\form#17:$\theta[0] \in (-1, 1)$
+\form#18:$\theta \in [1, \infty) $
+\form#19:$ \theta_0 == \rho $
+\form#20:$ \theta_1 == \nu $
+\form#21:$ \theta_0 \in (-1, 1), $
+\form#22:$ \theta_1 \in (2, \infty) $
+\form#23:$n^{\frac{-1}{d+4}}$
+\form#24:\[ ln(P(\theta)) \]
+\form#25:$ F(model|data) \propto P(model)*P(data|model) $
+\form#26:\[ ln(P(model)*P(data|model)) == P(ln(model)) + P(ln(data|model)) \]
+\form#27:\[ F(x|v) \]
+\form#28:\[ F(x|v) = \frac{\partial C_{x,v}(F(x), F(v))}{\partial F_v(v)} \]
+\form#29:\[ h(x| v, \theta) = F(x|v, \theta) = \frac{\partial C_{xv}(x,v,\theta)}{\partial v} \]
+\form#30:$ h(\cdot) $
+\form#31:$ h(x| v,\theta) $
+\form#32:$ x $
+\form#33:$ v $
+\form#34:\[ \prod_{k=1}^n f(x_k) \prod_{j=1}^{n-1} \prod_{i=1}^{n-j} c_{j,j+i|1,...j-1} (F(x_j|x_1...,x_{j-1}), F(x_{j+1}|x_1...,x_{j-1}))\]
+\form#35:$ F(x|v, \theta) $
