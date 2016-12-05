@@ -217,24 +217,34 @@ class CopulaBase(object):
         """!
         @brief Compute inverse of H function using bisection.
         Update (11/08/2016) performance improvement: finish with newton iterations
-
-        TODO: Ensure proper orientation of gumbel samples. Write unittest
+        Update (12/04/2016) Newton can minimization needs bounds checks!
+        TODO: move to scipy.minmize
         """
         # Apply limiters
         U = np.clip(U, 1e-8, 1. - 1e-8)
         V = np.clip(V, 1e-8, 1. - 1e-8)
         # Apply rotation
         if self.rotation == 3:
+            U = 1. - U
+        elif self.rotation == 2 or self.rotation == 1:
             V = 1. - V
+        else:
+            pass
         reducedHfn = lambda u: self._h(V, u, rotation, *theta) - U
-        v_bisect_est_ = bisect(reducedHfn, 1e-200, 1.0 - 1e-200, maxiter=10, disp=False)
+        v_bisect_est_ = bisect(reducedHfn, 1e-200, 1.0 - 1e-200, maxiter=20, disp=False)
         try:
-            v_est_ = newton(reducedHfn, v_bisect_est_, tol=1e-4, maxiter=30)
+            v_est_ = newton(reducedHfn, v_bisect_est_, tol=1e-5, maxiter=30)
         except:
             # fallback if newton fails to converge
-            v_est_ = bisect(reducedHfn, 1e-60, 1.0 - 1e-60, maxiter=100, disp=False)
+            v_est_ = bisect(reducedHfn, 1e-60, 1.0 - 1e-60, maxiter=50, disp=False)
         # return v_est_
-        if self.rotation == 1 or self.rotation == 3:
+        if v_est_ > 1.0:
+            return 1.0 - 1e-8
+        elif v_est_ < 0.0:
+            return 1e-8
+        if self.rotation == 3:
+            return 1. - v_est_
+        elif self.rotation == 2:
             return 1. - v_est_
         else:
             return v_est_

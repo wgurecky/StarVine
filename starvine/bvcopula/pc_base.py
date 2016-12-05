@@ -68,6 +68,10 @@ class PairCopula(object):
         """
         defaultFamily = {'t': 0,
                          'gauss': 0,
+                         'frank': 0,
+                         'frank-90': 1,
+                         'frank-180': 2,
+                         'frank-270': 3,
                          }
         #
         self.setTrialCopula(kwargs.pop("family", defaultFamily))
