@@ -238,10 +238,10 @@ class Vtree(object):
 
         next_tree_info = next_tree[old_n0][old_n1]
         try:
-            u_n0 = edge_info["hinv-dist"](u_n1, next_tree_info['sample'][(n0, n1)])
+            u_n0 = edge_info["hinv-dist"](1. - u_n1, next_tree_info['sample'][(n0, n1)])
         except:
-            u_n0 = edge_info["hinv-dist"](u_n1, next_tree_info['sample'][(n1, n0)])
-        edge_sample = {n0: u_n0, n1: u_n1}
+            u_n0 = edge_info["hinv-dist"](1. - u_n1, next_tree_info['sample'][(n1, n0)])
+        edge_sample = {n0: 1. - u_n0, n1: u_n1}
         # matrixPairPlot(DataFrame(edge_sample),
         #                savefig="edge" + str(n0) + "_" + str(n1) + "sample.png")
         current_tree[n0][n1]['sample'] = edge_sample

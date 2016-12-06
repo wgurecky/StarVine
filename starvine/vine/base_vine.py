@@ -80,8 +80,8 @@ class BaseVine(object):
         edge_info = current_tree.tree[n0][n1]
 
         # sample from edge of last tree
-        u_n1 = edge_info["hinv-dist"](u_n0, u_n1)
-        edge_sample = {n0: u_n0, n1: u_n1}
+        u_n1 = edge_info["hinv-dist"](1. - u_n0, u_n1)
+        edge_sample = {n0: 1. - u_n0, n1: u_n1}
         # matrixPairPlot(pd.DataFrame(edge_sample), savefig="tree_1_edge_sample.png")
 
         # store edge sample inside graph data struct
