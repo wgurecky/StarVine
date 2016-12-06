@@ -3,6 +3,8 @@ from __future__ import absolute_import, print_function, division
 # starvine imports
 import context
 from starvine.mvar import mvd
+from starvine.vine.C_vine import Cvine
+from starvine.mvar.mv_plot import matrixPairPlot
 import starvine.bvcopula as bvc
 #
 from scipy.optimize import bisect, newton
@@ -77,22 +79,35 @@ def main():
     span_1_mvd.plot(savefig="upper_span.png", kde=False)
 
     # fit bivariate copula to span plot; T vs TKE:
-    copula = bvc.PairCopula(temps, tkes)
-    copula.copulaTournament()
+    # copula = bvc.PairCopula(temps, tkes)
+    # copula.copulaTournament()
+
+    # init Cvine
+    print("================= Construct Upper Vine =================")
+    upperData = pd.DataFrame({"t": temps, "tke": tkes, "q": bhfs})
+    upperVine = Cvine(pd.DataFrame({"t": temps, "tke": tkes, "q": bhfs}))
+    upperVine.constructVine()
+    upperVine.plotVine(savefig="upper_vine.png")
+    print("========================================================")
+    upperVineSamples = upperVine.sample(n=500)
+    matrixPairPlot(upperVineSamples, savefig="upper_vine_samples.png")
+    upper_ranked_data = upperData.dropna().rank()/(len(upperData)+1)
+    matrixPairPlot(upper_ranked_data, savefig="upper_ranked_samples.png")
+    t_hat_vine, tke_hat_vine, q_hat_vine = upperVineSamples['t'], upperVineSamples['tke'], upperVineSamples['q']
 
     # plot original
-    bvc.bvJointPlot(temps, tkes, savefig="upper_t_tke_original.png")
+    # bvc.bvJointPlot(temps, tkes, savefig="upper_t_tke_original.png")
 
     # sample from copula
-    print("Copula Params: " + str(copula.copulaParams))
-    t_hat, tke_hat = copula.copulaModel.sample(500)
-    bvc.bvJointPlot(t_hat, tke_hat, savefig="upper_t_tke_copula_sample.png")
+    # print("Copula Params: " + str(copula.copulaParams))
+    # t_hat, tke_hat = copula.copulaModel.sample(500)
+    # bvc.bvJointPlot(t_hat_vine, tke_hat_vine, savefig="upper_t_tke_copula_sample.png")
 
-    rand_u = np.linspace(0.05, 0.95, 40)
-    rand_v = np.linspace(0.05, 0.95, 40)
-    u, v = np.meshgrid(rand_u, rand_v)
-    copula_pdf = copula.copulaModel.pdf(u.flatten(), v.flatten())
-    bvc.bvContourf(u.flatten(), v.flatten(), copula_pdf, savefig="upper_t_tke_copula_pdf.png")
+    # rand_u = np.linspace(0.05, 0.95, 40)
+    # rand_v = np.linspace(0.05, 0.95, 40)
+    # u, v = np.meshgrid(rand_u, rand_v)
+    # copula_pdf = copula.copulaModel.pdf(u.flatten(), v.flatten())
+    # bvc.bvContourf(u.flatten(), v.flatten(), copula_pdf, savefig="upper_t_tke_copula_pdf.png")
 
     # Resample original data
     def icdf_uv_bisect(ux, X, marginalCDFModel):
@@ -103,15 +118,15 @@ def main():
                 icdf[i] = bisect(kde_cdf_err,
                                  min(ux) - np.abs(0.5 * min(ux)),
                                  max(ux) + np.abs(0.5 * max(ux)),
-                                 xtol=1e-2, maxiter=10)
+                                 xtol=1e-3, maxiter=15)
                 icdf[i] = newton(kde_cdf_err, icdf[i], tol=1e-6, maxiter=20)
             except:
                 icdf[i] = np.nan
         return icdf
     kde_cdf = gaussian_kde(temps).integrate_box
-    resampled_t = icdf_uv_bisect(temps, t_hat, kde_cdf)
+    resampled_t = icdf_uv_bisect(temps, t_hat_vine, kde_cdf)
     kde_cdf = gaussian_kde(tkes).integrate_box
-    resampled_tke = icdf_uv_bisect(tkes, tke_hat, kde_cdf)
+    resampled_tke = icdf_uv_bisect(tkes, tke_hat_vine, kde_cdf)
     bvc.bvJointPlot(resampled_t, resampled_tke, vs=[temps, tkes], savefig="upper_t_tke_resampled.png")
 
     # LOWER SPAN
@@ -132,22 +147,35 @@ def main():
     span_1_mvd.plot(savefig="lower_span.png", kde=False)
 
     # fit bivariate copula to span plot; T vs TKE:
-    copula = bvc.PairCopula(temps, tkes)
-    copula.copulaTournament()
+    # copula = bvc.PairCopula(temps, tkes)
+    # copula.copulaTournament()
+
+    # init Cvine
+    print("================= Construct Lower Vine =================")
+    lowerData = pd.DataFrame({"t": temps, "tke": tkes, "q": bhfs})
+    lowerVine = Cvine(pd.DataFrame({"t": temps, "tke": tkes, "q": bhfs}))
+    lowerVine.constructVine()
+    lowerVine.plotVine(savefig="lower_vine.png")
+    print("========================================================")
+    lowerVineSamples = lowerVine.sample(n=500)
+    matrixPairPlot(lowerVineSamples, savefig="lower_vine_samples.png")
+    lower_ranked_data = lowerData.dropna().rank()/(len(lowerData)+1)
+    matrixPairPlot(lower_ranked_data, savefig="lower_ranked_samples.png")
+    t_hat_vine, tke_hat_vine, q_hat_vine = lowerVineSamples['t'], lowerVineSamples['tke'], lowerVineSamples['q']
 
     # plot original
-    bvc.bvJointPlot(temps, tkes, savefig="lower_t_tke_original.png")
+    # bvc.bvJointPlot(temps, tkes, savefig="lower_t_tke_original.png")
 
     # sample from copula
-    print("Copula Params: " + str(copula.copulaParams))
-    t_hat, tke_hat = copula.copulaModel.sample(500)
-    bvc.bvJointPlot(t_hat, tke_hat, savefig="lower_t_tke_copula_sample.png")
+    # print("Copula Params: " + str(copula.copulaParams))
+    # t_hat, tke_hat = copula.copulaModel.sample(500)
+    # bvc.bvJointPlot(t_hat_vine, tke_hat_vine, savefig="lower_t_tke_copula_sample.png")
 
-    rand_u = np.linspace(0.05, 0.95, 40)
-    rand_v = np.linspace(0.05, 0.95, 40)
-    u, v = np.meshgrid(rand_u, rand_v)
-    copula_pdf = copula.copulaModel.pdf(u.flatten(), v.flatten())
-    bvc.bvContourf(u.flatten(), v.flatten(), copula_pdf, savefig="lower_t_tke_copula_pdf.png")
+    # rand_u = np.linspace(0.05, 0.95, 40)
+    # rand_v = np.linspace(0.05, 0.95, 40)
+    # u, v = np.meshgrid(rand_u, rand_v)
+    # copula_pdf = copula.copulaModel.pdf(u.flatten(), v.flatten())
+    # bvc.bvContourf(u.flatten(), v.flatten(), copula_pdf, savefig="lower_t_tke_copula_pdf.png")
 
     # Resample original data
     def icdf_uv_bisect(ux, X, marginalCDFModel):
@@ -164,9 +192,9 @@ def main():
                 icdf[i] = np.nan
         return icdf
     kde_cdf = gaussian_kde(temps).integrate_box
-    resampled_t = icdf_uv_bisect(temps, t_hat, kde_cdf)
+    resampled_t = icdf_uv_bisect(temps, t_hat_vine, kde_cdf)
     kde_cdf = gaussian_kde(tkes).integrate_box
-    resampled_tke = icdf_uv_bisect(tkes, tke_hat, kde_cdf)
+    resampled_tke = icdf_uv_bisect(tkes, tke_hat_vine, kde_cdf)
     bvc.bvJointPlot(resampled_t, resampled_tke, vs=[temps, tkes], savefig="lower_t_tke_resampled.png")
 
     # Clean up

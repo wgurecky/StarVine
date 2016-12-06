@@ -81,12 +81,19 @@ class CopulaBase(object):
                      method=kwargs.pop("method", 'SLSQP'))
         if not res.success:
             # Fallback
-            res = \
-                minimize(lambda args: self._nlogLike(u, v, rotation, *args),
-                         x0=params0,
-                         bounds=kwargs.pop("bounds", self.thetaBounds),
-                         tol=kwargs.pop("tol", 1e-8),
-                         method=kwargs.pop("altMethod", 'L-BFGS-B'))
+            if "frank" in self.name:
+                res = \
+                    minimize(lambda args: self._nlogLike(u, v, rotation, *args),
+                             x0=params0,
+                             tol=kwargs.pop("tol", 1e-8),
+                             method=kwargs.pop("altMethod", 'Nelder-Mead'))
+            else:
+                res = \
+                    minimize(lambda args: self._nlogLike(u, v, rotation, *args),
+                             x0=params0,
+                             bounds=kwargs.pop("bounds", self.thetaBounds),
+                             tol=kwargs.pop("tol", 1e-8),
+                             method=kwargs.pop("altMethod", 'L-BFGS-B'))
         if not res.success:
             print("WARNING: Copula parameter fitting failed to converge!")
         self.fittedParams = res.x

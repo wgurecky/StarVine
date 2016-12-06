@@ -199,7 +199,7 @@ class Ctree(Vtree):
                     trialPair = pc.PairCopula(self.tree.node[nodeID]["data"].values,
                                               self.tree.node[rootNodeID]["data"].values)
                     trialKtau, trialP = trialPair.empKTau()
-                    trialKtauSum[i] += 1. - abs(trialKtau)
+                    trialKtauSum[i] += abs(trialKtau)
                     # trialPairings[i].append((rootNodeID, nodeID, trialKtau))
                     trialPairings[i].append((nodeID, rootNodeID, trialKtau))
         bestPairingIndex = np.argmax(np.abs(trialKtauSum))

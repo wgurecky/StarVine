@@ -36,7 +36,7 @@ class TestCvine(unittest.TestCase):
         matrixPairPlot(ranked_data, savefig="quad_varaite_ranked_ex.png")
 
         # Init Cvine
-        tstVine = Cvine(ranked_data)
+        tstVine = Cvine(tstData)
 
         # construct the vine
         tstVine.constructVine()
