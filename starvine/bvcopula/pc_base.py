@@ -181,7 +181,8 @@ class PairCopula(object):
                 goldParams = fittedCopulaParams
                 maxAIC = trialAIC
         if vb: print("ID: %s. %s copula selected.  fitted params="
-                     % (str(self.id), goldCopula.name) + str(goldParams[1]))
+                     % (str(self.id), goldCopula.name) + str(goldParams[1])
+                     + " rotation=" + str(goldParams[3]))
         if vb: print("-------------------------------------------")
         self.copulaModel = goldCopula
         self.copulaParams = goldParams

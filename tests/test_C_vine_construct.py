@@ -33,7 +33,7 @@ class TestCvine(unittest.TestCase):
         matrixPairPlot(tstData, savefig="quad_varaite_ex.png")
         # Visualize multivar ranked data
         ranked_data = tstData.dropna().rank()/(len(tstData)+1)
-        ranked_data['1a'] = 1. - ranked_data['1a']
+        # ranked_data['1a'] = ranked_data['1a']
         matrixPairPlot(ranked_data, savefig="quad_varaite_ranked_ex.png")
 
         # Init Cvine
