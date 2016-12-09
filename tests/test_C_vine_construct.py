@@ -27,7 +27,7 @@ class TestCvine(unittest.TestCase):
         tstData['1a'] = x
         tstData['2b'] = y
         tstData['3c'] = z
-        # tstData['4d'] = p
+        tstData['4d'] = p
         tstData['5e'] = e
         # Visualize multivar data
         matrixPairPlot(tstData, savefig="quad_varaite_ex.png")

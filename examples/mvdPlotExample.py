@@ -6,6 +6,7 @@ from starvine.mvar import mvd
 from starvine.vine.C_vine import Cvine
 from starvine.mvar.mv_plot import matrixPairPlot
 import starvine.bvcopula as bvc
+import matplotlib.pyplot as plt
 #
 from scipy.optimize import bisect, newton
 from scipy.stats import gaussian_kde
@@ -90,6 +91,7 @@ def main():
     upperVine.plotVine(savefig="upper_vine.png")
     print("========================================================")
     upperVineSamples = upperVine.sample(n=500)
+    plt.figure(22)
     matrixPairPlot(upperVineSamples, savefig="upper_vine_samples.png")
     upper_ranked_data = upperData.dropna().rank()/(len(upperData)+1)
     matrixPairPlot(upper_ranked_data, savefig="upper_ranked_samples.png")
@@ -153,8 +155,9 @@ def main():
     # init Cvine
     print("================= Construct Lower Vine =================")
     lowerData = pd.DataFrame({"t": temps, "tke": tkes, "q": bhfs})
-    lowerVine = Cvine(pd.DataFrame({"t": temps, "tke": tkes, "q": bhfs}))
+    lowerVine = Cvine(pd.DataFrame({"tke": tkes, "t": temps, "q": bhfs}))
     lowerVine.constructVine()
+    plt.figure(20)
     lowerVine.plotVine(savefig="lower_vine.png")
     print("========================================================")
     lowerVineSamples = lowerVine.sample(n=500)

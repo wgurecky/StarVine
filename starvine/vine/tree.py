@@ -59,7 +59,7 @@ class Vtree(object):
         """
         nodePairs = self._optimNodePairs() if nodePairs is None else nodePairs
         for i, pair in enumerate(nodePairs):
-            self.tree.add_edge(pair[0], pair[1], weight=(1. - pair[2]),
+            self.tree.add_edge(pair[0], pair[1], weight=pair[2],
                                attr_dict={"pc":
                                           pc.PairCopula(self.tree.node[pair[0]]["data"],
                                                         self.tree.node[pair[1]]["data"],
@@ -241,7 +241,7 @@ class Vtree(object):
             u_n0 = edge_info["hinv-dist"](u_n1, next_tree_info['sample'][(n0, n1)])
         except:
             u_n0 = edge_info["hinv-dist"](u_n1, next_tree_info['sample'][(n1, n0)])
-        edge_sample = {n0: u_n0, n1: u_n1}
+        edge_sample = {n0: 1. - u_n0, n1: 1. - u_n1}
         # matrixPairPlot(DataFrame(edge_sample),
         #                savefig="edge" + str(n0) + "_" + str(n1) + "sample.png")
         current_tree[n0][n1]['sample'] = edge_sample
