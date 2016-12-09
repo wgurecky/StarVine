@@ -84,12 +84,11 @@ $(document).ready(function(){initNavTree('index.html','');});
 <div class="title">About </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="el" href="md_starvine_readme.html">StarVine</a> provides tools to construct canonical and regular-vines (C-vines, and R-vines).</p>
+<div class="textblock"><p>StarVine provides tools to construct canonical and regular-vines (C-vines, and R-vines).</p>
 <p>StarVine can also be used as a standalone copula fitting tool for bivariate modeling.</p>
 <h1>Install </h1>
-<p>Prep package: </p><pre class="fragment">python setup.py build
-</pre><p>Execute unit tests: </p><pre class="fragment">python -m unittest discover
-</pre><p>If everything checks out install the package: </p><pre class="fragment">python setup.py install
+<p>Install the package: </p><pre class="fragment">python setup.py install
+</pre><p>For a developer install: </p><pre class="fragment">python setup.py develop --user
 </pre><p>Requires:</p>
 <ul>
 <li>A fortran compiler</li>
@@ -108,7 +107,7 @@ $(document).ready(function(){initNavTree('index.html','');});
 <li>mpi4py : parallel MCMC</li>
 </ul>
 <h1>Docs </h1>
-<p>Documentation can be found online at: <a href="www.wgurecky.github.io/starvine">wgurecky.github.io/starvine</a>.</p>
+<p>Documentation can be found online at: <a href="https://wgurecky.github.io/StarVine">wgurecky.github.io/starvine</a>.</p>
 <p>The docs can be manually built using Doxygen: </p><pre class="fragment">doxygen Doxyfile.in
 </pre><h2>Similar Projects </h2>
 <ul>

@@ -84,12 +84,15 @@ $(document).ready(function(){initNavTree('md_starvine_vine_readme.html','');});
 <div class="title">Vines </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>Vines are nested tree data structures. The nodes are univariate marginal distributions (<a class="el" href="classstarvine_1_1uvar_1_1uvd_1_1Uvd.html" title="Container for univariate data. ">starvine.uvar.uvd.Uvd</a>) and the edges are bivariate copula (<a class="el" href="classstarvine_1_1bvcopula_1_1pc__base_1_1PairCopula.html" title="Stores bivariate data for pair copula construction. ">starvine.bvcopula.pc_base.PairCopula</a>).</p>
+<div class="textblock"><p>Vines are nested tree structures. The nodes are univariate marginal distributions (<a class="el" href="classstarvine_1_1uvar_1_1uvd_1_1Uvd.html" title="Container for univariate data. ">starvine.uvar.uvd.Uvd</a>) and the edges are bivariate copula (<a class="el" href="classstarvine_1_1bvcopula_1_1pc__base_1_1PairCopula.html" title="Stores bivariate data for pair copula construction. ">starvine.bvcopula.pc_base.PairCopula</a>).</p>
 <p>To construct a vine sequentially starting from the top tree:</p>
 <ol type="1">
-<li>For each level in the vine:<ol type="a">
+<li>For each tree level in the vine:<ol type="a">
 <li>Determine the tree structure. In the case of a regular vine, this is the maximum spanning tree with edge weights equal to kendall's tau.</li>
-<li>Fit copula (maximum likelyhood) at all edges in the vine</li>
+<li>Fit copula (maximum likelyhood) at all edges in the current tree</li>
+<li>Compute the conditional distribution at each edge in the current tree.</li>
+<li>Use conditional distribution as nodes in the next tree.</li>
+<li>Next</li>
 </ol>
 </li>
 </ol>

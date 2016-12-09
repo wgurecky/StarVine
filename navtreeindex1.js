@@ -1,5 +1,6 @@
 var NAVTREEINDEX1 =
 {
+"classstarvine_1_1uvar_1_1tests_1_1test__gaussian__fit_1_1TestNormFit.html#a7667ee5cdb1916edff3baecc5b1eb192":[6,0,0,2,0,2,0,0],
 "classstarvine_1_1uvar_1_1tests_1_1test__gaussian__fit_1_1TestNormFit.html#a8e29d98029556935a4448981fc8eff75":[6,0,0,2,0,2,0,3],
 "classstarvine_1_1uvar_1_1tests_1_1test__gaussian__fit_1_1TestNormFit.html#ab94b78ed447b04a3a7e590f9f35b25d6":[6,0,0,2,0,2,0,6],
 "classstarvine_1_1uvar_1_1tests_1_1test__gaussian__fit_1_1TestNormFit.html#acdb5f6faf2bc3283ffa0d3b13af7607b":[6,0,0,2,0,2,0,7],
@@ -134,8 +135,8 @@ var NAVTREEINDEX1 =
 "functions_func.html":[6,3,1],
 "functions_vars.html":[6,3,2],
 "hierarchy.html":[6,2],
-"index.html":[],
 "index.html":[0],
+"index.html":[],
 "md_starvine_bvcopula_copula_mvtdstpack_readme.html":[1],
 "md_starvine_bvcopula_readme.html":[2],
 "md_starvine_readme.html":[3],

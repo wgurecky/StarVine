@@ -1,8 +1,6 @@
 var searchData=
 [
-  ['starvine_2fbvcopula',['starvine/bvcopula',['../md_starvine_bvcopula_readme.html',1,'']]],
-  ['starvine',['starvine',['../md_starvine_readme.html',1,'']]],
-  ['starvine_2fuvar',['starvine/uvar',['../md_starvine_uvar_readme.html',1,'']]],
+  ['starvine',['StarVine',['../md_starvine_readme.html',1,'']]],
   ['sample',['sample',['../classstarvine_1_1bvcopula_1_1copula_1_1copula__base_1_1CopulaBase.html#a18dbd3d66bbcd80b3adec9b6c30d0d27',1,'starvine.bvcopula.copula.copula_base.CopulaBase.sample()'],['../classstarvine_1_1vine_1_1base__vine_1_1BaseVine.html#ad98c6758222d0019b21db619882c1eab',1,'starvine.vine.base_vine.BaseVine.sample()']]],
   ['seqcopulafit',['seqCopulaFit',['../classstarvine_1_1vine_1_1C__vine_1_1Ctree.html#a0f919264c0cfebe2d5718b8e92533b7f',1,'starvine::vine::C_vine::Ctree']]],
   ['setdata',['setData',['../classstarvine_1_1mvar_1_1mvd_1_1Mvd.html#a006ebc31ed7fcca210c258a496f8e06d',1,'starvine.mvar.mvd.Mvd.setData()'],['../classstarvine_1_1uvar_1_1uvd_1_1Uvd.html#a7da0c893eab338f8c10a5a673f3d7f05',1,'starvine.uvar.uvd.Uvd.setData()']]],

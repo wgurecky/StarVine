@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.12"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>StarVine: starvine</title>
+<title>StarVine: StarVine</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -81,23 +81,56 @@ $(document).ready(function(){initNavTree('md_starvine_readme.html','');});
 
 <div class="header">
   <div class="headertitle">
-<div class="title">starvine </div>  </div>
+<div class="title">StarVine </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>The starvine package is split into four subpackages:</p>
+<div class="textblock"><p>The StarVine package is split into four subpackages:</p>
 <ul>
-<li>vine : C- and D- vine classes<ul>
-<li>Depends : (bvcopula, mvar)</li>
-</ul>
-</li>
-<li>bvcopula : Bivariate copula<ul>
-<li>Depends : (uvar)</li>
-</ul>
-</li>
-<li>mvar : Multi-variate data (N-dim data container)</li>
+<li>vine : C- and R- vine classes</li>
+<li>bvcopula : Bivariate copula</li>
+<li>mvar : Multi-variate data</li>
 <li>uvar : Uni-variate data (marginal distribution fitting)</li>
 </ul>
-<p>A user may choose to only utilize the univariate fitting functions of starvine, for example: </p><pre class="fragment">from starvine import uvar as uv</pre> </div></div><!-- contents -->
+<h1>Quick Example </h1>
+<p>Example return data is provided in the <code>/tests/data/stocks.csv</code> file. The following example will fit a C-vine to a 5 dimensional data set.</p>
+<p>Setup and load the data file: </p><pre class="fragment">from starvine.vine.C_vine import Cvine
+import pandas as pd
+stocks = np.loadtxt(dataDir + 'stocks.csv', delimiter=',')
+ddict = {
+    '1a': stocks[:, 0]
+    '2b' : stocks[:, 1]
+    '3c' : stocks[:, 4]
+    '4d' : stocks[:, 5]
+    '5e' : stocks[:, 6]
+}
+tstData = pd.dataFrame(ddict)
+</pre><p>Visualize raw data: </p><pre class="fragment">from starvine.mvar.mv_plot import matrixPairPlot
+matrixPairPlot(tstData, savefig="quad_varaite_ex.png")
+</pre><div class="image">
+<img src="sm_scatter-0.png" alt="sm_scatter-0.png"/>
+<div class="caption">
+Raw Data</div></div>
+<p>Rank data and visualize: </p><pre class="fragment">ranked_data = tstData.dropna().rank()/(len(tstData)+1)
+matrixPairPlot(ranked_data, savefig="quad_varaite_ranked_ex.png")
+</pre><div class="image">
+<img src="sm_scatter-1.png" alt="sm_scatter-1.png"/>
+<div class="caption">
+Ranked Data</div></div>
+<p>Fit and plot the vine. </p><pre class="fragment">tstVine = Cvine(tstData)
+tstVine.constructVine()
+tstVine.plotVine(savefig="c_vine_graph_ex.png")
+</pre><p>Visualize the C-vine structure:</p>
+<div class="image">
+<img src="c_vine_graph_ex_sm.png" alt="c_vine_graph_ex_sm.png"/>
+<div class="caption">
+C-vine</div></div>
+<p>Sample the vine: </p><pre class="fragment">samples = tstVine.sample(n=8000)
+matrixPairPlot(samples, savefig="quad_varaite_resampled_ex.png")
+</pre><div class="image">
+<img src="sm_scatter-2.png" alt="sm_scatter-2.png"/>
+<div class="caption">
+Resampled Data</div></div>
+ </div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->

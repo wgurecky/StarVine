@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['vines',['Vines',['../md_starvine_vine_readme.html',1,'']]]
+  ['starvine',['StarVine',['../md_starvine_readme.html',1,'']]]
 ];

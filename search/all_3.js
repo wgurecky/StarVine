@@ -11,5 +11,6 @@ var searchData=
   ['copulabase',['CopulaBase',['../classstarvine_1_1bvcopula_1_1copula_1_1copula__base_1_1CopulaBase.html',1,'starvine::bvcopula::copula::copula_base']]],
   ['copulatournament',['copulaTournament',['../classstarvine_1_1bvcopula_1_1pc__base_1_1PairCopula.html#a531418bd7756c7a495b127a8194dc6da',1,'starvine::bvcopula::pc_base::PairCopula']]],
   ['ctree',['Ctree',['../classstarvine_1_1vine_1_1C__vine_1_1Ctree.html',1,'starvine::vine::C_vine']]],
-  ['cvine',['Cvine',['../classstarvine_1_1vine_1_1C__vine_1_1Cvine.html',1,'starvine::vine::C_vine']]]
+  ['cvine',['Cvine',['../classstarvine_1_1vine_1_1C__vine_1_1Cvine.html',1,'starvine::vine::C_vine']]],
+  ['copula',['Copula',['../md_starvine_bvcopula_readme.html',1,'']]]
 ];
