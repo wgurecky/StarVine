@@ -19,6 +19,7 @@ def bvContour(x1, x2, y, **kwargs):
                      contour_kws={"linewidths": 2},
                      **kwargs)
     if outfile:
+        plt.title(kwargs.pop("title", ""))
         contour_plot.savefig(outfile)
     plt.close()
     return contour_plot
@@ -44,6 +45,7 @@ def bvContourf(x1, x2, z, **kwargs):
     cs = plt.colorbar(cf, shrink=0.8, extend='both', alpha=0.8)
     plt.grid(b=True, which='major', color='k', linestyle='--')
     if outfile:
+        plt.title(kwargs.pop("title", ""))
         contour_plot.savefig(outfile)
     plt.close()
     return contour_plot

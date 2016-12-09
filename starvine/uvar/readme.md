@@ -1,4 +1,4 @@
-starvine/uvar
+uvar
 =============
 
 Univariate marginal distribution classes.

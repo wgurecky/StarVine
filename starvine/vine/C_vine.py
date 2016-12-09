@@ -198,8 +198,10 @@ class Ctree(Vtree):
                     ## VV is OK UU is wrong!
                     trialPair = pc.PairCopula(self.tree.node[nodeID]["data"].values,
                                               self.tree.node[rootNodeID]["data"].values)
+                    # trialPair = pc.PairCopula(self.tree.node[rootNodeID]["data"].values,
+                    #                           self.tree.node[nodeID]["data"].values)
                     trialKtau, trialP = trialPair.empKTau()
-                    trialKtauSum[i] += 1. - abs(trialKtau)
+                    trialKtauSum[i] += abs(trialKtau)
                     # trialPairings[i].append((rootNodeID, nodeID, trialKtau))
                     trialPairings[i].append((nodeID, rootNodeID, trialKtau))
         bestPairingIndex = np.argmax(np.abs(trialKtauSum))

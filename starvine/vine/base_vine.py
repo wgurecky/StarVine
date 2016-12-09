@@ -81,7 +81,7 @@ class BaseVine(object):
 
         # sample from edge of last tree
         u_n1 = edge_info["hinv-dist"](u_n0, u_n1)
-        edge_sample = {n0: u_n0, n1: u_n1}
+        edge_sample = {n0: 1. - u_n0, n1: 1. - u_n1}
         # matrixPairPlot(pd.DataFrame(edge_sample), savefig="tree_1_edge_sample.png")
 
         # store edge sample inside graph data struct
@@ -123,10 +123,16 @@ class BaseVine(object):
         @param plotAll (optional) Plot the entire vine structure
         @param savefig (optional) filename of output image.
         """
-        plt.figure(10, figsize=(6, 3 * self.nLevels))
+        plt.figure(10, figsize=(6 + 0.3 * self.nLevels, 3 * self.nLevels))
         for i, treeL in enumerate(self.vine):
             plt.subplot(self.nLevels, 1, i + 1)
             plt.title("Tree Level: %d" % i)
-            nx.draw(treeL.tree, with_labels=True)
+            pos = nx.spring_layout(treeL.tree)
+            nx.draw(treeL.tree, pos, with_labels=True, font_size=10, font_weight="bold")
+            # specifiy edge labels explicitly
+            edge_labels = dict([((u, v,), round(d['weight'], 2))
+                                for u, v, d in treeL.tree.edges(data=True)])
+            nx.draw_networkx_edge_labels(treeL.tree, pos, edge_labels=edge_labels)
         if savefig is not None:
             plt.savefig(savefig)
+        plt.close(10)

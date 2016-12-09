@@ -1,7 +1,7 @@
 About
 ========
 
-[StarVine](starvine/readme.md) provides tools to construct canonical and regular-vines
+StarVine provides tools to construct canonical and regular-vines
 (C-vines, and R-vines).
 
 StarVine can also be used as a standalone copula fitting tool for bivariate modeling.
