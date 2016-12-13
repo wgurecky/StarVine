@@ -15,7 +15,7 @@ import numpy as np
 import tables as pt
 #
 # PyMAMBA
-from mamba import Mamba1d
+# from mamba import Mamba1d
 
 
 def h5Load(store, grpName):
@@ -45,9 +45,9 @@ def main():
 
     # SPAN
     tsat = -618.5
-    zones = range(70, 71)
+    zones = range(65, 98)
     for zone in zones:
-        zBounds = bounds.read()[:, zone][~np.isnane(bounds.read()[:, zone])]
+        zBounds = bounds.read()[:, zone][~np.isnan(bounds.read()[:, zone])]
         temps = temperature.read()[:, zone][~np.isnan(temperature.read()[:, zone])]
         tkes = tke.read()[:, zone][~np.isnan(tke.read()[:, zone])]
         cruds = crud_thick.read()[:, zone][~np.isnan(crud_thick.read()[:, zone])]
@@ -62,32 +62,31 @@ def main():
         span_1_mvd.setData(span_1_dataDict, weights)
         upper_z, lower_z = zBounds
         bounds_label = str(lower_z) + "_" + str(upper_z)
-        span_1_mvd.plot(savefig=bounds_label + "_span.png", kde=False)
+        # span_1_mvd.plot(savefig=bounds_label + "_span.png", kde=False)
 
         # Construct Cvine
         lowerData = pd.DataFrame({"t": temps, "tke": tkes, "q": bhfs})
         lowerVine = Cvine(pd.DataFrame({"tke": tkes, "t": temps, "q": bhfs}))
         lowerVine.constructVine()
-        # plt.figure(20)
-        # lowerVine.plotVine(savefig="vine.png")
 
         # Sample Cvine
         lowerVineSamples = lowerVine.sample(n=500)
-        matrixPairPlot(lowerVineSamples, savefig="singlePinPlots/vine_samples.png")
+        matrixPairPlot(lowerVineSamples, savefig="singlePinPlots/" + bounds_label + "_vine_samples.png")
         ranked_data = lowerData.dropna().rank()/(len(lowerData)+1)
-        matrixPairPlot(ranked_data, savefig="singlePinPlots/ranked_samples.png")
+        # matrixPairPlot(ranked_data, savefig="singlePinPlots/" + bounds_label + "_ranked_samples.png")
         t_hat_vine, tke_hat_vine, q_hat_vine = lowerVineSamples['t'], lowerVineSamples['tke'], lowerVineSamples['q']
 
         kde_cdf = gaussian_kde(temps).integrate_box
         resampled_t = icdf_uv_bisect(temps, t_hat_vine, kde_cdf)
         kde_cdf = gaussian_kde(tkes).integrate_box
         resampled_tke = icdf_uv_bisect(tkes, tke_hat_vine, kde_cdf)
-        bvc.bvJointPlot(resampled_t, resampled_tke, vs=[temps, tkes], savefig="singlePinPlots/t_tke_resampled.png")
+        # bvc.bvJointPlot(resampled_t, resampled_tke, vs=[temps, tkes],
+        #                 savefig="singlePinPlots/" + bounds_label + "_t_tke_resampled.png")
 
         # Grow crud at resampled points
-        crudModel = Mamba1d(len(resampled_t))
+        #crudModel = Mamba1d(len(resampled_t))
 
-        # Compare resampled crud 
+        # Compare resampled crud to original crud result
 
     # Clean up
     store.close()
