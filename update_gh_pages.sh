@@ -20,7 +20,7 @@ git clone https://github.com/wgurecky/StarVine.git $TMPREPO
 echo "Changing into tmp directory:"
 echo $TMPREPO
 cd $TMPREPO
-touch ./.nojekyll
+# touch ./.nojekyll
 
 # checkout gh-pages in tmp repo
 git checkout gh-pages
