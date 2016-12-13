@@ -133,7 +133,7 @@ def main():
 
     # LOWER SPAN
     tsat = -618.5
-    zones = range(70, 72)
+    zones = range(70, 71)
     temps = temperature.read()[:, zones][~np.isnan(temperature.read()[:, zones])]
     tkes = tke.read()[:, zones][~np.isnan(tke.read()[:, zones])]
     cruds = crud_thick.read()[:, zones][~np.isnan(crud_thick.read()[:, zones])]
