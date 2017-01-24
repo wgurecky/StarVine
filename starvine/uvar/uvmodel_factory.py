@@ -15,6 +15,8 @@ class Uvm(object):
         """
         if uvType is "gauss":
             return uv_gauss.UVGauss()
+        elif uvType is "lognorm":
+            return uv_lognorm.UVLogNorm()
         elif uvType is "gamma":
             return uv_gamma.UVGamma()
         elif uvType is "beta":
