@@ -15,10 +15,10 @@ class UVLogNorm(UVmodel):
         # supply parameter string and support range to base class
         # LogNormal PDF is supported on (0, +\infty)
         # takes (mean, std. dev) as paramters
-        super(UVGauss, self).__init__(paramsString="m, s",
-                                      momtype=0,
-                                      bounds=[1e-9, np.inf],
-                                      name=kwargs.pop("name", "custom_lognorm"))
+        super(UVLogNorm, self).__init__(paramsString="m, s",
+                                        momtype=0,
+                                        bounds=[1e-9, np.inf],
+                                        name=kwargs.pop("name", "custom_lognorm"))
         self.defaultParams = [2.0, 1.]
 
     def _pdf(self, x, *args):
