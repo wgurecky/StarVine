@@ -2,7 +2,9 @@
 from __future__ import absolute_import, print_function, division
 # starvine imports
 import context
+from starvine.uvar.uvmodel_factory import Uvm
 from starvine.mvar import mvd
+from starvine.bvcopula import PairCopula
 from starvine.vine.C_vine import Cvine
 from starvine.mvar.mv_plot import matrixPairPlot
 import starvine.bvcopula as bvc
@@ -92,6 +94,76 @@ def main():
     store.close()
 
 
+def t_tke():
+    # read data from external h5 file
+    h5file = 'Cicada_cfd_180x_cht.h5.post.binned.h5'
+    # store = pd.HDFStore(h5file)
+    store = pt.open_file(h5file)
+    bounds = h5Load(store, "Water/UO2 [Interface 1]/Temperature_bounds")
+    temperature = h5Load(store, "Water/UO2 [Interface 1]/Temperature")
+    tke = h5Load(store, "Water/UO2 [Interface 1]/TurbulentKineticEnergy")
+    crud_thick = h5Load(store, "Water/UO2 [Interface 1]/CrudThickness")
+    b10 = h5Load(store, "Water/UO2 [Interface 1]/CrudBoronDensity")
+    weight = h5Load(store, "Water/UO2 [Interface 1]/Temperature_weights")
+    bhf = h5Load(store, "Water/UO2 [Interface 1]/BoundaryHeatFlux")
+
+    # SPAN
+    tsat = -618.5
+    zones = range(1, 98)
+    results = []
+    for zone in zones:
+        zBounds = bounds.read()[:, zone][~np.isnan(bounds.read()[:, zone])]
+        temps = temperature.read()[:, zone][~np.isnan(temperature.read()[:, zone])]
+        tkes = tke.read()[:, zone][~np.isnan(tke.read()[:, zone])]
+        cruds = crud_thick.read()[:, zone][~np.isnan(crud_thick.read()[:, zone])]
+        b10s = b10.read()[:, zone][~np.isnan(b10.read()[:, zone])]
+        bhfs = bhf.read()[:, zone][~np.isnan(bhf.read()[:, zone])]
+        weights = weight.read()[:, zone][~np.isnan(weight.read()[:, zone])]
+        span_1_dataDict = {"Residual Temperature [K]": temps,
+                           "Residual TKE [J/kg]": tkes,
+                           "Residual BHF [W/m^2]": bhfs,
+                           }
+        span_1_mvd = mvd.Mvd()
+        span_1_mvd.setData(span_1_dataDict, weights)
+        upper_z, lower_z = zBounds
+        centroid_z = (upper_z + lower_z) / 2.
+        bounds_label = str(lower_z) + "_" + str(upper_z)
+        # span_1_mvd.plot(savefig=bounds_label + "_span.png", kde=False)
+
+        # Load data into dataframe
+        lowerData = pd.DataFrame({"t": temps, "tke": tkes})
+
+        # Construct Copula
+        my_copula = PairCopula(lowerData['t'], lowerData['tke'])
+        copulaFamily = {'gauss': 0}
+        my_copula.setTrialCopula(copulaFamily)
+
+        # Obtain kendall's tau
+        my_copula.copulaTournament()
+        empRho, empPval = my_copula.empKTau()
+
+        # Construct (guassian) margin models
+        params0 = [2.0, 0.1]
+        t_margin = Uvm("gauss")
+        tv = t_margin.fitMLE(lowerData['t'], params0, bounds=((-5, 5), (1e-9, 10)))
+        tke_margin = Uvm("gauss")
+        tkev = tke_margin.fitMLE(lowerData['tke'], params0, bounds=((-5, 5), (1e-9, 10)))
+
+        # obtain variance of each margin
+        t_var = tv[1]
+        tke_var = tkev[1]
+
+        # append results
+        print(centroid_z)
+        results.append([centroid_z, empRho, t_var, tke_var])
+
+        # Sample TH from copula
+
+        # Grow crud at sampled TH conds
+    results = np.array(results)
+    np.savetxt("single_pin.txt", results)
+
+
 def icdf_uv_bisect(ux, X, marginalCDFModel):
     """
     @brief Apply marginal model.
@@ -111,4 +183,5 @@ def icdf_uv_bisect(ux, X, marginalCDFModel):
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    t_tke()
