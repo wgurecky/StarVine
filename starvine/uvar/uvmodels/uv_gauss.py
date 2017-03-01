@@ -37,6 +37,6 @@ class UVGauss(UVmodel):
         """
         @brief Parameter bounds check
         """
-        if params[1] <= 0.001 or params[0] <= 0:
+        if params[1] <= 1e-12:
             return False
         return True
