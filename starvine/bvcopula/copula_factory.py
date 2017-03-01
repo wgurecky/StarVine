@@ -34,6 +34,8 @@ class Copula(object):
             return clayton_copula.ClaytonCopula(rotation)
         elif re.match("gumbel", copulatype):
             return gumbel_copula.GumbelCopula(rotation)
+        elif re.match("oklin", copulatype):
+            return gumbel_copula.OlkinCopula(rotation)
         elif re.match("indep", copulatype):
             return indep_copula.IndepCopula(rotation)
         else:
