@@ -26,6 +26,10 @@ class UVExp(UVmodel):
         a, x = np.ravel(args[0]), np.ravel(x)
         return a * np.exp(-a * x)
 
+    def _cdf(self, x, *args):
+        a, x = np.ravel(args[0]), np.ravel(x)
+        return 1. - np.exp(-a * x)
+
     def _pCheck(self, params):
         """
         @brief Parameter bounds check

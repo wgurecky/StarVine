@@ -60,8 +60,8 @@ class OlkinCopula(CopulaBase):
         h(x, v) = F(x|v) = \frac{\partial C(x,v)}{\partial v}
         \f]
         """
-        UU = np.array(u)
-        VV = np.array(v)
+        UU = np.array([u])
+        VV = np.array([v])
 
         h3 = UU ** theta[0]
         h4 = VV ** theta[1]

@@ -459,13 +459,14 @@ def icdf_uv_bisect(ux, X, marginalCDFModel):
     """
     icdf = np.zeros(np.array(X).size)
     for i, xx in enumerate(X):
-        kde_cdf_err = lambda m: xx - marginalCDFModel(-np.inf, m)
+        kde_cdf_err = lambda m: xx - marginalCDFModel(m)
         try:
             icdf[i] = bisect(kde_cdf_err,
                              min(ux) - np.abs(0.5 * min(ux)),
                              max(ux) + np.abs(0.5 * max(ux)),
-                             xtol=1e-2, maxiter=10)
-            icdf[i] = newton(kde_cdf_err, icdf[i], tol=1e-6, maxiter=20)
+                             xtol=1e-2, maxiter=25)
+            icdf[i] = newton(kde_cdf_err, icdf[i], tol=1e-6, maxiter=10)
         except:
-            icdf[i] = np.nan
+            # icdf[i] = np.nan
+            pass
     return icdf
