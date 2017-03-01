@@ -103,10 +103,8 @@ class CopulaBase(object):
         """!
         @brief Draw N samples from the copula.
         @param n Number of samples
-        @param theta  Parameter list
-        @param rotation Copula rotation parameter
-        @return <b>np_array</b> (n, 2) size vector.  Resampled (U, V)
-        data pairs from copula with paramters: *theta
+        @param mytheta  Parameter list
+        @return <b>np_array</b> (n, 2) size vector of samples from bivariate copula model.
         """
         rotation = 0
         u_iid_uniform = np.random.uniform(1e-9, 1 - 1e-9, n)
@@ -115,6 +113,23 @@ class CopulaBase(object):
         u_hat = u_iid_uniform
         v_hat = self._hinv(u_iid_uniform, v_iid_uniform, rotation, *mytheta)
         return (u_hat, v_hat)
+
+    def sampleScale(self, x, y, xCDF, yCDF, *mytheta):
+        """!
+        @brief Draw N samples from the bivariate copula and scale the
+        results according to input model cdfs.
+        @param x  1d_vector of abscissa for component 1
+        @param y  1d_vector of abscissa for component 2
+        @param xCDF cumulative marginal distribution function for component 1
+        @param yCDF cumulative marginal distribution function for component 2
+        @param mytheta  (optional) Copula parameter list
+        @return scaled samples from the bivariate copula model.
+        """
+        n = len(x)
+        u_hat, v_hat = self.sample(n, *mytheta)
+        resampled_scaled_x = icdf_uv_bisect(x, u_hat, xCDF)
+        resampled_scaled_y = icdf_uv_bisect(y, v_hat, yCDF)
+        return (resampled_scaled_x, resampled_scaled_y)
 
     def setRotation(self, rotation=0):
         """!
@@ -436,3 +451,21 @@ class CopulaBase(object):
                 raise RuntimeError("Parameter missing")
             return f(self, t, *nargs)
         return wrapper
+
+
+def icdf_uv_bisect(ux, X, marginalCDFModel):
+    """
+    @brief Apply marginal model.
+    """
+    icdf = np.zeros(np.array(X).size)
+    for i, xx in enumerate(X):
+        kde_cdf_err = lambda m: xx - marginalCDFModel(-np.inf, m)
+        try:
+            icdf[i] = bisect(kde_cdf_err,
+                             min(ux) - np.abs(0.5 * min(ux)),
+                             max(ux) + np.abs(0.5 * max(ux)),
+                             xtol=1e-2, maxiter=10)
+            icdf[i] = newton(kde_cdf_err, icdf[i], tol=1e-6, maxiter=20)
+        except:
+            icdf[i] = np.nan
+    return icdf

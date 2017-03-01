@@ -27,8 +27,8 @@ class OlkinCopula(CopulaBase):
         h3 = UU ** theta[0]
         h4 = VV ** theta[1]
 
-        h3Mask = (h3 > h4)
-        h4Mask = (h3 < h4)
+        h3Mask = (h3 >= h4)
+        h4Mask = (h3 <= h4)
 
         # evaluate PDF
         p = np.zeros(len(UU))
