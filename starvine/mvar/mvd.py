@@ -5,7 +5,8 @@ import numpy as np
 import pandas as pd
 from scipy.stats import gaussian_kde
 from sklearn.preprocessing import StandardScaler
-from uvar.uvd import Uvd
+# internal imports
+from starvine.uvar.uvd import Uvd
 from mv_plot import matrixPairPlot as mpp
 
 
