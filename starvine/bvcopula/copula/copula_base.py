@@ -467,8 +467,8 @@ def icdf_uv_bisect(ux, X, marginalCDFModel):
         kde_cdf_err = lambda m: xx - marginalCDFModel(m)
         try:
             icdf[i] = bisect(kde_cdf_err,
-                             min(ux) - np.abs(0.5 * min(ux)),
-                             max(ux) + np.abs(0.5 * max(ux)),
+                             min(ux) - np.abs(0.8 * min(ux)),
+                             max(ux) + np.abs(0.8 * max(ux)),
                              xtol=1e-2, maxiter=25)
             icdf[i] = newton(kde_cdf_err, icdf[i], tol=1e-6, maxiter=10)
         except:
