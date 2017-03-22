@@ -44,7 +44,7 @@ class PairCopula(object):
         self.y = np.array(y)
         self.u, self.v = None, None  # ranked data
         # normalize weights (weights must sum to 1.0)
-        self.weights = np.array(weights)
+        self.weights = weights
         if self.weights:
             self.weights = self.weights / np.sum(self.weights)
         # init default copula family
@@ -195,7 +195,7 @@ class PairCopula(object):
         @param thetaGuess <b>tuple</b> (optional) initial guess for copula params
         @return (copula type <b>string</b>, fitted copula params <b>np_array</b>)
         """
-        thetaHat, successFlag = copula.fitMLE(self.UU, self.VV, *thetaGuess)
+        thetaHat, successFlag = copula.fitMLE(self.UU, self.VV, *thetaGuess, weights=self.weights)
         if successFlag:
             AIC = copula._AIC(self.UU, self.VV, 0, *thetaHat)
         else:

@@ -68,13 +68,14 @@ class CopulaBase(object):
                 (<b>np_array</b> Array of MLE fit copula parameters,
                 <b>int</b> Fitting success flag, 1==success)
         """
+        wgts = kwargs.pop("weights", np.ones(len(u)))
         rotation = 0
         if None in theta0:
             params0 = self.theta0
         else:
             params0 = theta0
         res = \
-            minimize(lambda args: self._nlogLike(u, v, rotation, *args),
+            minimize(lambda args: self._nlogLike(u, v, wgts, rotation, *args),
                      x0=params0,
                      bounds=kwargs.pop("bounds", self.thetaBounds),
                      tol=kwargs.pop("tol", 1e-8),
@@ -83,13 +84,13 @@ class CopulaBase(object):
             # Fallback
             if "frank" in self.name:
                 res = \
-                    minimize(lambda args: self._nlogLike(u, v, rotation, *args),
+                    minimize(lambda args: self._nlogLike(u, v, wgts, rotation, *args),
                              x0=params0,
                              tol=kwargs.pop("tol", 1e-8),
                              method=kwargs.pop("altMethod", 'Nelder-Mead'))
             else:
                 res = \
-                    minimize(lambda args: self._nlogLike(u, v, rotation, *args),
+                    minimize(lambda args: self._nlogLike(u, v, wgts, rotation, *args),
                              x0=params0,
                              bounds=kwargs.pop("bounds", self.thetaBounds),
                              tol=kwargs.pop("tol", 1e-8),
@@ -222,18 +223,22 @@ class CopulaBase(object):
         # For symmetric copula: flip args
         self._hinv(v, u, rotation=0, *theta)
 
-    def _nlogLike(self, u, v, rotation=0, *theta):
+    def _nlogLike(self, u, v, wgts=None, rotation=0, *theta):
         """!
         @brief Default negative log likelyhood function.
         Used in MLE fitting
         """
-        return -self._logLike(u, v, rotation, *theta)
+        if wgts is None:
+            wgts = np.ones(len(u))
+        return -self._logLike(u, v, wgts, rotation, *theta)
 
-    def _logLike(self, u, v, rotation=0, *theta):
+    def _logLike(self, u, v, wgts=None, rotation=0, *theta):
         """!
         @brief Default log likelyhood func.
         """
-        return np.sum(np.log(self._pdf(u, v, rotation, *theta)))
+        if wgts is None:
+            wgts = np.ones(len(u))
+        return np.sum(wgts * np.log(self._pdf(u, v, rotation, *theta))) / np.sum(wgts)
 
     def _invhfun_bisect(self, U, V, rotation, *theta):
         """!
@@ -277,7 +282,7 @@ class CopulaBase(object):
         @brief Estimate the AIC of a fitted copula (with params == theta)
         @param theta Copula paramter list
         """
-        cll = self._nlogLike(u, v, rotation, *theta)
+        cll = self._nlogLike(u, v, None, rotation, *theta)
         if len(theta) == 1:
             # 1 parameter copula
             AIC = 2 * cll + 2.0 + 4.0 / (len(u) - 2)
