@@ -46,7 +46,7 @@ class PairCopula(object):
         # normalize weights (weights must sum to 1.0)
         self.weights = weights
         if self.weights:
-            self.weights = self.weights / np.sum(self.weights)
+            self.weights = self.weights / np.mean(self.weights)
         # init default copula family
         """
         TODO: fix rotated gumbel copula
