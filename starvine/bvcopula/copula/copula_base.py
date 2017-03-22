@@ -238,7 +238,7 @@ class CopulaBase(object):
         """
         if wgts is None:
             wgts = np.ones(len(u))
-        return np.sum(wgts * np.log(self._pdf(u, v, rotation, *theta))) / np.sum(wgts)
+        return np.sum(wgts * np.log(self._pdf(u, v, rotation, *theta)) / np.sum(wgts))
 
     def _invhfun_bisect(self, U, V, rotation, *theta):
         """!
