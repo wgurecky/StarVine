@@ -10,11 +10,12 @@ class OlkinCopula(CopulaBase):
     single paramter model
     \f$\theta \in [1, \infty) \f$
     """
-    def __init__(self, rotation=0):
+    def __init__(self, rotation=0, init_params=None):
         self.thetaBounds = ((0, 1.), (0, 1.),)
         self.theta0 = (0.5, 0.7)
         self.rotation = rotation
         self.name = 'olkin'
+        super(OlkinCopula, self).__init__(rotation, params=init_params)
 
     @CopulaBase._rotPDF
     def _pdf(self, u, v, rotation=0, *theta):

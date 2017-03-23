@@ -20,11 +20,12 @@ class StudentTCopula(CopulaBase):
     \f$ \theta_0 \in (-1, 1), \f$
     \f$ \theta_1 \in (2, \infty) \f$
     """
-    def __init__(self, rotation=0):
+    def __init__(self, rotation=0, init_params=None):
         self.thetaBounds = ((-1 + 1e-9, 1 - 1e-9), (2.0, np.inf),)
         self.theta0 = (0.7, 10.0)
         self.name = 't'
         self.rotation = 0
+        super(StudentTCopula, self).__init__(rotation, params=init_params)
 
     @CopulaBase._rotPDF
     def _pdf(self, u, v, rotation=0, *theta):

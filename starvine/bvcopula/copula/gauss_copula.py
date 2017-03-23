@@ -13,12 +13,16 @@ class GaussCopula(CopulaBase):
     single parameter
     \f$\theta[0] \in (-1, 1)\f$
     """
-    def __init__(self, rotation=0, **kwargs):
+    def __init__(self, rotation=0, init_params=None):
+        """!
+        @param rotation Int. in (0, 1, 2, 3)
+        @param init_params List of initial copula parameters
+        """
         self.thetaBounds = ((-1 + 1e-9, 1 - 1e-9),)
         self.theta0 = (0.7,)
         self.name = 'gauss'
         self.rotation = rotation
-        super(GaussCopula, self).__init__(rotation, **kwargs)
+        super(GaussCopula, self).__init__(rotation, params=init_params)
 
     @CopulaBase._rotPDF
     def _pdf(self, u, v, rotation=0, *theta):
