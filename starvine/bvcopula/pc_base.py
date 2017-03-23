@@ -45,7 +45,7 @@ class PairCopula(object):
         self.u, self.v = None, None  # ranked data
         # normalize weights (weights must sum to 1.0)
         self.weights = weights
-        if self.weights:
+        if self.weights is not None:
             self.weights = self.weights / np.sum(self.weights)
         # init default copula family
         """
@@ -157,7 +157,7 @@ class PairCopula(object):
         """
         vb = kwargs.pop("verbosity", True)
         self.empKTau()
-        if self.pval_ >= 0.05:
+        if self.pval_ >= 0.05 and self.weights is None:
             print("Independence Coplua selected")
             goldCopula = self.copulaBank["gauss"]
             goldParams = self.fitCopula(goldCopula)

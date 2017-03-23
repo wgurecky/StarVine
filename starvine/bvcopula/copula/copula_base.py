@@ -27,7 +27,7 @@ class CopulaBase(object):
         @param rotation <b>int</b>  Copula orientation
         """
         self.rotation = rotation
-        self.fittedParams = None
+        self._fittedParams = kwargs.pop("params", None)
 
     @property
     def fittedParams(self):
@@ -106,7 +106,7 @@ class CopulaBase(object):
                              method=kwargs.pop("altMethod", 'L-BFGS-B'))
         if not res.success:
             print("WARNING: Copula parameter fitting failed to converge!")
-        self.fittedParams = res.x
+        self._fittedParams = res.x
         return res.x, res.success  # return best fit coupula params (theta(s))
 
     def sample(self, n=1000, *mytheta):
@@ -310,7 +310,7 @@ class CopulaBase(object):
         @brief Public facing kendall's tau function.
         """
         if not any(theta):
-            theta = self.fittedParams
+            theta = self._fittedParams
         return self._kTau(rotation, *theta)
 
     def _kTau(self, rotation=0, *theta):
@@ -351,7 +351,7 @@ class CopulaBase(object):
             u, v, rot = args[0], args[1], args[2]
             nargs = args[3:]
             if not any(nargs):
-                nargs = self.fittedParams
+                nargs = self._fittedParams
             if not any(nargs):
                 # Raise error if fittedParams not set
                 raise RuntimeError("Parameter missing")
@@ -378,7 +378,7 @@ class CopulaBase(object):
             u, v, rot = args[0], args[1], args[2]
             nargs = args[3:]
             if not any(nargs):
-                nargs = self.fittedParams
+                nargs = self._fittedParams
             if not any(nargs):
                 raise RuntimeError("Parameter missing")
             if self.rotation == 0:
@@ -404,7 +404,7 @@ class CopulaBase(object):
             u, v, rot = args[0], args[1], args[2]
             nargs = args[3:]
             if not any(nargs):
-                nargs = self.fittedParams
+                nargs = self._fittedParams
             if not any(nargs):
                 raise RuntimeError("Parameter missing")
             if self.rotation == 0:
@@ -430,7 +430,7 @@ class CopulaBase(object):
             u, v, rot = args[0], args[1], args[2]
             nargs = args[3:]
             if not any(nargs):
-                nargs = self.fittedParams
+                nargs = self._fittedParams
             if not any(nargs):
                 raise RuntimeError("Parameter missing")
             if self.rotation == 0:
@@ -459,7 +459,7 @@ class CopulaBase(object):
             t = args[0]
             nargs = args[1:]
             if not any(nargs):
-                nargs = self.fittedParams
+                nargs = self._fittedParams
             if not any(nargs):
                 raise RuntimeError("Parameter missing")
             return f(self, t, *nargs)

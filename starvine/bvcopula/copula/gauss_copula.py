@@ -13,11 +13,12 @@ class GaussCopula(CopulaBase):
     single parameter
     \f$\theta[0] \in (-1, 1)\f$
     """
-    def __init__(self, rotation=0):
+    def __init__(self, rotation=0, **kwargs):
         self.thetaBounds = ((-1 + 1e-9, 1 - 1e-9),)
         self.theta0 = (0.7,)
         self.name = 'gauss'
         self.rotation = rotation
+        super(GaussCopula, self).__init__(rotation, **kwargs)
 
     @CopulaBase._rotPDF
     def _pdf(self, u, v, rotation=0, *theta):
