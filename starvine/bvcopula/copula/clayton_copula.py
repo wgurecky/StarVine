@@ -12,11 +12,12 @@ class ClaytonCopula(CopulaBase):
         \theta \in [0, \infty)
     \f]
     """
-    def __init__(self, rotation=0):
+    def __init__(self, rotation=0, init_params=None):
         self.thetaBounds = ((1e-9, np.inf),)
         self.theta0 = (1.0, )
         self.rotation = rotation
         self.name = 'clayton'
+        super(ClaytonCopula, self).__init__(rotation, params=init_params)
 
     @CopulaBase._rotPDF
     def _pdf(self, u, v, rotation=0, *theta):

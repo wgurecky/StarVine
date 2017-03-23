@@ -20,11 +20,12 @@ class StudentTCopula(CopulaBase):
     \f$ \theta_0 \in (-1, 1), \f$
     \f$ \theta_1 \in (2, \infty) \f$
     """
-    def __init__(self, rotation=0):
+    def __init__(self, rotation=0, init_params=None):
         self.thetaBounds = ((-1 + 1e-9, 1 - 1e-9), (2.0, np.inf),)
         self.theta0 = (0.7, 10.0)
         self.name = 't'
         self.rotation = 0
+        super(StudentTCopula, self).__init__(rotation, params=init_params)
 
     @CopulaBase._rotPDF
     def _pdf(self, u, v, rotation=0, *theta):
@@ -123,7 +124,7 @@ class StudentTCopula(CopulaBase):
         @brief Inverse H function (Inv Conditional distribution) of T copula.
         TODO: CHECK UU and VV ordering!
         """
-        kT = self.kTau(*theta)
+        kT = self.kTau(rotation, *theta)
         kTs = kT / abs(kT)
         kTM = 1 if kTs < 0 else 0
 
@@ -144,7 +145,8 @@ class StudentTCopula(CopulaBase):
         return uu
 
     def _kTau(self, rotation=0, *theta):
-        return (2.0 / np.pi) * np.arcsin(theta[0])
+        kt = (2.0 / np.pi) * np.arcsin(theta[0])
+        return kt
 
 
 def ggamma(x):

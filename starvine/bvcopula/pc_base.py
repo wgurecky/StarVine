@@ -44,8 +44,8 @@ class PairCopula(object):
         self.y = np.array(y)
         self.u, self.v = None, None  # ranked data
         # normalize weights (weights must sum to 1.0)
-        self.weights = np.array(weights)
-        if self.weights:
+        self.weights = weights
+        if self.weights is not None:
             self.weights = self.weights / np.sum(self.weights)
         # init default copula family
         """
@@ -157,7 +157,7 @@ class PairCopula(object):
         """
         vb = kwargs.pop("verbosity", True)
         self.empKTau()
-        if self.pval_ >= 0.05:
+        if self.pval_ >= 0.05 and self.weights is None:
             print("Independence Coplua selected")
             goldCopula = self.copulaBank["gauss"]
             goldParams = self.fitCopula(goldCopula)
@@ -195,9 +195,9 @@ class PairCopula(object):
         @param thetaGuess <b>tuple</b> (optional) initial guess for copula params
         @return (copula type <b>string</b>, fitted copula params <b>np_array</b>)
         """
-        thetaHat, successFlag = copula.fitMLE(self.UU, self.VV, *thetaGuess)
+        thetaHat, successFlag = copula.fitMLE(self.UU, self.VV, *thetaGuess, weights=self.weights)
         if successFlag:
-            AIC = copula._AIC(self.UU, self.VV, 0, *thetaHat)
+            AIC = copula._AIC(self.UU, self.VV, 0, *thetaHat, weights=self.weights)
         else:
             AIC = 0
         self.copulaModel = copula

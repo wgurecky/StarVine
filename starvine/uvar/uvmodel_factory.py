@@ -23,6 +23,8 @@ class Uvm(object):
             return uv_gamma.UVGamma()
         elif uvType == "beta":
             return uv_beta.UVBeta()
+        elif uvType == "exppow":
+            return uv_exppow.UVexppow()
         else:
             # default
             sys.exit("Invalid univariate data model name: " + str(uvType))

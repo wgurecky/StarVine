@@ -6,14 +6,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def matrixPairPlot(data, weights=[None], corr_stat="kendalltau", **kwargs):
+def matrixPairPlot(data, weights=None, corr_stat="kendalltau", **kwargs):
     """!
     @brief Plots a matrix of pair plots.
     @param data <pandas dataframe> nDim data set
+    @param weights np_1darray of weights to assign to each row in data
     @param corr_stat (optional) correlation statistic for plot
     """
     upper_kde = kwargs.pop("kde", False)
-    pair_plot = sns.PairGrid(data, palette=["red"], size=4)
+    pair_plot = sns.PairGrid(data, palette=["red"], size=kwargs.pop("size", 5))
     # UPPER
     if upper_kde:
         pair_plot.map_upper(sns.kdeplot, cmap="Blues_d")
@@ -22,8 +23,8 @@ def matrixPairPlot(data, weights=[None], corr_stat="kendalltau", **kwargs):
         pair_plot.map_upper(xy_slope)
     #
     # LOWER
-    if any(weights):
-        weightArray = weights.values.flatten()
+    if weights is not None:
+        weightArray = weights.flatten()
     else:
         weightArray = np.ones(data.shape[0])
     meanWeight = np.mean(weightArray)

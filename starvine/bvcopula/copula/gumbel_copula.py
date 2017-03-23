@@ -10,11 +10,12 @@ class GumbelCopula(CopulaBase):
     single paramter model
     \f$\theta \in [1, \infty) \f$
     """
-    def __init__(self, rotation=0):
+    def __init__(self, rotation=0, init_params=None):
         self.thetaBounds = ((1 + 1e-9, np.inf),)
         self.theta0 = (2.0, )
         self.rotation = rotation
         self.name = 'gumbel'
+        super(GumbelCopula, self).__init__(rotation, params=init_params)
 
     @CopulaBase._rotPDF
     def _pdf(self, u, v, rotation=0, *theta):
@@ -85,3 +86,10 @@ class GumbelCopula(CopulaBase):
     @CopulaBase._rotGen
     def _gen(self, t, *theta):
         return np.power(-np.log(t), theta[0])
+
+    def _kTau(self, rotation=0, *theta):
+        # return self._kTau(rotation, *theta)
+        if self.rotation == 1 or self.rotation == 3:
+            return -1. * (1. - 1. / theta[0])
+        else:
+            return 1. - 1. / theta[0]

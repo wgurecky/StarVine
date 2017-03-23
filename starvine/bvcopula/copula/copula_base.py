@@ -21,13 +21,22 @@ class CopulaBase(object):
     Copula can be rotated by 90, 180, 270 degrees to accommodate
     negative dependence.
     """
-    def __init__(self, rotation=0):
+    def __init__(self, rotation=0, **kwargs):
         """!
         @brief Init copula
         @param rotation <b>int</b>  Copula orientation
         """
         self.rotation = rotation
-        self.fittedParams = None
+        self._fittedParams = kwargs.pop("params", None)
+
+    @property
+    def fittedParams(self):
+        return self._fittedParams
+
+    @fittedParams.setter
+    def fittedParams(self, fp):
+        # TODO: bounds check input fp!
+        self._fittedParams = fp
 
     # ---------------------------- PUBLIC METHODS ------------------------------ #
     def cdf(self, u, v, *theta):
@@ -68,13 +77,14 @@ class CopulaBase(object):
                 (<b>np_array</b> Array of MLE fit copula parameters,
                 <b>int</b> Fitting success flag, 1==success)
         """
+        wgts = kwargs.pop("weights", np.ones(len(u)))
         rotation = 0
         if None in theta0:
             params0 = self.theta0
         else:
             params0 = theta0
         res = \
-            minimize(lambda args: self._nlogLike(u, v, rotation, *args),
+            minimize(lambda args: self._nlogLike(u, v, wgts, rotation, *args),
                      x0=params0,
                      bounds=kwargs.pop("bounds", self.thetaBounds),
                      tol=kwargs.pop("tol", 1e-8),
@@ -83,20 +93,20 @@ class CopulaBase(object):
             # Fallback
             if "frank" in self.name:
                 res = \
-                    minimize(lambda args: self._nlogLike(u, v, rotation, *args),
+                    minimize(lambda args: self._nlogLike(u, v, wgts, rotation, *args),
                              x0=params0,
                              tol=kwargs.pop("tol", 1e-8),
                              method=kwargs.pop("altMethod", 'Nelder-Mead'))
             else:
                 res = \
-                    minimize(lambda args: self._nlogLike(u, v, rotation, *args),
+                    minimize(lambda args: self._nlogLike(u, v, wgts, rotation, *args),
                              x0=params0,
                              bounds=kwargs.pop("bounds", self.thetaBounds),
                              tol=kwargs.pop("tol", 1e-8),
                              method=kwargs.pop("altMethod", 'L-BFGS-B'))
         if not res.success:
             print("WARNING: Copula parameter fitting failed to converge!")
-        self.fittedParams = res.x
+        self._fittedParams = res.x
         return res.x, res.success  # return best fit coupula params (theta(s))
 
     def sample(self, n=1000, *mytheta):
@@ -222,18 +232,20 @@ class CopulaBase(object):
         # For symmetric copula: flip args
         self._hinv(v, u, rotation=0, *theta)
 
-    def _nlogLike(self, u, v, rotation=0, *theta):
+    def _nlogLike(self, u, v, wgts=None, rotation=0, *theta):
         """!
         @brief Default negative log likelyhood function.
         Used in MLE fitting
         """
-        return -self._logLike(u, v, rotation, *theta)
+        return -self._logLike(u, v, wgts, rotation, *theta)
 
-    def _logLike(self, u, v, rotation=0, *theta):
+    def _logLike(self, u, v, wgts=None, rotation=0, *theta):
         """!
         @brief Default log likelyhood func.
         """
-        return np.sum(np.log(self._pdf(u, v, rotation, *theta)))
+        if wgts is None:
+            wgts = np.ones(len(u))
+        return np.sum(wgts * np.log(self._pdf(u, v, rotation, *theta)))
 
     def _invhfun_bisect(self, U, V, rotation, *theta):
         """!
@@ -272,12 +284,15 @@ class CopulaBase(object):
         else:
             return v_est_
 
-    def _AIC(self, u, v, rotation=0, *theta):
+    def _AIC(self, u, v, rotation=0, *theta, **kwargs):
         """!
         @brief Estimate the AIC of a fitted copula (with params == theta)
+        @param u  np_1darray. random variable samples uniform distributed on [0, 1]
+        @param v  np_1darray. random variable samples uniform distributed on [0, 1]
         @param theta Copula paramter list
         """
-        cll = self._nlogLike(u, v, rotation, *theta)
+        wgts = kwargs.pop("weights", np.ones(len(u)))
+        cll = self._nlogLike(u, v, wgts, rotation, *theta)
         if len(theta) == 1:
             # 1 parameter copula
             AIC = 2 * cll + 2.0 + 4.0 / (len(u) - 2)
@@ -292,12 +307,44 @@ class CopulaBase(object):
         """
         raise NotImplementedError
 
+    def fitKtau(self, kTau, **kwargs):
+        """!
+        @brief Given kTau, estimate the copula parameter.
+        Only avalible for single parameter copula
+        models.
+        Solves the minimization problem:
+        \f[
+        argmin_\theta (\tau - \hat\tau(\theta))
+        \f]
+        @param kTau  float. Specified kendall's tau.
+        """
+        if len(self.theta0) != 1:
+            raise RuntimeError("ERROR: kendall's tau fit only possible with single parameter copula.")
+        # initial guess
+        if not self._fittedParams:
+            param = self.theta0[0]
+        else:
+            param = self._fittedParams[0]
+        # obj func: kendall's tau square err as function of param
+        ktf = lambda p: (self.kTau(self.rotation, p) - kTau) ** 2.
+        res = \
+            minimize(ktf, x0=param,
+                     bounds=kwargs.pop("bounds", self.thetaBounds),
+                     tol=kwargs.pop("tol", 1e-8),
+                     method=kwargs.pop("method", 'SLSQP'))
+        if not res.success:
+            print("WARNING: Copula parameter fitting failed to converge!")
+        self._fittedParams = res.x
+        return res.x, res.success
+
     def kTau(self, rotation=0, *theta):
         """!
-        @brief Public facing kendall's tau function.
+        @brief Computes kendall's tau.
+        @param rotation Optional copula rotation parameter.  If
+            unspecified, automatically determined by self.rotation setting.
         """
         if not any(theta):
-            theta = self.fittedParams
+            theta = self._fittedParams
         return self._kTau(rotation, *theta)
 
     def _kTau(self, rotation=0, *theta):
@@ -338,7 +385,7 @@ class CopulaBase(object):
             u, v, rot = args[0], args[1], args[2]
             nargs = args[3:]
             if not any(nargs):
-                nargs = self.fittedParams
+                nargs = self._fittedParams
             if not any(nargs):
                 # Raise error if fittedParams not set
                 raise RuntimeError("Parameter missing")
@@ -365,7 +412,7 @@ class CopulaBase(object):
             u, v, rot = args[0], args[1], args[2]
             nargs = args[3:]
             if not any(nargs):
-                nargs = self.fittedParams
+                nargs = self._fittedParams
             if not any(nargs):
                 raise RuntimeError("Parameter missing")
             if self.rotation == 0:
@@ -391,7 +438,7 @@ class CopulaBase(object):
             u, v, rot = args[0], args[1], args[2]
             nargs = args[3:]
             if not any(nargs):
-                nargs = self.fittedParams
+                nargs = self._fittedParams
             if not any(nargs):
                 raise RuntimeError("Parameter missing")
             if self.rotation == 0:
@@ -417,7 +464,7 @@ class CopulaBase(object):
             u, v, rot = args[0], args[1], args[2]
             nargs = args[3:]
             if not any(nargs):
-                nargs = self.fittedParams
+                nargs = self._fittedParams
             if not any(nargs):
                 raise RuntimeError("Parameter missing")
             if self.rotation == 0:
@@ -446,7 +493,7 @@ class CopulaBase(object):
             t = args[0]
             nargs = args[1:]
             if not any(nargs):
-                nargs = self.fittedParams
+                nargs = self._fittedParams
             if not any(nargs):
                 raise RuntimeError("Parameter missing")
             return f(self, t, *nargs)
@@ -462,8 +509,8 @@ def icdf_uv_bisect(ux, X, marginalCDFModel):
         kde_cdf_err = lambda m: xx - marginalCDFModel(m)
         try:
             icdf[i] = bisect(kde_cdf_err,
-                             min(ux) - np.abs(0.5 * min(ux)),
-                             max(ux) + np.abs(0.5 * max(ux)),
+                             min(ux) - np.abs(0.8 * min(ux)),
+                             max(ux) + np.abs(0.8 * max(ux)),
                              xtol=1e-2, maxiter=25)
             icdf[i] = newton(kde_cdf_err, icdf[i], tol=1e-6, maxiter=10)
         except:
