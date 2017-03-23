@@ -123,7 +123,7 @@ class StudentTCopula(CopulaBase):
         @brief Inverse H function (Inv Conditional distribution) of T copula.
         TODO: CHECK UU and VV ordering!
         """
-        kT = self.kTau(*theta)
+        kT = self.kTau(rotation, *theta)
         kTs = kT / abs(kT)
         kTM = 1 if kTs < 0 else 0
 
@@ -144,7 +144,8 @@ class StudentTCopula(CopulaBase):
         return uu
 
     def _kTau(self, rotation=0, *theta):
-        return (2.0 / np.pi) * np.arcsin(theta[0])
+        kt = (2.0 / np.pi) * np.arcsin(theta[0])
+        return kt
 
 
 def ggamma(x):
