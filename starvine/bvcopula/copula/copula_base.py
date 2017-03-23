@@ -21,13 +21,22 @@ class CopulaBase(object):
     Copula can be rotated by 90, 180, 270 degrees to accommodate
     negative dependence.
     """
-    def __init__(self, rotation=0):
+    def __init__(self, rotation=0, **kwargs):
         """!
         @brief Init copula
         @param rotation <b>int</b>  Copula orientation
         """
         self.rotation = rotation
         self.fittedParams = None
+
+    @property
+    def fittedParams(self):
+        return self._fittedParams
+
+    @fittedParams.setter
+    def fittedParams(self, fp):
+        # TODO: bounds check input fp!
+        self._fittedParams = fp
 
     # ---------------------------- PUBLIC METHODS ------------------------------ #
     def cdf(self, u, v, *theta):
@@ -228,8 +237,6 @@ class CopulaBase(object):
         @brief Default negative log likelyhood function.
         Used in MLE fitting
         """
-        if wgts is None:
-            wgts = np.ones(len(u))
         return -self._logLike(u, v, wgts, rotation, *theta)
 
     def _logLike(self, u, v, wgts=None, rotation=0, *theta):
@@ -277,12 +284,13 @@ class CopulaBase(object):
         else:
             return v_est_
 
-    def _AIC(self, u, v, rotation=0, *theta):
+    def _AIC(self, u, v, rotation=0, *theta, **kwargs):
         """!
         @brief Estimate the AIC of a fitted copula (with params == theta)
         @param theta Copula paramter list
         """
-        cll = self._nlogLike(u, v, None, rotation, *theta)
+        wgts = kwargs.pop("weights", np.ones(len(u)))
+        cll = self._nlogLike(u, v, wgts, rotation, *theta)
         if len(theta) == 1:
             # 1 parameter copula
             AIC = 2 * cll + 2.0 + 4.0 / (len(u) - 2)

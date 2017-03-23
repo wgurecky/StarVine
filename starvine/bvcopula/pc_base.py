@@ -46,7 +46,7 @@ class PairCopula(object):
         # normalize weights (weights must sum to 1.0)
         self.weights = weights
         if self.weights:
-            self.weights = self.weights / np.mean(self.weights)
+            self.weights = self.weights / np.sum(self.weights)
         # init default copula family
         """
         TODO: fix rotated gumbel copula
@@ -197,7 +197,7 @@ class PairCopula(object):
         """
         thetaHat, successFlag = copula.fitMLE(self.UU, self.VV, *thetaGuess, weights=self.weights)
         if successFlag:
-            AIC = copula._AIC(self.UU, self.VV, 0, *thetaHat)
+            AIC = copula._AIC(self.UU, self.VV, 0, *thetaHat, weights=self.weights)
         else:
             AIC = 0
         self.copulaModel = copula
