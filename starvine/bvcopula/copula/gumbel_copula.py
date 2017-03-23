@@ -86,3 +86,10 @@ class GumbelCopula(CopulaBase):
     @CopulaBase._rotGen
     def _gen(self, t, *theta):
         return np.power(-np.log(t), theta[0])
+
+    def _kTau(self, rotation=0, *theta):
+        # return self._kTau(rotation, *theta)
+        if self.rotation == 1 or self.rotation == 3:
+            return -1. * (1. - 1. / theta[0])
+        else:
+            return 1. - 1. / theta[0]

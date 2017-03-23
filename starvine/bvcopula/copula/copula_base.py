@@ -287,6 +287,8 @@ class CopulaBase(object):
     def _AIC(self, u, v, rotation=0, *theta, **kwargs):
         """!
         @brief Estimate the AIC of a fitted copula (with params == theta)
+        @param u  np_1darray. random variable samples uniform distributed on [0, 1]
+        @param v  np_1darray. random variable samples uniform distributed on [0, 1]
         @param theta Copula paramter list
         """
         wgts = kwargs.pop("weights", np.ones(len(u)))
@@ -305,9 +307,41 @@ class CopulaBase(object):
         """
         raise NotImplementedError
 
+    def fitKtau(self, kTau, **kwargs):
+        """!
+        @brief Given kTau, estimate the copula parameter.
+        Only avalible for single parameter copula
+        models.
+        Solves the minimization problem:
+        \f[
+        argmin_\theta (\tau - \hat\tau(\theta))
+        \f]
+        @param kTau  float. Specified kendall's tau.
+        """
+        if len(self.theta0) != 1:
+            raise RuntimeError("ERROR: kendall's tau fit only possible with single parameter copula.")
+        # initial guess
+        if not self._fittedParams:
+            param = self.theta0[0]
+        else:
+            param = self._fittedParams[0]
+        # obj func: kendall's tau square err as function of param
+        ktf = lambda p: (self.kTau(self.rotation, p) - kTau) ** 2.
+        res = \
+            minimize(ktf, x0=param,
+                     bounds=kwargs.pop("bounds", self.thetaBounds),
+                     tol=kwargs.pop("tol", 1e-8),
+                     method=kwargs.pop("method", 'SLSQP'))
+        if not res.success:
+            print("WARNING: Copula parameter fitting failed to converge!")
+        self._fittedParams = res.x
+        return res.x, res.success
+
     def kTau(self, rotation=0, *theta):
         """!
-        @brief Public facing kendall's tau function.
+        @brief Computes kendall's tau.
+        @param rotation Optional copula rotation parameter.  If
+            unspecified, automatically determined by self.rotation setting.
         """
         if not any(theta):
             theta = self._fittedParams
