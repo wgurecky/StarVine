@@ -137,8 +137,8 @@ class CopulaBase(object):
         """
         n = len(x)
         u_hat, v_hat = self.sample(n, *mytheta)
-        resampled_scaled_x = icdf_uv_bisect(x, u_hat, xCDF)
-        resampled_scaled_y = icdf_uv_bisect(y, v_hat, yCDF)
+        resampled_scaled_x = self.icdf_uv_bisect(x, u_hat, xCDF)
+        resampled_scaled_y = self.icdf_uv_bisect(y, v_hat, yCDF)
         return (resampled_scaled_x, resampled_scaled_y)
 
     def setRotation(self, rotation=0):
@@ -499,21 +499,26 @@ class CopulaBase(object):
             return f(self, t, *nargs)
         return wrapper
 
-
-def icdf_uv_bisect(ux, X, marginalCDFModel):
-    """
-    @brief Apply marginal model.
-    """
-    icdf = np.zeros(np.array(X).size)
-    for i, xx in enumerate(X):
-        kde_cdf_err = lambda m: xx - marginalCDFModel(m)
-        try:
-            icdf[i] = bisect(kde_cdf_err,
-                             min(ux) - np.abs(0.8 * min(ux)),
-                             max(ux) + np.abs(0.8 * max(ux)),
-                             xtol=1e-2, maxiter=25)
-            icdf[i] = newton(kde_cdf_err, icdf[i], tol=1e-6, maxiter=10)
-        except:
-            # icdf[i] = np.nan
-            pass
-    return icdf
+    @staticmethod
+    def icdf_uv_bisect(ux, X, marginalCDFModel):
+        """
+        @brief Apply marginal model.
+        @param ux <b>np_1darray</b> inverse CDF sample abcissa (points at which to eval inv_cdf)
+        @param X <b>np_1darray</b> samples from copula margin (uniform distributed)
+        @param marginalCDFModel  <b>function</b> python function object:
+            CDF(ux)
+            Note: margin CDF model should be a monotonic function with a range in [0, 1]
+        @return <b>np_1darray</b> Samples drawn from supplied margin model
+        """
+        icdf = np.zeros(np.array(X).size)
+        for i, xx in enumerate(X):
+            kde_cdf_err = lambda m: xx - marginalCDFModel(m)
+            try:
+                icdf[i] = bisect(kde_cdf_err,
+                                 min(ux) - np.abs(0.8 * min(ux)),
+                                 max(ux) + np.abs(0.8 * max(ux)),
+                                 xtol=1e-3, maxiter=25)
+                icdf[i] = newton(kde_cdf_err, icdf[i], tol=1e-6, maxiter=10)
+            except:
+                pass
+        return icdf
