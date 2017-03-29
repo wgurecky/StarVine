@@ -70,6 +70,9 @@ class TestWeightedReg(unittest.TestCase):
         # verify that a positive dep copula was produced with a
         # dep parameter of slightly less than 0.7
         x_wt, y_wt = copModel.copulaModel.sampleScale(rvs1, rvs2, marg1.cdf, marg2.cdf)
+        self.assertTrue(copModel.copulaModel.kTau() > 0.)
+        self.assertTrue((copModel.copulaModel.fittedParams[0] > 0.)
+                        & (copModel.copulaModel.fittedParams[0] < 0.7))
 
         # plot
         data = pd.DataFrame([x_wt, y_wt]).T
