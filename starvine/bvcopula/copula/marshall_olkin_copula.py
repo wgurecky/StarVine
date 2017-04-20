@@ -1,5 +1,7 @@
-##
-# \brief Marshall-Olkin copula.
+#!/usr/bin/python2
+"""!
+@brief Marshall-Olkin copula.
+"""
 import numpy as np
 from copula_base import CopulaBase
 

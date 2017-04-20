@@ -45,10 +45,8 @@ class TestWeightedReg(unittest.TestCase):
 
         # draw 1000 samples from each model
         n = 1000
-        rvs1 = marg1.rvs(size=n)
-        rvs2 = marg2.rvs(size=n)
-        x1, y1 = cop1.sampleScale(rvs1, rvs2, marg1.cdf, marg2.cdf)
-        x2, y2 = cop2.sampleScale(rvs1, rvs2, marg1.cdf, marg2.cdf)
+        x1, y1 = cop1.sampleScale(marg1, marg2, n)
+        x2, y2 = cop2.sampleScale(marg1, marg2, n)
 
         # assign weights to each gauss sample group
         cop1_wgts = np.ones(n) * 0.95
@@ -69,7 +67,7 @@ class TestWeightedReg(unittest.TestCase):
 
         # verify that a positive dep copula was produced with a
         # dep parameter of slightly less than 0.7
-        x_wt, y_wt = copModel.copulaModel.sampleScale(rvs1, rvs2, marg1.cdf, marg2.cdf)
+        x_wt, y_wt = copModel.copulaModel.sampleScale(marg1, marg2, n)
         self.assertTrue(copModel.copulaModel.kTau() > 0.)
         self.assertTrue((copModel.copulaModel.fittedParams[0] > 0.)
                         & (copModel.copulaModel.fittedParams[0] < 0.7))

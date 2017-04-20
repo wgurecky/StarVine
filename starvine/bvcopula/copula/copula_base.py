@@ -124,21 +124,20 @@ class CopulaBase(object):
         v_hat = self._hinv(u_iid_uniform, v_iid_uniform, rotation, *mytheta)
         return (u_hat, v_hat)
 
-    def sampleScale(self, x, y, xCDF, yCDF, *mytheta):
+    def sampleScale(self, frozen_margin_x, frozen_margin_y, n, *mytheta):
         """!
         @brief Draw N samples from the bivariate copula and scale the
         results according to input model cdfs.
         @param x  1d_vector of abscissa for component 1
         @param y  1d_vector of abscissa for component 2
-        @param xCDF cumulative marginal distribution function for component 1
-        @param yCDF cumulative marginal distribution function for component 2
+        @param frozen_margin_x marginal distribution function for component 1
+        @param frozen_margin_y marginal distribution function for component 2
         @param mytheta  (optional) Copula parameter list
         @return scaled samples from the bivariate copula model.
         """
-        n = len(x)
         u_hat, v_hat = self.sample(n, *mytheta)
-        resampled_scaled_x = self.icdf_uv_bisect(x, u_hat, xCDF)
-        resampled_scaled_y = self.icdf_uv_bisect(y, v_hat, yCDF)
+        resampled_scaled_x = self.icdf_uv_bisect(u_hat, frozen_margin_x)
+        resampled_scaled_y = self.icdf_uv_bisect(v_hat, frozen_margin_y)
         return (resampled_scaled_x, resampled_scaled_y)
 
     def setRotation(self, rotation=0):
@@ -500,25 +499,14 @@ class CopulaBase(object):
         return wrapper
 
     @staticmethod
-    def icdf_uv_bisect(ux, X, marginalCDFModel):
+    def icdf_uv_bisect(X, frozen_marginal_model):
         """
         @brief Apply marginal model.
-        @param ux <b>np_1darray</b> inverse CDF sample abcissa (points at which to eval inv_cdf)
         @param X <b>np_1darray</b> samples from copula margin (uniform distributed)
-        @param marginalCDFModel  <b>function</b> python function object:
+        @param frozen_marginal_model  <b>function</b> frozen scipy.stats.rv_continuous python function object
             CDF(ux)
             Note: margin CDF model should be a monotonic function with a range in [0, 1]
         @return <b>np_1darray</b> Samples drawn from supplied margin model
         """
-        icdf = np.zeros(np.array(X).size)
-        for i, xx in enumerate(X):
-            kde_cdf_err = lambda m: xx - marginalCDFModel(m)
-            try:
-                icdf[i] = bisect(kde_cdf_err,
-                                 min(ux) - np.abs(0.8 * min(ux)),
-                                 max(ux) + np.abs(0.8 * max(ux)),
-                                 xtol=1e-3, maxiter=25)
-                icdf[i] = newton(kde_cdf_err, icdf[i], tol=1e-6, maxiter=10)
-            except:
-                pass
+        icdf = frozen_marginal_model.ppf(X)
         return icdf

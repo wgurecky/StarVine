@@ -35,9 +35,7 @@ def olkin():
     um2 = um(2e-3)
 
     # draw scaled samples from copula
-    ums1 = um1.rvs(size=1000)
-    ums2 = um2.rvs(size=1000)
-    u_cop_scaled, v_cop_scaled = c.sampleScale(ums1, ums2, um1.cdf, um2.cdf, *[0.5, 0.75])
+    u_cop_scaled, v_cop_scaled = c.sampleScale(um1, um2, 1000, *[0.5, 0.75])
     bv_plot.bvJointPlot(u_cop_scaled, v_cop_scaled, savefig="olkin_samples_scaled.png", s=5)
 
 
@@ -62,9 +60,7 @@ def frank():
     um2 = um(2e-3)
 
     # draw scaled samples from copula
-    ums1 = um1.rvs(size=1000)
-    ums2 = um2.rvs(size=1000)
-    u_cop_scaled, v_cop_scaled = c.sampleScale(ums1, ums2, um1.cdf, um2.cdf, *[10.])
+    u_cop_scaled, v_cop_scaled = c.sampleScale(um1, um2, 1000, *[10.])
     bv_plot.bvJointPlot(u_cop_scaled, v_cop_scaled, savefig="frank_samples_scaled.png", s=5)
 
 
