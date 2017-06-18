@@ -40,7 +40,6 @@ class TestKtauFit(unittest.TestCase):
         # Compute kendall's function
         t_in = np.linspace(0.01, 0.99, 20)
         k_c = stockModelRefit.kC(t_in)
-        #k_c = np.zeros(len(t_in))
         print("Gauss Kendall's function")
         print(t_in)
         print(k_c)
@@ -58,8 +57,8 @@ class TestKtauFit(unittest.TestCase):
         # expected gubel param for ktau=0.7, 3.33
 
         # check that k_c is monotonic
-        #self.assertTrue(k_c[0] < k_c[1])
-        #self.assertTrue(k_c[-2] < k_c[-1])
+        self.assertTrue(k_c[0] < k_c[1])
+        self.assertTrue(k_c[-2] < k_c[-1])
 
         # Compute emperical kendall's function
         t_emp, kc_emp = stockModel.empKc()

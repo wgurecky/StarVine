@@ -409,15 +409,9 @@ class CopulaBase(object):
         except:
             kc_out = []
             # create u, v grid
-            u, v = np.meshgrid(np.random.uniform(0, 1, 1e3),
-                               np.random.uniform(0, 1, 1e3))
-            # cdf_int = self._cdf(u.flatten(), v.flatten(), self.rotation, *theta)
-            b = np.random.uniform(0, 1, 2e5)
-            #
-            c = np.random.uniform(0, 1, 1e5)
-            d = np.random.uniform(0, 1, 1e5)
-            u_hat = np.concatenate((b, c))
-            v_hat = np.concatenate((b, d))
+            u = np.random.uniform(0, 1, 4e5)
+            v = np.random.uniform(0, 1, 4e5)
+            u_hat, v_hat = self._ppf(u, v, self.rotation, *theta)
             cdf_int = self._cdf(u_hat, v_hat, self.rotation, *theta)
             for t in t_in:
                 # create mask
