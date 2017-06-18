@@ -10,8 +10,7 @@ import sys
 
 def validateRotation(rotation):
     if rotation not in [0, 1, 2, 3]:
-        print("Invalid rotation.")
-        raise RuntimeError
+        raise RuntimeError("Invalid rotation.")
 
 
 class Copula(object):

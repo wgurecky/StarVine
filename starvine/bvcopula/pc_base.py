@@ -149,6 +149,23 @@ class PairCopula(object):
         self.empPRho_, self.pval_ = pearsonr(self.x, self.y)
         return self.empPRho_, self.pval_
 
+    def empKc(self):
+        """!
+        @brief Compute empirical kendall's function.
+        """
+        z = np.zeros(len(self.UU))
+        for i in range(len(self.UU)):
+            result = 0.
+            for j in range(len(self.VV)):
+                if i == j:
+                    continue
+                if (self.UU[j] < self.UU[i]) & (self.VV[j] < self.VV[i]):
+                    result += 1.
+            z[i] = (1. / (len(self.UU) - 1.)) * result
+        x2 = np.sort(z)
+        f2 = np.array(range(len(z))) / float(len(z))
+        return x2, f2
+
     def copulaTournament(self, criterion='AIC', **kwargs):
         """!
         @brief Determines the copula that best fits the rank transformed data

@@ -2,7 +2,7 @@
 # \brief Bivariate copula base class.
 # All copula must have a density function, CDF, and
 # H function.
-from __future__ import print_function, absolute_import
+from __future__ import print_function, absolute_import, division
 import numpy as np
 import scipy.integrate as spi
 from scipy.optimize import bisect, newton
@@ -330,7 +330,7 @@ class CopulaBase(object):
             minimize(ktf, x0=param,
                      bounds=kwargs.pop("bounds", self.thetaBounds),
                      tol=kwargs.pop("tol", 1e-8),
-                     method=kwargs.pop("method", 'SLSQP'))
+                     method=kwargs.pop("method", 'Nelder-Mead'))
         if not res.success:
             print("WARNING: Copula parameter fitting failed to converge!")
         self._fittedParams = res.x
@@ -359,6 +359,9 @@ class CopulaBase(object):
         where \f$ \phi(t) \f$ is the copula generating function.
 
         Note:
+        This function is valid for Archimedean copula ONLY.
+
+        Note:
         For the gauss and students-t copula:
         \f[ \tau = \frac{2.0}{\pi}  arcsin(\rho) \f]
         where \f$ \rho \f$ is the linear correlation coefficient.
@@ -373,6 +376,55 @@ class CopulaBase(object):
         if self.rotation == 1 or self.rotation == 3:
             negC = -1.
         return negC * (1.0 + 4.0 * cumCopula)
+
+    def kC(self, t_in, *theta):
+        """!
+        @brief evaluates kendall's function.
+        The kendall's function is the copula equivillent to a
+        multivariate probability integral transform:
+        \f[
+           K(t|\theta) = Pr\{C(u, v| \theta) \leq t ) \}
+        \f]
+        The double integral can be computed numerically:
+        \f[
+            \int_0^t \int_0^t I{C(u, v) \leq t} dC(u, v)}
+        \f]
+        Where $I$ is the indicator function.
+        Numerical integration is necissary in the base class as to
+        not loose generality (Archimedean copula are a special case
+        and kC(t) can be computed easily for these copula).
+        @param t  np_1darray of evaluation points in [0, 1]
+        @param rotation int. copula rotation
+        """
+        assert(min(t_in) >= 0)
+        assert(max(t_in) <= 1)
+        try:
+            # Only Archimedean copula should have _gen()
+            reduced_gen = lambda t: self._gen(t, *theta)
+
+            def K_c(t):
+                return reduced_gen(t) / \
+                    derivative(reduced_gen, t, dx=1e-9)
+            return t_in - K_c(t_in)
+        except:
+            kc_out = []
+            # create u, v grid
+            u, v = np.meshgrid(np.random.uniform(0, 1, 1e3),
+                               np.random.uniform(0, 1, 1e3))
+            # cdf_int = self._cdf(u.flatten(), v.flatten(), self.rotation, *theta)
+            b = np.random.uniform(0, 1, 2e5)
+            #
+            c = np.random.uniform(0, 1, 1e5)
+            d = np.random.uniform(0, 1, 1e5)
+            u_hat = np.concatenate((b, c))
+            v_hat = np.concatenate((b, d))
+            cdf_int = self._cdf(u_hat, v_hat, self.rotation, *theta)
+            for t in t_in:
+                # create mask
+                ones_mask = (cdf_int <= t)
+                # compute probability
+                kc_out.append(float(np.count_nonzero(ones_mask) / len(ones_mask)))
+            return np.array(kc_out)
 
     # -------------------------- COPULA ROTATION METHODS ---------------------------- #
     @classmethod
