@@ -6,7 +6,7 @@ from starvine.bvcopula.copula import *
 from bvcopula import bv_plot
 # Plotting
 import matplotlib.pyplot as plt
-import seaborn as sns
+# import seaborn as sns
 
 
 def plot_hdist():

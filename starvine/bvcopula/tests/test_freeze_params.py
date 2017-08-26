@@ -1,7 +1,7 @@
 ##
 # \brief Test ability to determine best fit copula via AIC
 from __future__ import print_function, division
-from pc_base import PairCopula
+from starvine.bvcopula.pc_base import PairCopula
 import unittest
 import numpy as np
 import os

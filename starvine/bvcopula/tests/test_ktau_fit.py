@@ -1,7 +1,7 @@
 ##
 # \brief Test ability to fit copula by specified Ktau
 from __future__ import print_function, division
-from pc_base import PairCopula
+from starvine.bvcopula.pc_base import PairCopula
 from starvine.bvcopula.copula_factory import Copula
 import unittest
 import numpy as np

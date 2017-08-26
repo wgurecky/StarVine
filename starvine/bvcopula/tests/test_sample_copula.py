@@ -1,7 +1,7 @@
 from __future__ import print_function, division
 import unittest
-from pc_base import PairCopula
-from copula_factory import Copula
+from starvine.bvcopula.pc_base import PairCopula
+from starvine.bvcopula.copula_factory import Copula
 import numpy as np
 np.random.seed(123)
 

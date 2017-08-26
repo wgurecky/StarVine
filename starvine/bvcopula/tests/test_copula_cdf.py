@@ -2,12 +2,12 @@
 # \brief Test copula CDF's to ensure integral on [0,1]^2 is 1
 from __future__ import print_function, division
 # COPULA IMPORTS
-from copula.t_copula import StudentTCopula
-from copula.gauss_copula import GaussCopula
-from copula.frank_copula import FrankCopula
-from copula.gumbel_copula import GumbelCopula
-from copula.clayton_copula import ClaytonCopula
-from copula.indep_copula import IndepCopula
+from starvine.bvcopula.copula.t_copula import StudentTCopula
+from starvine.bvcopula.copula.gauss_copula import GaussCopula
+from starvine.bvcopula.copula.frank_copula import FrankCopula
+from starvine.bvcopula.copula.gumbel_copula import GumbelCopula
+from starvine.bvcopula.copula.clayton_copula import ClaytonCopula
+from starvine.bvcopula.copula.indep_copula import IndepCopula
 #
 import unittest
 import numpy as np
