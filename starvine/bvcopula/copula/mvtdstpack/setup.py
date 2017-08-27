@@ -5,8 +5,10 @@ from numpy.distutils.core import setup
 
 def configuration(parent_package='', top_path=None):
     from numpy.distutils.misc_util import Configuration
-    config = Configuration('copula', parent_package, top_path)
-    config.add_subpackage('mvtdstpack')
+    config = Configuration('mvtdstpack', parent_package, top_path)
+    config.add_extension('mvtdstpack',
+                         sources=['mvtdstpack_custom.pyf',
+                                  'mvtdstpack.f'])
     return config
 
 
