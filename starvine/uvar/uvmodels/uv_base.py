@@ -182,7 +182,9 @@ class UVmodel(rv_continuous):
                      params0,
                      args=(data, weights,),
                      bounds=kwargs.pop("bounds", None),
-                     tol=1e-9, method='SLSQP')
+                     tol=1e-7, method='SLSQP',
+                     options={'maxiter': 300, 'disp': True})
+        if not res.success: print(res.message)
         return res.x
 
 

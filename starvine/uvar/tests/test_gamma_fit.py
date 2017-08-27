@@ -7,7 +7,6 @@ import unittest
 import os
 pwd_ = os.getcwd()
 dataDir = pwd_ + "/tests/testdata/"
-np.random.seed(123)
 tol = 0.1
 
 
@@ -20,6 +19,7 @@ class TestGammaFit(unittest.TestCase):
     """
     @classmethod
     def setUpClass(self):
+        np.random.seed(123)
         self.true_model_params = np.array([9.0, 2.0])
         self.model = UVGamma()
         # Obtain 1000 samples from gamma PDF
@@ -41,7 +41,7 @@ class TestGammaFit(unittest.TestCase):
         print(mle_fitted_params)
         self.mle_fitted_params = np.array(mle_fitted_params[:-2])
         self.assertTrue(np.allclose(self.true_model_params, self.mle_fitted_params,
-                                    atol=1e-5, rtol=tol))
+                                    atol=1e-4, rtol=tol))
 
         # ------------------------------------------------------------------------ #
         # Custom MLE estimate
@@ -50,7 +50,7 @@ class TestGammaFit(unittest.TestCase):
         print(cmle_fitted_params)
         self.cmle_fitted_params = np.array(cmle_fitted_params)
         self.assertTrue(np.allclose(self.true_model_params, self.cmle_fitted_params,
-                                    atol=1e-5, rtol=tol))
+                                    atol=1e-4, rtol=tol))
 
         # ------------------------------------------------------------------------ #
         # GMM estimate
@@ -60,7 +60,7 @@ class TestGammaFit(unittest.TestCase):
         print(gmm_params.params)
         self.gmm_fitted_params = np.array(gmm_params.params)
         self.assertTrue(np.allclose(self.true_model_params, self.gmm_fitted_params,
-                                    atol=1e-5, rtol=tol))
+                                    atol=1e-4, rtol=tol))
 
         # ------------------------------------------------------------------------ #
         # MCMC estimate
