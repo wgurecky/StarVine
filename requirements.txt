@@ -6,3 +6,4 @@ h5py
 networkx
 matplotlib
 seaborn
+statsmodels
