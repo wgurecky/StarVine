@@ -9,7 +9,6 @@ addons:
             - gcc-4.8
             - build-essential
             - gfortran
-            - g77
 install:
     - pip install -r requirements.txt
     - FC=gfortran python setup.py install
