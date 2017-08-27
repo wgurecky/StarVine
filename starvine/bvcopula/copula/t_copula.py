@@ -5,7 +5,7 @@ from scipy import stats
 from scipy.special import gammaln
 # STARVINE IMPORTS
 from copula_base import CopulaBase
-from mvtdstpack import mvtdstpack as mvt
+from starvine.bvcopula.copula.mvtdstpack import mvtdstpack as mvt
 
 
 class StudentTCopula(CopulaBase):
