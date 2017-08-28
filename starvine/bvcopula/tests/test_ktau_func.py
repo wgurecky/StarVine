@@ -1,7 +1,7 @@
 ##
 # \brief Test ability to compute kendall's function
 from __future__ import print_function, division
-from pc_base import PairCopula
+from starvine.bvcopula.pc_base import PairCopula
 from starvine.bvcopula.copula_factory import Copula
 import unittest
 import numpy as np

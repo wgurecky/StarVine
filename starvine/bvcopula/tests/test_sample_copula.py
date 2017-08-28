@@ -1,12 +1,15 @@
 from __future__ import print_function, division
 import unittest
-from pc_base import PairCopula
-from copula_factory import Copula
+from starvine.bvcopula.pc_base import PairCopula
+from starvine.bvcopula.copula_factory import Copula
 import numpy as np
-np.random.seed(123)
 
 
 class TestSampleCopula(unittest.TestCase):
+    @classmethod
+    def setUpClass(self):
+        np.random.seed(123)
+
     def testClaytonSample(self):
         # 0 deg
         clayton00 = Copula("clayton", 0)
@@ -22,8 +25,7 @@ class TestSampleCopula(unittest.TestCase):
         # we seeded with samples from a clayton df
         self.assertTrue("clayton" in clayton00_model.copulaModel.name)
         # Ensure kTau is nearly the same from resampled data
-        kTauDelta = c00_kTau - clayton00_model.copulaModel.kTau()
-        self.assertTrue(abs(kTauDelta) < 0.01)
+        self.assertAlmostEqual(c00_kTau, clayton00_model.copulaModel.kTau(), delta=0.02)
 
         # 90 deg
         clayton90 = Copula("clayton", 1)
@@ -39,8 +41,7 @@ class TestSampleCopula(unittest.TestCase):
         self.assertTrue("clayton" in clayton90_model.copulaModel.name)
         self.assertTrue(1 == clayton90_model.copulaModel.rotation)
         # Ensure kTau is nearly the same from resampled data
-        kTauDelta = c90_kTau - clayton90_model.copulaModel.kTau()
-        self.assertTrue(abs(kTauDelta) < 0.01)
+        self.assertAlmostEqual(c90_kTau, clayton90_model.copulaModel.kTau(), delta=0.02)
 
         # 180 deg
         clayton180 = Copula("clayton", 2)
@@ -66,9 +67,7 @@ class TestSampleCopula(unittest.TestCase):
         # we seeded with samples from a gumbel df
         self.assertTrue("gumbel" in gumbel00_model.copulaModel.name)
         # Ensure kTau is nearly the same from resampled data
-        kTauDelta = c00_kTau - gumbel00_model.copulaModel.kTau()
-        self.assertTrue(abs(kTauDelta) < 0.01)
-        self.assertAlmostEqual(c00_kTau, gumbel00_model.copulaModel.kTau(), 2)
+        self.assertAlmostEqual(c00_kTau, gumbel00_model.copulaModel.kTau(), delta=0.04)
 
         # 90 deg
         gumbel90 = Copula("gumbel", 1)
@@ -84,9 +83,7 @@ class TestSampleCopula(unittest.TestCase):
         # we seeded with samples from a gumbel df
         self.assertTrue("gumbel" in gumbel90_model.copulaModel.name)
         # Ensure kTau is nearly the same from resampled data
-        kTauDelta = c90_kTau - gumbel90_model.copulaModel.kTau()
-        self.assertTrue(abs(kTauDelta) < 0.04)
-        # self.assertAlmostEqual(c90_kTau, gumbel90_model.copulaModel.kTau(), 2)
+        self.assertAlmostEqual(c90_kTau, gumbel90_model.copulaModel.kTau(), delta=0.04)
 
     def testFrankSample(self):
         # 0 deg
@@ -105,9 +102,7 @@ class TestSampleCopula(unittest.TestCase):
         # we seeded with samples from a frank df
         self.assertTrue("frank" in frank00_model.copulaModel.name)
         # Ensure kTau is nearly the same from resampled data
-        kTauDelta = c00_kTau - frank00_model.copulaModel.kTau()
-        self.assertTrue(abs(kTauDelta) < 0.01)
-        self.assertAlmostEqual(c00_kTau, frank00_model.copulaModel.kTau(), 2)
+        self.assertAlmostEqual(c00_kTau, frank00_model.copulaModel.kTau(), delta=0.02)
 
         # 90 deg
         frank90 = Copula("frank", 1)
@@ -123,9 +118,7 @@ class TestSampleCopula(unittest.TestCase):
         # we seeded with samples from a frank df
         self.assertTrue("frank" in frank90_model.copulaModel.name)
         # Ensure kTau is nearly the same from resampled data
-        kTauDelta = c90_kTau - frank90_model.copulaModel.kTau()
-        self.assertTrue(abs(kTauDelta) < 0.01)
-        self.assertAlmostEqual(c90_kTau, frank90_model.copulaModel.kTau(), 2)
+        self.assertAlmostEqual(c90_kTau, frank90_model.copulaModel.kTau(), delta=0.02)
 
     def testGaussSample(self):
         pass

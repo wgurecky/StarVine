@@ -1,0 +1,17 @@
+language: python
+python:
+    - "2.7"
+addons:
+    apt:
+        sources:
+            - ubuntu-toolchain-r-test
+        packages:
+            - gcc-4.8
+            - build-essential
+            - gfortran
+env:
+    - MPLBACKEND="agg"
+install:
+    - pip install -r requirements.txt
+    - FC=gfortran python setup.py develop
+script: pytest
