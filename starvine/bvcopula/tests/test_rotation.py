@@ -14,9 +14,12 @@ dataDir = pwd_ + "/tests/data/"
 np.random.seed(123)
 
 
-class TestRotateCopula(unittest.TestCase):
-    def testGumbelRotate(self):
+class TestRotateArchimedeanCopula(unittest.TestCase):
+    @classmethod
+    def setUpClass(self):
         np.random.seed(123)
+
+    def testGumbelRotate(self):
         expectedKtaus = {0: 0.87499, 1: -0.87499, 2: 0.87499, 3: -0.87499}
         shapeParam = 8.0
         family = {'gumbel': 0,
@@ -53,7 +56,6 @@ class TestRotateCopula(unittest.TestCase):
             g_resample.savefig("gumbel_resample_pdf_" + str(rotation) + ".png")
 
     def testFrankRotate(self):
-        np.random.seed(123)
         expectedKtaus = {0: 0.602619667, 1: -0.602619667, 2: 0.602619667, 3: -0.602619667}
         shapeParam = 8.0
         family = {'gauss': 0,
@@ -99,7 +101,6 @@ class TestRotateCopula(unittest.TestCase):
             g_resample.savefig("frank_resample_pdf_" + str(rotation) + ".png")
 
     def testClaytonRotate(self):
-        np.random.seed(123)
         expectedKtaus = {0: 0.7777777, 1: -0.7777777, 2: 0.7777777, 3: -0.7777777}
         shapeParam = 7.0
         family = {'gauss': 0,

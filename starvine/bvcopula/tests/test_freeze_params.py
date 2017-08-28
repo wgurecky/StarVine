@@ -11,8 +11,10 @@ np.random.seed(123)
 
 
 class TestGaussFrozen(unittest.TestCase):
-    np.random.seed(123)
-    print("---------------------- COPULA FREEZE PARAMS TEST ---------------------")
+    @classmethod
+    def setUpClass(self):
+        np.random.seed(123)
+
     def testGaussFrozen(self):
         # Load matlab data set
         stocks = np.loadtxt(dataDir + 'stocks.csv', delimiter=',')
@@ -41,8 +43,8 @@ class TestGaussFrozen(unittest.TestCase):
         setModel = PairCopula(setU, setV)
         frzKtau, fp = frzModel.empKTau()
         setKtau, sp = setModel.empKTau()
-        self.assertAlmostEqual(frzKtau, setKtau, places=2)
-        self.assertAlmostEqual(fp, sp, places=2)
+        self.assertAlmostEqual(frzKtau, setKtau, delta=0.02)
+        self.assertAlmostEqual(fp, sp, delta=0.02)
 
         # Eval a model with different specified params
         setU2, setV2 = stockModel.copulaModel.sample(20000, (0.3,))
@@ -74,5 +76,5 @@ class TestGaussFrozen(unittest.TestCase):
         setModel = PairCopula(setU, setV)
         frzKtau, fp = frzModel.empKTau()
         setKtau, sp = setModel.empKTau()
-        self.assertAlmostEqual(frzKtau, setKtau, places=2)
-        self.assertAlmostEqual(fp, sp, places=2)
+        self.assertAlmostEqual(frzKtau, setKtau, delta=0.02)
+        self.assertAlmostEqual(fp, sp, delta=0.02)
