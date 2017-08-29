@@ -12,6 +12,8 @@ addons:
 env:
     - MPLBACKEND="agg"
 install:
+    - pip install coveralls pytest-cov
     - pip install -r requirements.txt
     - FC=gfortran python setup.py develop
-script: pytest
+script: pytest --cov=starvine
+after_success: coveralls
