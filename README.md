@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/wgurecky/StarVine.svg?branch=master)](https://travis-ci.org/wgurecky/StarVine)
+[![Coverage Status](https://coveralls.io/repos/github/wgurecky/StarVine/badge.svg?branch=coveralls)](https://coveralls.io/github/wgurecky/StarVine?branch=coveralls)
 
 About
 ========
