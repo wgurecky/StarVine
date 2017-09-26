@@ -39,16 +39,16 @@ class Vtree(object):
         @param data <b>np_1darray</b>
         """
         if dataLabel in self.tree.nodes():
-            self.tree.node[dataLabel]["data"] = data
+            self.tree.node[dataLabel]["data"].update(data)
         else:
-            self.tree.add_node(dataLabel, attr_dict={"data": data})
+            self.tree.add_node(dataLabel, data=data)
 
     def buildNodes(self):
         """!
         @brief Assign each data column to a networkx node.
         """
         for colName in self.data:
-            self.tree.add_node(colName, attr_dict={"data": self.data[colName]})
+            self.tree.add_node(colName, data=self.data[colName])
 
     def setEdges(self, nodePairs=None):
         """!
@@ -60,14 +60,14 @@ class Vtree(object):
         nodePairs = self._optimNodePairs() if nodePairs is None else nodePairs
         for i, pair in enumerate(nodePairs):
             self.tree.add_edge(pair[0], pair[1], weight=pair[2],
-                               attr_dict={"pc":
+                                          pc= \
                                           pc.PairCopula(self.tree.node[pair[0]]["data"],
                                                         self.tree.node[pair[1]]["data"],
                                                         id=(pair[0], pair[1])),
-                                          "id": (pair[0], pair[1]),
-                                          "edge_data": {pair[0]: self.tree.node[pair[0]]["data"],
-                                                        pair[1]: self.tree.node[pair[1]]["data"]},
-                                           })
+                                          id=(pair[0], pair[1]),
+                                          edge_data={pair[0]: self.tree.node[pair[0]]["data"],
+                                                     pair[1]: self.tree.node[pair[1]]["data"]},
+                              )
         self._setEdgeTriplets()
 
     def _setEdgeTriplets(self):
@@ -80,7 +80,7 @@ class Vtree(object):
         if self.upperTree is None:
             return
         else:
-            for u, v in self.tree.edges_iter():
+            for u, v in self.tree.edges():
                 # every edge has data nodes (u, v)
                 # u and v  are tuples
                 # each node came from an edge above
