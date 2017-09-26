@@ -76,7 +76,7 @@ class BaseVine(object):
 
         # obtain edge from last tree in vine
         current_tree = self.vine[-1]
-        n0, n1 = current_tree.tree.edges()[0]
+        n0, n1 = list(current_tree.tree.edges())[0]
         edge_info = current_tree.tree[n0][n1]
 
         # sample from edge of last tree

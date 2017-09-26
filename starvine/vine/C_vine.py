@@ -155,7 +155,7 @@ class Ctree(Vtree):
         nLL = 0
         for u, v, data in self.tree.edges(data=True):
             nLL += \
-                self.tree.edge[u][v]["pc"].copulaModel.\
+                self.tree.adj[u][v]["pc"].copulaModel.\
                 _nlogLike(self.tree.node[u]["data"].values,
                           self.tree.node[v]["data"].values,
                           0,
@@ -168,8 +168,8 @@ class Ctree(Vtree):
         (h()) to obtain marginal distributions at the next tree level.
         """
         for u, v, data in self.tree.edges(data=True):
-            self.tree.edge[u][v]["h-dist"] = data["pc"].copulaModel.h
-            self.tree.edge[u][v]["hinv-dist"] = data["pc"].copulaModel.hinv
+            self.tree.adj[u][v]["h-dist"] = data["pc"].copulaModel.h
+            self.tree.adj[u][v]["hinv-dist"] = data["pc"].copulaModel.hinv
         return self._evalH()
 
     # ---------------------------- PRIVATE METHODS ------------------------------ #
@@ -240,7 +240,7 @@ class Ctree(Vtree):
         @brief Get copula paramters of particular edge in tree.
         @returns <b>np_1darray</b> Copula parameters of edge
         """
-        cp = self.tree.edge[u][v]["pc"].copulaParams
+        cp = self.tree.adj[u][v]["pc"].copulaParams
         if cp is not None:
             return cp
         else:
@@ -258,7 +258,7 @@ class Ctree(Vtree):
             edgeParams = self._getEdgeCopulaParams(u, v)
             self.treeCopulaParams.append(edgeParams[1])
             nEdgeParams = len(edgeParams[1])
-            self.tree.edge[u][v]["paramMap"] = \
+            self.tree.adj[u][v]["paramMap"] = \
                 [currentMarker, currentMarker + nEdgeParams]
             currentMarker += nEdgeParams
         self.treeCopulaParams = [item for sublist in self.treeCopulaParams

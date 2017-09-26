@@ -23,7 +23,7 @@ def setup_package():
           build_requires=['numpy>=1.8.0', 'setuptools'],
           install_requires=['numpy>=1.8.0', 'scipy>=0.13',
                             'pandas>=0.13.0', 'h5py>=2.2.0',
-                            'seaborn>=0.7.0', 'networkx>=1.8.1',
+                            'seaborn>=0.7.0', 'networkx>=2.0.0',
                             'emcee>=2.0.0', 'statsmodels'],
           package_data={'': ['*.txt']},
           license='BSD-3clause',
