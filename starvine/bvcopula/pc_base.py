@@ -38,34 +38,14 @@ class PairCopula(object):
         Note: len(u) == len(v) == len(weights)
         """
         self.copulaModel, self.copulaParams = None, (None, None, )
-        #
         self.id = kwargs.pop("id", None)
         self.x = np.array(x)
         self.y = np.array(y)
-        self.u, self.v = None, None  # ranked data
         # normalize weights (weights must sum to 1.0)
         self.weights = weights
         if self.weights is not None:
             self.weights = self.weights / np.sum(self.weights)
         # init default copula family
-        """
-        TODO: fix rotated gumbel copula
-        defaultFamily = {'t': 0,
-                         'gauss': 0,
-                         'frank': 0,
-                         'frank-90': 1,
-                         'frank-180': 2,
-                         'frank-270': 3,
-                         'gumbel': 0,
-                         'gumbel-90': 1,
-                         'gumbel-180': 2,
-                         'gumbel-270': 3,
-                         'clayton': 0,
-                         'clayton-90': 1,
-                         'clayton-180': 2,
-                         'clayton-270': 3,
-                         }
-        """
         defaultFamily = {'t': 0,
                          'gauss': 0,
                          'frank': 0,
@@ -83,11 +63,10 @@ class PairCopula(object):
                          }
         #
         self.setTrialCopula(kwargs.pop("family", defaultFamily))
-        # Rank transform data
-        self.rank(kwargs.pop("rankMethod", 0))
+        # default data ranking method
+        self.rankMethod = kwargs.pop("rankMethod", 0)
         # default rotation
         self.setRotation(kwargs.pop("rotation", 0))
-        self.rotateData(self.u, self.v)
 
     def rank(self, method=0):
         """!
@@ -96,10 +75,9 @@ class PairCopula(object):
                if == 0: use standard rank transform,
                else: use CDF data transform.
         """
-        self.rankMethod = method
         if method == 0:
-            self.u = rankdata(self.x) / (len(self.x) + 1)
-            self.v = rankdata(self.y) / (len(self.y) + 1)
+            u = rankdata(self.x) / (len(self.x) + 1)
+            v = rankdata(self.y) / (len(self.y) + 1)
         else:
             # use alternate CDF rank transform method
             kde_x = gaussian_kde(self.x)
@@ -109,8 +87,25 @@ class PairCopula(object):
             for i, (xp, yp) in enumerate(zip(self.x, self.y)):
                 u_hat[i] = kde_x.integrate_box_1d(-np.inf, xp)
                 v_hat[i] = kde_y.integrate_box_1d(-np.inf, yp)
-            self.u = u_hat
-            self.v = v_hat
+            u = u_hat
+            v = v_hat
+        return u, v
+
+    @property
+    def u(self):
+        """!
+        @brief Ranked x samples
+        @return <b>np_1darray</b>
+        """
+        return self.rank(self.rankMethod)[0]
+
+    @property
+    def v(self):
+        """!
+        @brief Ranked y samples
+        @return <b>np_1darray</b>
+        """
+        return self.rank(self.rankMethod)[1]
 
     def rankInv(self):
         """!
@@ -226,27 +221,44 @@ class PairCopula(object):
         @param u  Ranked data vector
         @param v  Ranked data vector
         @param rotation <b>int</b> 1==90deg, 2==180deg, 3==270, 0==0deg
+        @return tuple transposed(u, v) vectors
         """
         if rotation >= 0:
             self.setRotation(rotation)
-        self.UU = np.zeros(u.shape)  # storage for rotated u
-        self.VV = np.zeros(v.shape)  # storage for rotated v
+        UU = np.zeros(u.shape)  # storage for rotated u
+        VV = np.zeros(v.shape)  # storage for rotated v
         if self.rotation == 1:
             # 90 degree rotation (flip U)
-            self.UU = 1.0 - u
-            self.VV = v + 1 - 1
+            UU = 1.0 - u
+            VV = v + 1 - 1
         elif self.rotation == 2:
             # 180 degree rotation (flip U, flip V)
-            self.UU = 1.0 - u
-            self.VV = 1.0 - v
+            UU = 1.0 - u
+            VV = 1.0 - v
         elif self.rotation == 3:
             # 270 degree rotation (flip V)
-            self.UU = u + 1 - 1
-            self.VV = 1.0 - v
+            UU = u + 1 - 1
+            VV = 1.0 - v
         else:
-            self.UU = u + 1 - 1
-            self.VV = v + 1 - 1
-        return (self.UU, self.VV)
+            UU = u + 1 - 1
+            VV = v + 1 - 1
+        return (UU, VV)
+
+    @property
+    def UU(self):
+        """!
+        @brief transposed u
+        @return <b>np_1darray</b>
+        """
+        return self.rotateData(self.u, self.v)[0]
+
+    @property
+    def VV(self):
+        """!
+        @brief transposed v
+        @return <b>np_1darray</b>
+        """
+        return self.rotateData(self.u, self.v)[1]
 
     def setRotation(self, rotation=0):
         """!
