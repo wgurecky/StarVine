@@ -47,11 +47,9 @@ class PairCopula(object):
             self.weights = self.weights / np.sum(self.weights)
         self.setTrialCopula(kwargs.pop("family", self.defaultFamily))
         # default data ranking method
-        self.rankMethod = kwargs.pop("rankMethod", 0)
+        self.rank_method = kwargs.pop("rankMethod", 0)
         # default rotation
         self.setRotation(kwargs.pop("rotation", 0))
-        # rotate data
-        self.UU, self.VV = self.rotateData(self.u, self.v)
 
     def rank(self, method=0):
         """!
@@ -78,12 +76,21 @@ class PairCopula(object):
         return u, v
 
     @property
+    def rank_method(self):
+        return self._rank_method
+
+    @rank_method.setter
+    def rank_method(self, method):
+        assert type(method) is int
+        self._rank_method = method
+
+    @property
     def u(self):
         """!
         @brief Ranked x samples
         @return <b>np_1darray</b>
         """
-        return self.rank(self.rankMethod)[0]
+        return self.rank(self.rank_method)[0]
 
     @property
     def v(self):
@@ -91,7 +98,7 @@ class PairCopula(object):
         @brief Ranked y samples
         @return <b>np_1darray</b>
         """
-        return self.rank(self.rankMethod)[1]
+        return self.rank(self.rank_method)[1]
 
     def rankInv(self):
         """!
@@ -178,8 +185,11 @@ class PairCopula(object):
             trial_kc_metric = 0
             if criterion == 'Kc':
                 trial_kc_metric = self.compute_kc_metric(copula, t_emp, kc_emp)
-                print(" KC_m=" + str(trial_kc_metric), end="")
-            if vb: print(" |AIC|: " + str(trialAIC))
+                print(" KC_m=" + str(trial_kc_metric), end=",")
+            if vb: print(" AIC: " + '{:05.3f}'.format(trialAIC), end=",")
+            if vb: print(" emp_ktau: " + '{:05.3f}'.format(self.empKTau_), end=",")
+            if vb: print(" cop_ktau: " + \
+                    '{:05.3f}'.format(copula.kTau(copula.rotation, *fittedCopulaParams[1])))
             if trialAIC < best_AIC and criterion == 'AIC':
                 goldCopula = copula
                 goldParams = fittedCopulaParams
@@ -204,7 +214,8 @@ class PairCopula(object):
         @param thetaGuess <b>tuple</b> (optional) initial guess for copula params
         @return (copula type <b>string</b>, fitted copula params <b>np_array</b>)
         """
-        thetaHat, successFlag = copula.fitMLE(self.UU, self.VV, *thetaGuess, weights=self.weights)
+        thetaHat, successFlag = \
+            copula.fitMLE(self.UU, self.VV, *thetaGuess, weights=self.weights)
         if successFlag:
             AIC = copula._AIC(self.UU, self.VV, 0, *thetaHat, weights=self.weights)
         else:
@@ -214,7 +225,7 @@ class PairCopula(object):
 
     @staticmethod
     def compute_aic_metric(copula, u, v, rot, theta, weights=None):
-        pass
+        raise NotImplementedError
 
     @staticmethod
     def compute_kc_metric(copula, t_emp, kc_emp, t_lower=0.4, t_upper=0.6):
@@ -237,7 +248,7 @@ class PairCopula(object):
             kc_metric.append(np.linalg.norm(fitted_kc - kc_emp[mask]))
         return np.average(kc_metric)
 
-    def rotateData(self, u, v, rotation=-1):
+    def _rotate_data(self, u, v, rotation=-1):
         """!
         @brief Rotates the ranked data on the unit square.
         @param u  Ranked data vector
@@ -245,8 +256,6 @@ class PairCopula(object):
         @param rotation <b>int</b> 1==90deg, 2==180deg, 3==270, 0==0deg
         @return tuple transposed (u, v) vectors
         """
-        if rotation >= 0:
-            self.setRotation(rotation)
         UU = np.zeros(u.shape)  # storage for rotated u
         VV = np.zeros(v.shape)  # storage for rotated v
         if self.rotation == 1:
@@ -262,9 +271,9 @@ class PairCopula(object):
             UU = u + 1 - 1
             VV = 1.0 - v
         else:
-            UU = u + 1 - 1
-            VV = v + 1 - 1
-        return (UU, VV)
+            UU = u
+            VV = v
+        return UU, VV
 
     def setRotation(self, rotation=0):
         """!
@@ -281,6 +290,7 @@ class PairCopula(object):
             print("Invalid Rotation: Valid roations are in [0, 1, 2, 3]")
             raise RuntimeError
         self.rotation = rotation
+        self.UU, self.VV = self._rotate_data(self.u, self.v, self.rotation)
 
     @property
     def defaultFamily(self):
