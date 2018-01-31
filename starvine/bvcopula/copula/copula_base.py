@@ -5,7 +5,7 @@
 from __future__ import print_function, absolute_import, division
 import numpy as np
 import scipy.integrate as spi
-from scipy.optimize import bisect, newton
+from scipy.optimize import bisect, newton, brentq
 from scipy.optimize import minimize
 from scipy.misc import derivative
 import warnings
@@ -267,17 +267,14 @@ class CopulaBase(object):
         else:
             pass
         reducedHfn = lambda u: self._h(V, u, rotation, *theta) - U
-        v_bisect_est_ = bisect(reducedHfn, 1e-200, 1.0 - 1e-200, maxiter=20, disp=False)
         try:
-            v_est_ = newton(reducedHfn, v_bisect_est_, tol=1e-5, maxiter=30)
+            v_est_ = brentq(reducedHfn, a=1e-60, b=1.0-1e-60, maxiter=18, xtol=1e-10, rtol=1e-12)
         except:
             # fallback if newton fails to converge
+            print("WARNING: hinv root find failed. Falling back to bisection.")
             v_est_ = bisect(reducedHfn, 1e-60, 1.0 - 1e-60, maxiter=50, disp=False)
         # return v_est_
-        if v_est_ > 1.0:
-            return 1.0 - 1e-8
-        elif v_est_ < 0.0:
-            return 1e-8
+        v_est_ = np.clip(v_est_, 1e-8, 1-1e-8)
         if self.rotation == 1 or self.rotation == 0:
             return 1. - v_est_
         else:
