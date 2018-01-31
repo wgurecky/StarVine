@@ -67,6 +67,8 @@ class PairCopula(object):
         self.rankMethod = kwargs.pop("rankMethod", 0)
         # default rotation
         self.setRotation(kwargs.pop("rotation", 0))
+        # rotate data
+        self.UU, self.VV = self.rotateData(self.u, self.v)
 
     def rank(self, method=0):
         """!
@@ -167,6 +169,9 @@ class PairCopula(object):
         based on the AIC criterion.
         All Copula in self.trialFamily set are considered.
         """
+        kc_metric_bool = kwargs.get("kc_m", True)
+        if kc_metric_bool:
+            self.t_emp, self.kc_emp = self.empKc()
         vb = kwargs.pop("verbosity", True)
         self.empKTau()
         if self.pval_ >= 0.05 and self.weights is None:
@@ -187,6 +192,9 @@ class PairCopula(object):
             copula = self.copulaBank[trialCopulaName]
             fittedCopulaParams = self.fitCopula(copula)
             trialAIC = abs(fittedCopulaParams[2])
+            if kc_metric_bool:
+                kc_metric = self._compute_kc_metric(copula)
+                print(" KC_m=" + str(kc_metric), end="")
             if vb: print(" |AIC|: " + str(trialAIC))
             if trialAIC > maxAIC:
                 goldCopula = copula
@@ -214,6 +222,15 @@ class PairCopula(object):
             AIC = 0
         self.copulaModel = copula
         return (copula.name, thetaHat, AIC, copula.rotation, successFlag)
+
+    def _compute_kc_metric(self, copula, t_lower=0.4, t_upper=0.6):
+        mask = ((self.t_emp > 0.01) & (self.t_emp < 1.0)) & \
+               ((self.t_emp < t_lower) | (self.t_emp > t_upper))
+        kc_metric = []
+        for i in range(4):
+            fitted_kc = copula.kC(self.t_emp[mask])
+            kc_metric.append(np.linalg.norm(fitted_kc - self.kc_emp[mask]))
+        return np.average(kc_metric)
 
     def rotateData(self, u, v, rotation=-1):
         """!
@@ -243,22 +260,6 @@ class PairCopula(object):
             UU = u + 1 - 1
             VV = v + 1 - 1
         return (UU, VV)
-
-    @property
-    def UU(self):
-        """!
-        @brief transposed u
-        @return <b>np_1darray</b>
-        """
-        return self.rotateData(self.u, self.v)[0]
-
-    @property
-    def VV(self):
-        """!
-        @brief transposed v
-        @return <b>np_1darray</b>
-        """
-        return self.rotateData(self.u, self.v)[1]
 
     def setRotation(self, rotation=0):
         """!

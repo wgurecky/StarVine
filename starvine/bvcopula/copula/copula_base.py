@@ -291,10 +291,12 @@ class CopulaBase(object):
         cll = self._nlogLike(u, v, wgts, rotation, *theta)
         if len(theta) == 1:
             # 1 parameter copula
-            AIC = 2 * cll + 2.0 + 4.0 / (len(u) - 2)
+            # AIC = 2 * cll + 2.0 + 4.0 / (len(u) - 2)
+            AIC = 2 * cll + 2.0 * np.log(len(u)) * 1
         else:
             # 2 parameter copula
-            AIC = 2 * cll + 4.0 + 12.0 / (len(u) - 3)
+            # AIC = 2 * cll + 4.0 + 12.0 / (len(u) - 3)
+            AIC = 2 * cll + 2.0 * np.log(len(u)) * 2
         return AIC
 
     def _gen(self, t, *theta):
@@ -406,8 +408,8 @@ class CopulaBase(object):
         except:
             kc_out = []
             # create u, v grid
-            u = np.random.uniform(0, 1, int(4e5))
-            v = np.random.uniform(0, 1, int(4e5))
+            u = np.random.uniform(0, 1, int(1e3))
+            v = np.random.uniform(0, 1, int(1e3))
             u_hat, v_hat = self._ppf(u, v, self.rotation, *theta)
             cdf_int = self._cdf(u_hat, v_hat, self.rotation, *theta)
             for t in t_in:
