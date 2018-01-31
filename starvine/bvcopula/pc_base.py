@@ -188,8 +188,6 @@ class PairCopula(object):
                 goldCopula = copula
                 goldParams = fittedCopulaParams
                 best_kc = trial_kc_metric
-            else:
-                raise RuntimeError("ERROR: Supply vaild criterion: AIC or Kc")
         #
         if vb: print("ID: %s. %s copula selected.  fitted params="
                      % (str(self.id), goldCopula.name) + str(goldParams[1])
