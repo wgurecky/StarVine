@@ -45,24 +45,7 @@ class PairCopula(object):
         self.weights = weights
         if self.weights is not None:
             self.weights = self.weights / np.sum(self.weights)
-        # init default copula family
-        defaultFamily = {'t': 0,
-                         'gauss': 0,
-                         'frank': 0,
-                         'frank-90': 1,
-                         'frank-180': 2,
-                         'frank-270': 3,
-                         'clayton': 0,
-                         'clayton-90': 1,
-                         'clayton-180': 2,
-                         'clayton-270': 3,
-                         'gumbel': 0,
-                         'gumbel-90': 1,
-                         'gumbel-180': 2,
-                         'gumbel-270': 3,
-                         }
-        #
-        self.setTrialCopula(kwargs.pop("family", defaultFamily))
+        self.setTrialCopula(kwargs.pop("family", self.defaultFamily))
         # default data ranking method
         self.rankMethod = kwargs.pop("rankMethod", 0)
         # default rotation
@@ -72,10 +55,11 @@ class PairCopula(object):
 
     def rank(self, method=0):
         """!
-        @brief rank transfom the data
+        @brief Compute ranks of the data
         @param method <b>int</b>
                if == 0: use standard rank transform,
                else: use CDF data transform.
+        @return (u, v) tuple of <b>np_1darray</b> ranked samples
         """
         if method == 0:
             u = rankdata(self.x) / (len(self.x) + 1)
@@ -166,12 +150,11 @@ class PairCopula(object):
     def copulaTournament(self, criterion='AIC', **kwargs):
         """!
         @brief Determines the copula that best fits the rank transformed data
-        based on the AIC criterion.
+        based on the AIC or Kendall's function criterion.
         All Copula in self.trialFamily set are considered.
         """
-        kc_metric_bool = kwargs.get("kc_m", True)
-        if kc_metric_bool:
-            self.t_emp, self.kc_emp = self.empKc()
+        if criterion == 'Kc':
+            t_emp, kc_emp = self.empKc()
         vb = kwargs.pop("verbosity", True)
         self.empKTau()
         if self.pval_ >= 0.05 and self.weights is None:
@@ -185,21 +168,29 @@ class PairCopula(object):
             if vb: print("-------------------------------------------")
             # return self.copulaBank['indep']
             return (self.copulaModel, self.copulaParams)
-        # Find best fitting copula as judged by the AIC
-        maxAIC, goldCopula, goldParams = 0, None, None
+        # Find best fitting copula
+        best_AIC, best_kc, goldCopula, goldParams = np.inf, np.inf, None, None
         for trialCopulaName, rotation in iteritems(self.trialFamily):
             if vb: print("Fitting trial copula " + trialCopulaName + "...", end="")
             copula = self.copulaBank[trialCopulaName]
             fittedCopulaParams = self.fitCopula(copula)
-            trialAIC = abs(fittedCopulaParams[2])
-            if kc_metric_bool:
-                kc_metric = self._compute_kc_metric(copula)
-                print(" KC_m=" + str(kc_metric), end="")
+            trialAIC = fittedCopulaParams[2]
+            trial_kc_metric = 0
+            if criterion == 'Kc':
+                trial_kc_metric = self.compute_kc_metric(copula, t_emp, kc_emp)
+                print(" KC_m=" + str(trial_kc_metric), end="")
             if vb: print(" |AIC|: " + str(trialAIC))
-            if trialAIC > maxAIC:
+            if trialAIC < best_AIC and criterion == 'AIC':
                 goldCopula = copula
                 goldParams = fittedCopulaParams
-                maxAIC = trialAIC
+                best_AIC = trialAIC
+            elif trial_kc_metric < best_kc and criterion == 'Kc':
+                goldCopula = copula
+                goldParams = fittedCopulaParams
+                best_kc = trial_kc_metric
+            else:
+                raise RuntimeError("ERROR: Supply vaild criterion: AIC or Kc")
+        #
         if vb: print("ID: %s. %s copula selected.  fitted params="
                      % (str(self.id), goldCopula.name) + str(goldParams[1])
                      + " rotation=" + str(goldParams[3]))
@@ -219,17 +210,33 @@ class PairCopula(object):
         if successFlag:
             AIC = copula._AIC(self.UU, self.VV, 0, *thetaHat, weights=self.weights)
         else:
-            AIC = 0
+            AIC = np.inf
         self.copulaModel = copula
         return (copula.name, thetaHat, AIC, copula.rotation, successFlag)
 
-    def _compute_kc_metric(self, copula, t_lower=0.4, t_upper=0.6):
-        mask = ((self.t_emp > 0.01) & (self.t_emp < 1.0)) & \
-               ((self.t_emp < t_lower) | (self.t_emp > t_upper))
+    @staticmethod
+    def compute_aic_metric(copula, u, v, rot, theta, weights=None):
+        pass
+
+    @staticmethod
+    def compute_kc_metric(copula, t_emp, kc_emp, t_lower=0.4, t_upper=0.6):
+        """!
+        @brief Compute l2 norm of differences between the empirical Kc function
+        and the fitted copula's Kc function.
+        @param copula starvine.bvcopula.copula.copula_base.CopulaBase instance
+        @param t_emp <b>np_1darray</b>  emperical kc abcissa
+        @param kc_emp <b>np_1darray</b> emperical kc values
+        @param t_lower  float. in [0, 1].  Lower t cutoff for comparison
+        @param t_upper  float. in [0, 1].  Upper t cutoff for comparison
+        """
+        assert 0 < t_lower < 1
+        assert 0 < t_upper < 1
+        mask = ((t_emp > 0.01) & (t_emp < 1.0)) & \
+               ((t_emp < t_lower) | (t_emp > t_upper))
         kc_metric = []
         for i in range(4):
-            fitted_kc = copula.kC(self.t_emp[mask])
-            kc_metric.append(np.linalg.norm(fitted_kc - self.kc_emp[mask]))
+            fitted_kc = copula.kC(t_emp[mask])
+            kc_metric.append(np.linalg.norm(fitted_kc - kc_emp[mask]))
         return np.average(kc_metric)
 
     def rotateData(self, u, v, rotation=-1):
@@ -238,7 +245,7 @@ class PairCopula(object):
         @param u  Ranked data vector
         @param v  Ranked data vector
         @param rotation <b>int</b> 1==90deg, 2==180deg, 3==270, 0==0deg
-        @return tuple transposed(u, v) vectors
+        @return tuple transposed (u, v) vectors
         """
         if rotation >= 0:
             self.setRotation(rotation)
@@ -276,3 +283,22 @@ class PairCopula(object):
             print("Invalid Rotation: Valid roations are in [0, 1, 2, 3]")
             raise RuntimeError
         self.rotation = rotation
+
+    @property
+    def defaultFamily(self):
+        default_family = {'t': 0,
+                          'gauss': 0,
+                          'frank': 0,
+                          'frank-90': 1,
+                          'frank-180': 2,
+                          'frank-270': 3,
+                          'clayton': 0,
+                          'clayton-90': 1,
+                          'clayton-180': 2,
+                          'clayton-270': 3,
+                          'gumbel': 0,
+                          'gumbel-90': 1,
+                          'gumbel-180': 2,
+                          'gumbel-270': 3,
+                         }
+        return default_family

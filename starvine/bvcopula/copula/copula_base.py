@@ -236,7 +236,7 @@ class CopulaBase(object):
         @brief Default negative log likelyhood function.
         Used in MLE fitting
         """
-        return -self._logLike(u, v, wgts, rotation, *theta)
+        return -1.0 * self._logLike(u, v, wgts, rotation, *theta)
 
     def _logLike(self, u, v, wgts=None, rotation=0, *theta):
         """!
@@ -289,15 +289,10 @@ class CopulaBase(object):
         """
         wgts = kwargs.pop("weights", np.ones(len(u)))
         cll = self._nlogLike(u, v, wgts, rotation, *theta)
-        if len(theta) == 1:
-            # 1 parameter copula
-            # AIC = 2 * cll + 2.0 + 4.0 / (len(u) - 2)
-            AIC = 2 * cll + 2.0 * np.log(len(u)) * 1
-        else:
-            # 2 parameter copula
-            # AIC = 2 * cll + 4.0 + 12.0 / (len(u) - 3)
-            AIC = 2 * cll + 2.0 * np.log(len(u)) * 2
-        return AIC
+        k = len(self.theta0)
+        AIC = 2 * cll + 2.0 * k
+        AICc = AIC + (2. * k ** 2. + 2. * k) / (len(u) - k - 1)
+        return AICc
 
     def _gen(self, t, *theta):
         """!

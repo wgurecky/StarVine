@@ -44,7 +44,7 @@ class TestWeightedReg(unittest.TestCase):
         cop2.fittedParams = [-0.7]
 
         # draw 1000 samples from each model
-        n = 1000
+        n = 4000
         x1, y1 = cop1.sampleScale(marg1, marg2, n)
         x2, y2 = cop2.sampleScale(marg1, marg2, n)
 
