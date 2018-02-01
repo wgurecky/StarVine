@@ -2,6 +2,7 @@
 # \brief Pair Copula.
 # Bivariate distribution base class.
 from __future__ import print_function, absolute_import
+import os
 import numpy as np
 from six import iteritems
 from scipy.stats import kendalltau, spearmanr, pearsonr
@@ -137,11 +138,12 @@ class PairCopula(object):
         self.empPRho_, self.pval_ = pearsonr(self.x, self.y)
         return self.empPRho_, self.pval_
 
-    @staticmethod
-    def empKc(UU, VV):
+    def empKc(self, UU=[], VV=[]):
         """!
         @brief Compute empirical kendall's function.
         """
+        if UU == [] or VV == []:
+            UU, VV = self.UU, self.VV
         z = np.zeros(len(UU))
         for i in range(len(UU)):
             result = 0.
@@ -161,8 +163,6 @@ class PairCopula(object):
         based on the AIC or Kendall's function criterion.
         All Copula in self.trialFamily set are considered.
         """
-        if criterion == 'Kc':
-            t_emp, kc_emp = self.empKc(self.UU, self.VV)
         vb = kwargs.pop("verbosity", True)
         self.empKTau()
         if self.pval_ >= 0.05 and self.weights is None:
@@ -185,7 +185,7 @@ class PairCopula(object):
             trialAIC = fittedCopulaParams[2]
             trial_kc_metric = 0
             if criterion == 'Kc':
-                trial_kc_metric = self.compute_kc_metric(copula, t_emp, kc_emp)
+                trial_kc_metric = self.compute_kc_metric(copula)
                 print(" KC_m: " + '{:+05.5f}'.format(trial_kc_metric), end=",")
             if vb: print(" AIC: " + '{:+05.3f}'.format(trialAIC), end=",")
             if vb: print(" emp_ktau: " + '{:+05.3f}'.format(self.empKTau_), end=",")
@@ -229,17 +229,12 @@ class PairCopula(object):
     def compute_aic_metric(copula, u, v, rot, theta, weights=None):
         raise NotImplementedError
 
-    def compute_kc_metric(self, copula, t_emp, kc_emp, t_lower=0.4, t_upper=0.6, log=True):
+    def compute_kc_metric(self, copula, log=True):
         """!
         @brief Compute l2 norm of differences between the empirical Kc function
         and the fitted copula's Kc function.
         @param copula starvine.bvcopula.copula.copula_base.CopulaBase instance
-        @param t_emp <b>np_1darray</b>  emperical kc abcissa
-        @param kc_emp <b>np_1darray</b> emperical kc values
-        @param t_lower  float. in [0, 1].  Lower t cutoff for comparison
-        @param t_upper  float. in [0, 1].  Upper t cutoff for comparison
         """
-        import os
         # rotate current data into the proposed copula orientation
         rt_UU, rt_VV = self._rotate_data_bk(self.UU, self.VV, -copula.rotation)
         # compute emperical Kc on the rotated data
@@ -248,8 +243,7 @@ class PairCopula(object):
         base_copula = Copula(copula.name, 0)
         base_copula.fitMLE(rt_UU, rt_VV, *(None, None,), weights=self.weights)
         #
-        mask = ((rt_t_emp > 0.01) & (rt_t_emp < 1.0)) # & \
-               # ((rt_t_emp < t_lower) | (rt_t_emp > t_upper))
+        mask = ((rt_t_emp > 0.01) & (rt_t_emp < 1.0))
         kc_metric = []
         for i in range(4):
             fitted_kc = base_copula.kC(rt_t_emp[mask])
