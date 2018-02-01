@@ -45,12 +45,11 @@ class PairCopula(object):
         # normalize weights (weights must sum to 1.0)
         self.weights = weights
         if self.weights is not None:
-            self.weights = self.weights / np.sum(self.weights)
+            self.weights = self.weights / np.average(self.weights)
         self.setTrialCopula(kwargs.pop("family", self.defaultFamily))
         # default data ranking method
         self.rank_method = kwargs.pop("rankMethod", 0)
-        # default rotation
-        self.setRotation(kwargs.pop("rotation", 0))
+        self.rank(self.rank_method)
 
     def rank(self, method=0):
         """!
@@ -74,7 +73,18 @@ class PairCopula(object):
                 v_hat[i] = kde_y.integrate_box_1d(-np.inf, yp)
             u = u_hat
             v = v_hat
+        self.UU, self.VV = u, v
         return u, v
+
+    @property
+    def u(self):
+        """! @brief alias to self.UU """
+        return self.UU
+
+    @property
+    def v(self):
+        """! @brief alias to self.VV """
+        return self.VV
 
     @property
     def rank_method(self):
@@ -84,22 +94,6 @@ class PairCopula(object):
     def rank_method(self, method):
         assert type(method) is int
         self._rank_method = method
-
-    @property
-    def u(self):
-        """!
-        @brief Ranked x samples
-        @return <b>np_1darray</b>
-        """
-        return self.rank(self.rank_method)[0]
-
-    @property
-    def v(self):
-        """!
-        @brief Ranked y samples
-        @return <b>np_1darray</b>
-        """
-        return self.rank(self.rank_method)[1]
 
     def rankInv(self):
         """!
@@ -127,7 +121,7 @@ class PairCopula(object):
         @brief Returns emperical spearman rho, the rank correlation coefficient.
         @return <b>float</b> Spearman's rank correlation coeff
         """
-        self.empSRho_, self.pval_ = spearmanr(self.u, self.v)
+        self.empSRho_, self.pval_ = spearmanr(self.UU, self.VV)
         return self.empSRho_, self.pval_
 
     def empPRho(self):
@@ -185,7 +179,9 @@ class PairCopula(object):
             trialAIC = fittedCopulaParams[2]
             trial_kc_metric = 0
             if criterion == 'Kc':
-                trial_kc_metric = self.compute_kc_metric(copula)
+                trial_kc_metric = self.compute_kc_metric(copula, \
+                        log=kwargs.get("log", False), \
+                        log_dir=kwargs.get("log_dir", "Kc_logs"))
                 print(" KC_m: " + '{:+05.5f}'.format(trial_kc_metric), end=",")
             if vb: print(" AIC: " + '{:+05.3f}'.format(trialAIC), end=",")
             if vb: print(" emp_ktau: " + '{:+05.3f}'.format(self.empKTau_), end=",")
@@ -195,7 +191,7 @@ class PairCopula(object):
                 goldCopula = copula
                 goldParams = fittedCopulaParams
                 best_AIC = trialAIC
-            elif trial_kc_metric <= best_kc and trialAIC < best_AIC and criterion == 'Kc':
+            elif trial_kc_metric <= best_kc and criterion == 'Kc':
                 goldCopula = copula
                 goldParams = fittedCopulaParams
                 best_kc = trial_kc_metric
@@ -229,29 +225,28 @@ class PairCopula(object):
     def compute_aic_metric(copula, u, v, rot, theta, weights=None):
         raise NotImplementedError
 
-    def compute_kc_metric(self, copula, log=True):
+    def compute_kc_metric(self, copula, log=True, log_dir='Kc_logs'):
         """!
         @brief Compute l2 norm of differences between the empirical Kc function
         and the fitted copula's Kc function.
         @param copula starvine.bvcopula.copula.copula_base.CopulaBase instance
         """
         # rotate current data into the proposed copula orientation
-        rt_UU, rt_VV = self._rotate_data_bk(self.UU, self.VV, -copula.rotation)
+        rt_UU, rt_VV = self.rotate_data(self.UU, self.VV, copula.rotation)
         # compute emperical Kc on the rotated data
         rt_t_emp, rt_kc_emp = self.empKc(rt_UU, rt_VV)
         # fit the un-rotated copula
         base_copula = Copula(copula.name, 0)
         base_copula.fitMLE(rt_UU, rt_VV, *(None, None,), weights=self.weights)
-        #
-        mask = ((rt_t_emp > 0.01) & (rt_t_emp < 1.0))
+        mask = ((rt_t_emp > 0.005) & (rt_t_emp < 1.0))
         kc_metric = []
         for i in range(4):
             fitted_kc = base_copula.kC(rt_t_emp[mask])
             kc_metric.append(np.linalg.norm(fitted_kc - rt_kc_emp[mask]))
         if log:
-            if not os.path.exists('Kc_logs'):
-                os.makedirs('Kc_logs')
-            np.savetxt('Kc_logs/kc_log_' + str(base_copula.name) + "_" + str(copula.rotation) + '.txt',
+            if not os.path.exists(log_dir):
+                os.makedirs(log_dir)
+            np.savetxt(log_dir + '/kc_log_' + str(base_copula.name) + "_" + str(copula.rotation) + '.txt',
                        np.array([rt_t_emp[mask], fitted_kc, rt_kc_emp[mask]]).T,
                        header="Kendalls fn log for Copula: " + str(base_copula.name) + "_" + str(copula.rotation))
         return np.average(kc_metric)
@@ -266,15 +261,15 @@ class PairCopula(object):
         """
         UU = np.zeros(u.shape)  # storage for rotated u
         VV = np.zeros(v.shape)  # storage for rotated v
-        if self.rotation == 1:
+        if rotation == 1:
             # 90 degree rotation (flip U)
             UU = 1.0 - u
             VV = v
-        elif self.rotation == 2:
+        elif rotation == 2:
             # 180 degree rotation (flip U, flip V)
             UU = 1.0 - u
             VV = 1.0 - v
-        elif self.rotation == 3:
+        elif rotation == 3:
             # 270 degree rotation (flip V)
             UU = u
             VV = 1.0 - v
@@ -283,7 +278,10 @@ class PairCopula(object):
             VV = v
         return UU, VV
 
-    def _rotate_data_bk(self, u, v, rotation=0):
+    def rotate_data(self, u, v, rotation=0):
+        """!
+        @brief Rotates the ranked data on the unit square.
+        """
         assert -3 <= rotation <= 3
         if rotation == -3:
             # -270 deg rotation is eq to +90 deg rotation
@@ -298,23 +296,6 @@ class PairCopula(object):
             return u, v
         else:
             return self._rotate_data(u, v, rotation)
-
-    def setRotation(self, rotation=0):
-        """!
-        @brief  Set the copula's orientation:
-            0 == 0 deg
-            1 == 90 deg rotation
-            2 == 180 deg rotation
-            3 == 270 deg rotation
-        Allows for modeling negative dependence with the
-        frank, gumbel, and clayton copulas (Archimedean Copula family is
-        non-symmetric)
-        """
-        if rotation < 0 or rotation > 3:
-            print("Invalid Rotation: Valid roations are in [0, 1, 2, 3]")
-            raise RuntimeError
-        self.rotation = rotation
-        self.UU, self.VV = self._rotate_data(self.u, self.v, self.rotation)
 
     @property
     def defaultFamily(self):

@@ -35,11 +35,36 @@ class TestBivariateBase(unittest.TestCase):
         # Check gaussian copula parameters for correctness
         self.assertAlmostEqual(stockModel.copulaParams[1], 0.73874003, 4)
 
-        # Test kendalls criterion on rotated data
-        stockModel.setRotation(3)
-        stockModel.copulaTournament(criterion='Kc')
+        # Test kendalls criterion on original data
+        stockModel.copulaTournament(criterion='Kc', log=True)
 
         # When using kendalls criterion the predicted copula should be gumbel
         self.assertTrue(stockModel.copulaModel.name == "gumbel")
         self.assertTrue(stockModel.copulaParams[0] == "gumbel")
-        self.assertTrue(stockModel.copulaModel.rotation == 3)
+        self.assertTrue(stockModel.copulaModel.rotation == 0)
+
+        # Rotate the data and test kendalls criteron again
+        stockModelNegative = PairCopula(-1 * x, y)
+        empTau = stockModelNegative.empKTau()[0]
+        self.assertTrue(empTau < 0)
+
+        # Test kendalls criterion on original data
+        stockModelNegative.copulaTournament(criterion='Kc')
+
+        # When using kendalls criterion the predicted copula should be gumbel
+        self.assertTrue(stockModelNegative.copulaModel.name == "gumbel")
+        self.assertTrue(stockModelNegative.copulaParams[0] == "gumbel")
+        self.assertTrue(stockModelNegative.copulaModel.rotation == 1)
+
+        # Rotate the data and test kendalls criteron again
+        stockModelNegative = PairCopula(x, -1 * y)
+        empTau = stockModelNegative.empKTau()[0]
+        self.assertTrue(empTau < 0)
+
+        # Test kendalls criterion on original data
+        stockModelNegative.copulaTournament(criterion='Kc')
+
+        # When using kendalls criterion the predicted copula should be gumbel
+        self.assertTrue(stockModelNegative.copulaModel.name == "gumbel")
+        self.assertTrue(stockModelNegative.copulaParams[0] == "gumbel")
+        self.assertTrue(stockModelNegative.copulaModel.rotation == 3)
