@@ -34,3 +34,12 @@ class TestBivariateBase(unittest.TestCase):
 
         # Check gaussian copula parameters for correctness
         self.assertAlmostEqual(stockModel.copulaParams[1], 0.73874003, 4)
+
+        # Test kendalls criterion on rotated data
+        stockModel.setRotation(3)
+        stockModel.copulaTournament(criterion='Kc')
+
+        # When using kendalls criterion the predicted copula should be gumbel
+        self.assertTrue(stockModel.copulaModel.name == "gumbel")
+        self.assertTrue(stockModel.copulaParams[0] == "gumbel")
+        self.assertTrue(stockModel.copulaModel.rotation == 3)

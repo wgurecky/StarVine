@@ -137,19 +137,20 @@ class PairCopula(object):
         self.empPRho_, self.pval_ = pearsonr(self.x, self.y)
         return self.empPRho_, self.pval_
 
-    def empKc(self):
+    @staticmethod
+    def empKc(UU, VV):
         """!
         @brief Compute empirical kendall's function.
         """
-        z = np.zeros(len(self.UU))
-        for i in range(len(self.UU)):
+        z = np.zeros(len(UU))
+        for i in range(len(UU)):
             result = 0.
-            for j in range(len(self.VV)):
+            for j in range(len(VV)):
                 if i == j:
                     continue
-                if (self.UU[j] < self.UU[i]) & (self.VV[j] < self.VV[i]):
+                if (UU[j] < UU[i]) & (VV[j] < VV[i]):
                     result += 1.
-            z[i] = (1. / (len(self.UU) - 1.)) * result
+            z[i] = (1. / (len(UU) - 1.)) * result
         x2 = np.sort(z)
         f2 = np.array(range(len(z))) / float(len(z))
         return x2, f2
@@ -161,7 +162,7 @@ class PairCopula(object):
         All Copula in self.trialFamily set are considered.
         """
         if criterion == 'Kc':
-            t_emp, kc_emp = self.empKc()
+            t_emp, kc_emp = self.empKc(self.UU, self.VV)
         vb = kwargs.pop("verbosity", True)
         self.empKTau()
         if self.pval_ >= 0.05 and self.weights is None:
@@ -178,26 +179,27 @@ class PairCopula(object):
         # Find best fitting copula
         best_AIC, best_kc, goldCopula, goldParams = np.inf, np.inf, None, None
         for trialCopulaName, rotation in iteritems(self.trialFamily):
-            if vb: print("Fitting trial copula " + trialCopulaName + "...", end="")
+            if vb: print("Copula " + (trialCopulaName).ljust(12) + '.', end="")
             copula = self.copulaBank[trialCopulaName]
             fittedCopulaParams = self.fitCopula(copula)
             trialAIC = fittedCopulaParams[2]
             trial_kc_metric = 0
             if criterion == 'Kc':
                 trial_kc_metric = self.compute_kc_metric(copula, t_emp, kc_emp)
-                print(" KC_m=" + str(trial_kc_metric), end=",")
-            if vb: print(" AIC: " + '{:05.3f}'.format(trialAIC), end=",")
-            if vb: print(" emp_ktau: " + '{:05.3f}'.format(self.empKTau_), end=",")
+                print(" KC_m: " + '{:+05.5f}'.format(trial_kc_metric), end=",")
+            if vb: print(" AIC: " + '{:+05.3f}'.format(trialAIC), end=",")
+            if vb: print(" emp_ktau: " + '{:+05.3f}'.format(self.empKTau_), end=",")
             if vb: print(" cop_ktau: " + \
-                    '{:05.3f}'.format(copula.kTau(copula.rotation, *fittedCopulaParams[1])))
+                    '{:+05.3f}'.format(copula.kTau(copula.rotation, *fittedCopulaParams[1])))
             if trialAIC < best_AIC and criterion == 'AIC':
                 goldCopula = copula
                 goldParams = fittedCopulaParams
                 best_AIC = trialAIC
-            elif trial_kc_metric < best_kc and criterion == 'Kc':
+            elif trial_kc_metric <= best_kc and trialAIC < best_AIC and criterion == 'Kc':
                 goldCopula = copula
                 goldParams = fittedCopulaParams
                 best_kc = trial_kc_metric
+                best_AIC = trialAIC
         #
         if vb: print("ID: %s. %s copula selected.  fitted params="
                      % (str(self.id), goldCopula.name) + str(goldParams[1])
@@ -227,8 +229,7 @@ class PairCopula(object):
     def compute_aic_metric(copula, u, v, rot, theta, weights=None):
         raise NotImplementedError
 
-    @staticmethod
-    def compute_kc_metric(copula, t_emp, kc_emp, t_lower=0.4, t_upper=0.6):
+    def compute_kc_metric(self, copula, t_emp, kc_emp, t_lower=0.4, t_upper=0.6, log=True):
         """!
         @brief Compute l2 norm of differences between the empirical Kc function
         and the fitted copula's Kc function.
@@ -238,17 +239,30 @@ class PairCopula(object):
         @param t_lower  float. in [0, 1].  Lower t cutoff for comparison
         @param t_upper  float. in [0, 1].  Upper t cutoff for comparison
         """
-        assert 0 < t_lower < 1
-        assert 0 < t_upper < 1
-        mask = ((t_emp > 0.01) & (t_emp < 1.0)) & \
-               ((t_emp < t_lower) | (t_emp > t_upper))
+        import os
+        # rotate current data into the proposed copula orientation
+        rt_UU, rt_VV = self._rotate_data_bk(self.UU, self.VV, -copula.rotation)
+        # compute emperical Kc on the rotated data
+        rt_t_emp, rt_kc_emp = self.empKc(rt_UU, rt_VV)
+        # fit the un-rotated copula
+        base_copula = Copula(copula.name, 0)
+        base_copula.fitMLE(rt_UU, rt_VV, *(None, None,), weights=self.weights)
+        #
+        mask = ((rt_t_emp > 0.01) & (rt_t_emp < 1.0)) # & \
+               # ((rt_t_emp < t_lower) | (rt_t_emp > t_upper))
         kc_metric = []
         for i in range(4):
-            fitted_kc = copula.kC(t_emp[mask])
-            kc_metric.append(np.linalg.norm(fitted_kc - kc_emp[mask]))
+            fitted_kc = base_copula.kC(rt_t_emp[mask])
+            kc_metric.append(np.linalg.norm(fitted_kc - rt_kc_emp[mask]))
+        if log:
+            if not os.path.exists('Kc_logs'):
+                os.makedirs('Kc_logs')
+            np.savetxt('Kc_logs/kc_log_' + str(base_copula.name) + "_" + str(copula.rotation) + '.txt',
+                       np.array([rt_t_emp[mask], fitted_kc, rt_kc_emp[mask]]).T,
+                       header="Kendalls fn log for Copula: " + str(base_copula.name) + "_" + str(copula.rotation))
         return np.average(kc_metric)
 
-    def _rotate_data(self, u, v, rotation=-1):
+    def _rotate_data(self, u, v, rotation=0):
         """!
         @brief Rotates the ranked data on the unit square.
         @param u  Ranked data vector
@@ -261,19 +275,35 @@ class PairCopula(object):
         if self.rotation == 1:
             # 90 degree rotation (flip U)
             UU = 1.0 - u
-            VV = v + 1 - 1
+            VV = v
         elif self.rotation == 2:
             # 180 degree rotation (flip U, flip V)
             UU = 1.0 - u
             VV = 1.0 - v
         elif self.rotation == 3:
             # 270 degree rotation (flip V)
-            UU = u + 1 - 1
+            UU = u
             VV = 1.0 - v
         else:
             UU = u
             VV = v
         return UU, VV
+
+    def _rotate_data_bk(self, u, v, rotation=0):
+        assert -3 <= rotation <= 3
+        if rotation == -3:
+            # -270 deg rotation is eq to +90 deg rotation
+            return self._rotate_data(u, v, 1)
+        elif rotation == -2:
+            # -180 deg rotation is eq to +180 deg rotation
+            return self._rotate_data(u, v, 2)
+        elif rotation == -1:
+            # -90 deg rotation is eq to +270 deg rotation
+            return self._rotate_data(u, v, 3)
+        elif rotation == 0:
+            return u, v
+        else:
+            return self._rotate_data(u, v, rotation)
 
     def setRotation(self, rotation=0):
         """!
