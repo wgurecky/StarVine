@@ -73,7 +73,10 @@ class PairCopula(object):
         # store new weights and samples
         rx, ry = self.x[resample_idx], self.y[resample_idx]
         self.weights = np.ones(len(rx))
-        self.x, self.y = rx, ry
+        # add tiny gaussian noise to prevent ties
+        # TODO: check if this is required
+        gauss_noise = np.random.normal(loc=0, scale=1e-12, size=len(rx))
+        self.x, self.y = rx + gauss_noise, ry + gauss_noise
 
     def rank(self, method=0):
         """!
