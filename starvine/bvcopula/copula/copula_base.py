@@ -403,8 +403,8 @@ class CopulaBase(object):
         except:
             kc_out = []
             # create u, v grid
-            u = np.random.uniform(0, 1, int(1e3))
-            v = np.random.uniform(0, 1, int(1e3))
+            u = np.random.uniform(0, 1, int(8e3))
+            v = np.random.uniform(0, 1, int(8e3))
             u_hat, v_hat = self._ppf(u, v, self.rotation, *theta)
             cdf_int = self._cdf(u_hat, v_hat, self.rotation, *theta)
             for t in t_in:

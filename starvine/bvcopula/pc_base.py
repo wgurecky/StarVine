@@ -259,7 +259,11 @@ class PairCopula(object):
         @param copula starvine.bvcopula.copula.copula_base.CopulaBase instance
         """
         # rotate current data into the proposed copula orientation
-        rt_UU, rt_VV = self.rotate_data(self.UU, self.VV, copula.rotation)
+        if copula.name in ["gauss", "t"] and copula.rotation == 0 and self.empKTau_ < 0:
+            # force positive correlation
+            rt_UU, rt_VV = self.rotate_data(self.UU, self.VV, -1)
+        else:
+            rt_UU, rt_VV = self.rotate_data(self.UU, self.VV, copula.rotation)
         # compute emperical Kc on the rotated data
         rt_t_emp, rt_kc_emp = self.empKc(rt_UU, rt_VV)
         # fit the un-rotated copula
