@@ -29,7 +29,7 @@ class PairCopula(object):
     Note: Depends on pandas for some useful statistical and plotting
     functionality.
     """
-    def __init__(self, x, y, weights=None, **kwargs):
+    def __init__(self, x, y, weights=None, resample=0, **kwargs):
         """!
         @brief Bivariate data set init.
         @param x  <b>np_1darray</b> first marginal data set
@@ -46,10 +46,34 @@ class PairCopula(object):
         self.weights = weights
         if self.weights is not None:
             self.weights = self.weights / np.average(self.weights)
+        if resample > 0:
+            self.resample(resample)
         self.setTrialCopula(kwargs.pop("family", self.defaultFamily))
         # default data ranking method
         self.rank_method = kwargs.pop("rankMethod", 0)
         self.rank(self.rank_method)
+
+    def resample(self, px_size=10):
+        """!
+        @brief Resamples the original data with replacement.  Samples
+        are drawn with probability proportional to the original sample weight.
+        The resampled data points are all equally weighted.
+            Note: Equally weighted samples are required to accurately
+            estimate Kendall's function.
+        @param px_size <b>int</b> population size multiplier.
+            controls the number.  Higher is more accurate but requires more
+            ram an cpu to fit copula and compute statistics on the resampled pop
+        """
+        # compute sample probabilities  (sum of all probs == 1)
+        p_idx = self.weights / np.sum(self.weights)
+        resample_idx = np.random.choice(np.arange(len(self.x)),
+                                        replace=True,
+                                        size=px_size*len(self.x),
+                                        p=p_idx)
+        # store new weights and samples
+        rx, ry = self.x[resample_idx], self.y[resample_idx]
+        self.weights = np.ones(len(rx))
+        self.x, self.y = rx, ry
 
     def rank(self, method=0):
         """!
