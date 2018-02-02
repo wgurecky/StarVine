@@ -8,6 +8,8 @@ from six import iteritems
 from scipy.stats import kendalltau, spearmanr, pearsonr
 from scipy.stats import gaussian_kde
 from scipy.stats.mstats import rankdata
+# NUMBA
+from numba import jit
 # COPULA IMPORTS
 try:
     from starvine.bvcopula.copula_factory import Copula
@@ -165,18 +167,7 @@ class PairCopula(object):
         """
         if UU == [] or VV == []:
             UU, VV = self.UU, self.VV
-        z = np.zeros(len(UU))
-        for i in range(len(UU)):
-            result = 0.
-            for j in range(len(VV)):
-                if i == j:
-                    continue
-                if (UU[j] < UU[i]) & (VV[j] < VV[i]):
-                    result += 1.
-            z[i] = (1. / (len(UU) - 1.)) * result
-        x2 = np.sort(z)
-        f2 = np.array(range(len(z))) / float(len(z))
-        return x2, f2
+        return jit_empKc(UU, VV)
 
     def copulaTournament(self, criterion='AIC', **kwargs):
         """!
@@ -265,7 +256,7 @@ class PairCopula(object):
         else:
             rt_UU, rt_VV = self.rotate_data(self.UU, self.VV, copula.rotation)
         # compute emperical Kc on the rotated data
-        rt_t_emp, rt_kc_emp = self.empKc(rt_UU, rt_VV)
+        rt_t_emp, rt_kc_emp = jit_empKc(rt_UU, rt_VV)
         # fit the un-rotated copula
         base_copula = Copula(copula.name, 0)
         base_copula.fitMLE(rt_UU, rt_VV, *(None, None,), weights=self.weights)
@@ -346,3 +337,22 @@ class PairCopula(object):
                           'gumbel-270': 3,
                          }
         return default_family
+
+
+@jit(nopython=True)
+def jit_empKc(UU, VV):
+    """!
+    @brief JITed version of empirical kendall's function.
+    """
+    z = np.zeros(len(UU))
+    for i in range(len(UU)):
+        result = 0.
+        for j in range(len(VV)):
+            if i == j:
+                continue
+            if (UU[j] < UU[i]) & (VV[j] < VV[i]):
+                result += 1.
+        z[i] = (1. / (len(UU) - 1.)) * result
+    x2 = np.sort(z)
+    f2 = np.linspace(0.0, 1.0, len(z))
+    return x2, f2
