@@ -49,13 +49,13 @@ class PairCopula(object):
         if self.weights is not None:
             self.weights = self.weights / np.average(self.weights)
         if resample > 0:
-            self.resample(resample)
+            self.resample(resample, kwargs.pop("jitter", 1e-12))
         self.setTrialCopula(kwargs.pop("family", self.defaultFamily))
         # default data ranking method
         self.rank_method = kwargs.pop("rankMethod", 0)
         self.rank(self.rank_method)
 
-    def resample(self, px_size=10):
+    def resample(self, px_size=10, jitter=1e-12):
         """!
         @brief Resamples the original data with replacement.  Samples
         are drawn with probability proportional to the original sample weight.
@@ -63,8 +63,9 @@ class PairCopula(object):
             Note: Equally weighted samples are required to accurately
             estimate Kendall's function.
         @param px_size <b>int</b> population size multiplier.
-            controls the number.  Higher is more accurate but requires more
+            Higher is more accurate but requires more
             ram an cpu to fit copula and compute statistics on the resampled pop
+        @param jitter float.  standard dev of noise added to resampled data
         """
         # compute sample probabilities  (sum of all probs == 1)
         p_idx = self.weights / np.sum(self.weights)
@@ -76,8 +77,10 @@ class PairCopula(object):
         rx, ry = self.x[resample_idx], self.y[resample_idx]
         self.weights = np.ones(len(rx))
         # add tiny gaussian noise to prevent ties
-        # TODO: check if this is required
-        gauss_noise = np.random.normal(loc=0, scale=1e-12, size=len(rx))
+        if jitter > 0:
+            gauss_noise = np.random.normal(loc=0, scale=jitter, size=len(rx))
+        else:
+            gauss_noise = 0.0
         self.x, self.y = rx + gauss_noise, ry + gauss_noise
 
     def rank(self, method=0):

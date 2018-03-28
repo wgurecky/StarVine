@@ -28,13 +28,19 @@ def matrixPairPlot(data, weights=None, corr_stat="kendalltau", **kwargs):
     else:
         weightArray = np.ones(data.shape[0])
     meanWeight = np.mean(weightArray)
-    pair_plot.map_lower(plt.scatter, s=25.0/np.log(data.shape[0]) * weightArray / meanWeight )
+    # pt_size = 25. * np.log(len(weightArray)) * (weightArray - np.min(weightArray)) / (np.max(weightArray) + 0.01 - np.min(weightArray)) + 0.2
+    pt_size = 5.0 / np.log(data.shape[0]) * weightArray / meanWeight
+    pt_size = np.clip(pt_size, 0.1, 50.)
+    pair_plot.map_lower(plt.scatter, s=pt_size)
     pair_plot.map_lower(corrfunc, cstat=corr_stat)
     #
     # DIAG
     # pair_plot.map_diag(sns.distplot, kde=True, norm_hist=True, hist_kws={'weights': weightArray})
-    pair_plot.map_diag(plt.hist, edgecolor="white", weights=weightArray, bins=20)
+    pair_plot.map_diag(plt.hist, edgecolor="white", weights=weightArray)
     #
+    # set Y axes
+    # pair_plot.axes[-1, 0].set_ylim((0.096, 0.104))
+    pair_plot.axes[-1, 0].autoscale(tight=True)
     plt.ticklabel_format(style='sci', scilimits=(0,0))
     outfile = kwargs.pop("savefig", None)
     if outfile:
