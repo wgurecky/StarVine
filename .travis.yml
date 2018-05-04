@@ -13,6 +13,7 @@ env:
     - MPLBACKEND="agg"
 install:
     - pip install coveralls pytest-cov
+    - pip install dcor
     - pip install -r requirements.txt
     - FC=gfortran python setup.py develop
 script: pytest --cov=starvine
