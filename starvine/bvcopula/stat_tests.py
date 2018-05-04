@@ -12,8 +12,6 @@ from scipy.stats import kstwobign, pearsonr
 from scipy.stats import genextreme, chi2, norm
 from scipy.interpolate import interp1d
 from numba import jit
-# internal deps
-from crudboost.utils.helpers import strictly_monotone
 # starvine imports
 from pc_base import PairCopula
 
@@ -115,10 +113,6 @@ def dist_measure(y_hat, cov_hat_inv, dist):
 
     # check dims
     assert len(F_z_y) == len(F_chi2)
-
-    # check monotonicity of CDFs
-    # assert strictly_monotone(F_z_y)
-    # assert strictly_monotone(F_chi2)
 
     # Kolmogorov-Smirnov distance
     dist_map_dict = {'ks': 1, 'ks-avg': 2, 'ad': 3, 'ad-avg': 4}
