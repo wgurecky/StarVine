@@ -5,7 +5,6 @@ try:
 except:
     from starvine.bvcopula.copula import *
 import re
-import sys
 
 
 def validateRotation(rotation):
@@ -13,34 +12,27 @@ def validateRotation(rotation):
         raise RuntimeError("Invalid rotation.")
 
 
-class Copula(object):
+def Copula(copulatype, rotation=0):
     """!
     @brief Returns a bivariate copula instance.
+    @param copulatype <b>string</b> Copula type.
+    @param rotation <b>int</b>  Copula rotation 1==90 deg, 2==180 deg, 3==270 deg
     """
-    def __new__(cls, copulatype, rotation=0):
-        """!
-        @param copulatype <b>string</b> Copula type.
-        @param rotation <b>int</b>  Copula rotation 1==90 deg, 2==180 deg, 3==270 deg
-        """
-        validateRotation(rotation)
-        if re.match("t", copulatype):
-            return t_copula.StudentTCopula(0)
-        elif re.match("gauss", copulatype):
-            return gauss_copula.GaussCopula(0)
-        elif re.match("frank", copulatype):
-            return frank_copula.FrankCopula(rotation)
-        elif re.match("clayton", copulatype):
-            return clayton_copula.ClaytonCopula(rotation)
-        elif re.match("gumbel", copulatype):
-            return gumbel_copula.GumbelCopula(rotation)
-        elif re.match("oklin", copulatype):
-            return gumbel_copula.OlkinCopula(rotation)
-        elif re.match("indep", copulatype):
-            return indep_copula.IndepCopula(rotation)
-        else:
-            # default
-            sys.exit("Invalid copula name.")
-
-    def __init__(self, copulatype, rotation=0):
-        self.rotation = rotation
-        self.copulatype = copulatype
+    validateRotation(rotation)
+    if re.match("t", copulatype):
+        return t_copula.StudentTCopula(0)
+    elif re.match("gauss", copulatype):
+        return gauss_copula.GaussCopula(0)
+    elif re.match("frank", copulatype):
+        return frank_copula.FrankCopula(rotation)
+    elif re.match("clayton", copulatype):
+        return clayton_copula.ClaytonCopula(rotation)
+    elif re.match("gumbel", copulatype):
+        return gumbel_copula.GumbelCopula(rotation)
+    elif re.match("oklin", copulatype):
+        return gumbel_copula.OlkinCopula(rotation)
+    elif re.match("indep", copulatype):
+        return indep_copula.IndepCopula(rotation)
+    else:
+        # default
+        raise RuntimeError("Copula type %s is not available" % str(copulatype))
