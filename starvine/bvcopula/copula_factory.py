@@ -5,7 +5,6 @@ try:
 except:
     from starvine.bvcopula.copula import *
 import re
-import sys
 
 
 def validateRotation(rotation):
@@ -36,4 +35,4 @@ def Copula(copulatype, rotation=0):
         return indep_copula.IndepCopula(rotation)
     else:
         # default
-        sys.exit("Invalid copula name.")
+        raise RuntimeError("Copula type %s is not available" % str(copulatype))

@@ -1,7 +1,6 @@
 ##
 # \brief Univariate model factory class
 from uvmodels import *
-import sys
 
 
 class Uvm(object):
@@ -27,7 +26,7 @@ class Uvm(object):
             return uv_exppow.UVexppow()
         else:
             # default
-            sys.exit("Invalid univariate data model name: " + str(uvType))
+            raise RuntimeError("Model %s is not available" % str(copulatype))
 
     def __init__(self, uvType):
         self.uvType = uvType
