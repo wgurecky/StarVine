@@ -17,4 +17,4 @@ install:
     - pip install -r requirements.txt
     - FC=gfortran python setup.py develop
 script: pytest --cov=starvine
-after_success: coveralls
+after_success: coveralls -E ".*setup.*" -E ".*__init__.*"
