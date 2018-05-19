@@ -24,8 +24,8 @@ class OlkinCopula(CopulaBase):
         """!
         @brief Probability density function for gumbel bivariate copula
         """
-        UU = np.array(u)
-        VV = np.array(v)
+        UU = np.asarray(u)
+        VV = np.asarray(v)
 
         h3 = UU ** theta[0]
         h4 = VV ** theta[1]
@@ -41,8 +41,8 @@ class OlkinCopula(CopulaBase):
 
     @CopulaBase._rotCDF
     def _cdf(self, u, v, rotation=0, *theta):
-        UU = np.array(u)
-        VV = np.array(v)
+        UU = np.asarray(u)
+        VV = np.asarray(v)
 
         h3 = UU ** theta[0]
         h4 = VV ** theta[1]
@@ -63,8 +63,8 @@ class OlkinCopula(CopulaBase):
         h(x, v) = F(x|v) = \frac{\partial C(x,v)}{\partial v}
         \f]
         """
-        UU = np.array([u])
-        VV = np.array([v])
+        UU = np.asarray([u])
+        VV = np.asarray([v])
 
         h3 = UU ** theta[0]
         h4 = VV ** theta[1]
@@ -82,8 +82,8 @@ class OlkinCopula(CopulaBase):
         """!
         TODO: CHECK UU and VV ordering!
         """
-        U = np.array(u)
-        V = np.array(v)
+        U = np.asarray(u)
+        V = np.asarray(v)
         uu = np.zeros(U.size)
         for i, (ui, vi) in enumerate(zip(U, V)):
             uu[i] = self._invhfun_bisect(ui, vi, rotation, *theta)

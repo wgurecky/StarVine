@@ -27,8 +27,8 @@ class GumbelCopula(CopulaBase):
         h2 = (1.0 - 2.0 * theta[0]) / theta[0]
         h3 = 1.0 / theta[0]
 
-        UU = np.array(u)
-        VV = np.array(v)
+        UU = np.asarray(u)
+        VV = np.asarray(v)
 
         h4 = -np.log(UU)
         h5 = -np.log(VV)
@@ -42,8 +42,8 @@ class GumbelCopula(CopulaBase):
     def _cdf(self, u, v, rotation=0, *theta):
         h1 = 1 / theta[0]
 
-        UU = np.array(u)
-        VV = np.array(v)
+        UU = np.asarray(u)
+        VV = np.asarray(v)
 
         h2 = -np.log(UU)
         h3 = -np.log(VV)
@@ -62,8 +62,8 @@ class GumbelCopula(CopulaBase):
         h2 = (1.0 - theta[0]) / theta[0]
         h3 = 1.0 / theta[0]
 
-        UU = np.array(1. - u)
-        VV = np.array(1. - v)
+        UU = np.asarray(1. - u)
+        VV = np.asarray(1. - v)
 
         h4 = -np.log(VV)
         h5 = np.power(-np.log(UU), theta[0]) + np.power(h4, theta[0])
@@ -76,8 +76,8 @@ class GumbelCopula(CopulaBase):
         """!
         TODO: CHECK UU and VV ordering!
         """
-        U = np.array(u)
-        V = np.array(v)
+        U = np.asarray(u)
+        V = np.asarray(v)
         # uu = np.zeros(U.size)
         # for i, (ui, vi) in enumerate(zip(U, V)):
         #     uu[i] = self._invhfun_bisect(ui, vi, rotation, *theta)

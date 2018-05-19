@@ -173,7 +173,7 @@ class CopulaBase(object):
         @param u <b>np_1darray</b> Rank CDF data vector
         @param v <b>np_1darray</b> Rank CDF data vector
         """
-        cdf_vector = np.zeros(np.array(u).size)
+        cdf_vector = np.zeros(np.asarray(u).size)
         for i, (ui, vi) in enumerate(zip(u, v)):
             ranges = np.array([[0, ui], [0, vi]])
             cdf_vector[i] = spi.nquad(self.pdf, ranges,
