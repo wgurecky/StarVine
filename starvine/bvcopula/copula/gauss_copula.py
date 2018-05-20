@@ -43,8 +43,8 @@ class GaussCopula(CopulaBase):
         # UU = CheckBounds(u);
         # VV = CheckBounds(v);
         # u and v must be on the unit square ie. in [0, 1]
-        UU = np.array(u)  # TODO: check bounds
-        VV = np.array(v)
+        UU = np.asarray(u)  # TODO: check bounds
+        VV = np.asarray(v)
 
         # Output storage
         p = np.zeros(UU.size)
@@ -62,8 +62,8 @@ class GaussCopula(CopulaBase):
         dof = 0
         norm_rv = stats.norm(scale=1.0, loc=0.0)
 
-        UU = np.array(u)
-        VV = np.array(v)
+        UU = np.asarray(u)
+        VV = np.asarray(v)
 
         # Output storage
         p = np.zeros(UU.size)
@@ -91,11 +91,11 @@ class GaussCopula(CopulaBase):
         kTs = kT / abs(kT)
         kTM = 1 if kTs < 0 else 0
 
-        h1 = np.sqrt(1.0 - np.power(np.array(theta[0]), 2))
+        h1 = np.sqrt(1.0 - np.power(np.asarray(theta[0]), 2))
         dist = stats.norm(scale=1.0, loc=0.0)
 
-        UU = np.array(kTM + kTs * u)  # TODO: check input bounds
-        VV = np.array(v)
+        UU = np.asarray(kTM + kTs * u)  # TODO: check input bounds
+        VV = np.asarray(v)
 
         # inverse CDF yields quantiles
         x = dist.ppf(UU)
@@ -115,11 +115,11 @@ class GaussCopula(CopulaBase):
         kTs = kT / abs(kT)
         kTM = 1 if kTs < 0 else 0
 
-        h1 = np.sqrt(1.0 - np.power(np.array(theta[0]), 2))
+        h1 = np.sqrt(1.0 - np.power(np.asarray(theta[0]), 2))
         dist = stats.norm(scale=1.0, loc=0.0)
 
-        UU = np.array(kTM + kTs * u)  # TODO: check input bounds
-        VV = np.array(v)
+        UU = np.asarray(kTM + kTs * u)  # TODO: check input bounds
+        VV = np.asarray(v)
 
         # inverse CDF yields quantiles
         x = dist.ppf(UU)

@@ -25,15 +25,15 @@ class ClaytonCopula(CopulaBase):
         @brief Probability density function for frank bivariate copula
         """
         if theta[0] == 0:
-            p = np.ones(np.array(u).size)
+            p = np.ones(np.asarray(u).size)
             return p
         else:
             h1 = (1 + 2.0 * theta[0]) / theta[0]
             h2 = 1.0 + theta[0]
             h3 = -theta[0]
 
-            UU = np.array(u)
-            VV = np.array(v)
+            UU = np.asarray(u)
+            VV = np.asarray(v)
 
             h4 = np.power(UU,h3)+np.power(VV,h3) - 1.0
 
@@ -45,8 +45,8 @@ class ClaytonCopula(CopulaBase):
         h1 = -theta[0]
         h2 = 1. / h1
 
-        UU = np.array(u)
-        VV = np.array(v)
+        UU = np.asarray(u)
+        VV = np.asarray(v)
 
         hu = np.power(UU, h1)
         hv = np.power(VV, h1)
@@ -60,10 +60,10 @@ class ClaytonCopula(CopulaBase):
         TODO: CHECK UU and VV ordering!
         """
         h1 = -(1.0 + theta[0]) / theta[0]
-        # UU = np.array(1. - u)
-        # VV = np.array(1. - v)
-        UU = np.array(u)
-        VV = np.array(v)
+        # UU = np.asarray(1. - u)
+        # VV = np.asarray(1. - v)
+        UU = np.asarray(u)
+        VV = np.asarray(v)
         uu = np.power(np.power(VV,theta[0])*(np.power(UU,-theta[0])-1.0)+1.0,h1);
         return uu
 
@@ -74,8 +74,8 @@ class ClaytonCopula(CopulaBase):
         """
         h1 = -1.0 / theta[0]
         h2 = -theta[0] / (1.0 + theta[0])
-        UU = np.array(u)
-        VV = np.array(v)
+        UU = np.asarray(u)
+        VV = np.asarray(v)
         uu = np.power(np.power(VV,-theta[0])*(np.power(UU,h2)-1.0)+1.0,h1);
         return uu
 

@@ -42,8 +42,8 @@ class PairCopula(object):
         """
         self.copulaModel, self.copulaParams = None, (None, None, )
         self.id = kwargs.pop("id", None)
-        self.x = np.array(x)
-        self.y = np.array(y)
+        self.x = np.asarray(x)
+        self.y = np.asarray(y)
         # normalize weights (weights must sum to 1.0)
         self.weights = weights
         if self.weights is not None:
