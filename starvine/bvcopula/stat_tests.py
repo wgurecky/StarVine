@@ -21,12 +21,14 @@ def gauss_copula_test(x1, y1, wgts=None, nboot=8000, dist='ks',
     """!
     @brief Tests if a gaussian copula is a good description of the
     dep structure of a bivaraiate data set.
-    @param x1  ndarray, shape (n1, )
+    @param x1  ndarray, shape (n1, )  where n1 is number of samples
     @param y1  ndarray, shape (n1, )
-    @param x2 ndarray, shape (n2, )
-    @param y2 ndarray, shape (n2, )
-    @param dist_metric  str.  in ('ad', 'ks')
-    @param alpha float. test significance level
+    @param wgts  ndarray, shape (n1, )
+    @param dist_metric  str.  in ('ad', 'ks'):
+        'ad' for Anderson-Darling, 'ks' for Kolmogorov
+    @param procs int. number of processes to use. Default=4
+    @param resample int. Boostrap sample size. Only used if wgts are suppled.
+    @param alpha float. test significance level.  Default=0.05
     @return (p_val, d_0, h_dict)
         p_val float.  p-value of test
         d_0 float.    Distance metric
