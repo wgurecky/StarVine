@@ -1,6 +1,8 @@
 ##
 # \brief Frank copula.
 import numpy as np
+from numba import jit
+from scipy.integrate import quad
 from copula_base import CopulaBase
 
 
@@ -82,7 +84,36 @@ class FrankCopula(CopulaBase):
     def _gen(self, t, *theta):
         return -np.log((np.exp(-theta[0] * t) - 1.0) / (np.exp(-theta[0]) - 1.0))
 
+    def _kTau(self, rotation=0, *theta):
+        """!
+        @brief Kendall's tau for frank copula.
+            ref: Estimators for Archimedean copula in high dimensions.
+            M. Hofert. et al.
+            url: https://arxiv.org/pdf/1207.1708.pdf
+        @param rotation copula rotaion parameter
+        @param theta copula shape parameter list. Should have len==1
+        """
+        tau = 1. + (4. / theta[0]) * (debye_1(theta[0]) - 1.0)
+        if self.rotation == 1 or self.rotation == 3:
+            return -tau
+        else:
+            return tau
 
+
+def debye_1(theta):
+    """
+    @brief Debye function of the first kind.
+    """
+    debye_int, err = quad(debye_exp_fn, 0.0, theta)
+    return (1.0 / theta) * debye_int
+
+
+@jit(nopython=True)
+def debye_exp_fn(t):
+    return t / (np.exp(t) - 1.0)
+
+
+@jit(nopython=True)
 def expm1(x):
     """!
     @brief exponential - 1.0 helper
