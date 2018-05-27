@@ -324,7 +324,14 @@ class CopulaBase(object):
             minimize(ktf, x0=param,
                      bounds=kwargs.pop("bounds", self.thetaBounds),
                      tol=kwargs.pop("tol", 1e-8),
-                     method=kwargs.pop("method", 'Nelder-Mead'))
+                     method=kwargs.pop("method", 'BFGS'))
+        if not res.success:
+            res = \
+                minimize(ktf, x0=param,
+                         bounds=kwargs.pop("bounds", self.thetaBounds),
+                         tol=kwargs.pop("tol", 1e-8),
+                         method=kwargs.pop("method", 'Nelder-Mead'))
+
         if not res.success:
             print("WARNING: Copula parameter fitting failed to converge!")
         self._fittedParams = res.x
