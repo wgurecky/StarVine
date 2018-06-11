@@ -14,8 +14,10 @@ def matrixPairPlot(data_in, weights=None, corr_stat="kendalltau", **kwargs):
     @param corr_stat (optional) correlation statistic for plot
     """
     sns.set(font_scale=kwargs.get("font_scale", 1.0))
+    # sns.set_palette(sns.color_palette("Greys", 1))
+    sns.set_style("whitegrid", {"grid.linestyle": '--', "grid.alpha": 0.6})
     if kwargs.get("rescale", False):
-        data = data_in * 1e4
+        data = data_in * 1e10
     else:
         data = data_in
     upper_kde = kwargs.pop("kde", False)
@@ -33,9 +35,9 @@ def matrixPairPlot(data_in, weights=None, corr_stat="kendalltau", **kwargs):
     else:
         weightArray = np.ones(data.shape[0])
     meanWeight = np.mean(weightArray)
-    # pt_size = 25. * np.log(len(weightArray)) * (weightArray - np.min(weightArray)) / (np.max(weightArray) + 0.01 - np.min(weightArray)) + 0.2
-    pt_size = 5.0 / np.log(data.shape[0]) * weightArray / meanWeight
-    pt_size = np.clip(pt_size, 0.1, 50.)
+    pt_size = 25. * np.log(len(weightArray)) * (weightArray - np.min(weightArray)) / (np.max(weightArray) + 0.01 - np.min(weightArray)) + 0.2
+    # pt_size = 10.0 / np.log(data.shape[0]) * weightArray / meanWeight
+    pt_size = np.clip(pt_size, 5, 50.)
     pt_size = kwargs.get("pt_size", pt_size)
     pair_plot.map_lower(plt.scatter, s=pt_size)
     pair_plot.map_lower(corrfunc, cstat=corr_stat)
