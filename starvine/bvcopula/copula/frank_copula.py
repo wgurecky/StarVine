@@ -73,12 +73,14 @@ class FrankCopula(CopulaBase):
         h1 = np.exp(-theta[0])
         h2 = expm1(-theta[0])
         h3 = -1.0 / theta[0]
-        UU = np.asarray(U)
+        UU = np.asarray(U, dtype=np.longdouble)
         VV = np.asarray(V)
-        h4 = np.power(h1, VV)
+        h4 = np.power(h1, VV, dtype=np.longdouble)
 
         uu = h3 * np.log(1 + h2 / (h4 * (1 / UU - 1) + 1))
-        return uu
+        if not (np.max(uu) <= 1.0) or not (np.min(uu) >= 0.0):
+            uu = np.clip(uu, 1e-12, 1. - 1e-12)
+        return np.asarray(uu, dtype=np.float64)
 
     @CopulaBase._rotGen
     def _gen(self, t, *theta):
@@ -113,9 +115,8 @@ def debye_exp_fn(t):
     return t / (np.exp(t) - 1.0)
 
 
-@jit(nopython=True)
 def expm1(x):
     """!
     @brief exponential - 1.0 helper
     """
-    return np.exp(x) - 1.0
+    return np.exp(x, dtype=np.longdouble) - 1.0

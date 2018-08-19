@@ -16,6 +16,8 @@ class Uvm(object):
             return uv_gauss.UVGauss()
         elif uvType == "lognorm":
             return uv_lognorm.UVLogNorm()
+        elif uvType == "logitnorm":
+            return uv_logit_norm.UVLogitNorm()
         elif uvType == "exp":
             return uv_exp.UVExp()
         elif uvType == "gamma":
