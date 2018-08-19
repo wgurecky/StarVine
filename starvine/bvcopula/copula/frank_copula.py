@@ -77,10 +77,6 @@ class FrankCopula(CopulaBase):
         VV = np.asarray(V)
         h4 = np.power(h1, VV, dtype=np.longdouble)
 
-        # denom = (h4 * (1. / UU - 1.) + 1.)
-        # log_arg = h2 / denom
-        # log_arg2 = np.divide(h2, denom, dtype=np.longdouble)
-        # uu2 = h3 * np.log(1. + log_arg2, dtype=np.longdouble)
         uu = h3 * np.log(1 + h2 / (h4 * (1 / UU - 1) + 1))
         if not (np.max(uu) <= 1.0) or not (np.min(uu) >= 0.0):
             uu = np.clip(uu, 1e-12, 1. - 1e-12)
@@ -119,7 +115,6 @@ def debye_exp_fn(t):
     return t / (np.exp(t) - 1.0)
 
 
-# @jit(nopython=True)
 def expm1(x):
     """!
     @brief exponential - 1.0 helper
