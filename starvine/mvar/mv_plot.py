@@ -13,7 +13,7 @@ def matrixPairPlot(data_in, weights=None, corr_stat="kendalltau", **kwargs):
     @param weights np_1darray of weights to assign to each row in data
     @param corr_stat (optional) correlation statistic for plot
     """
-    sns.set(font_scale=kwargs.get("font_scale", 1.0))
+    sns.set_context("paper", font_scale=kwargs.get("font_scale", 1.0))
     # sns.set_palette(sns.color_palette("Greys", 1))
     sns.set_style("whitegrid", {"grid.linestyle": '--', "grid.alpha": 0.6})
     if kwargs.get("rescale", False):
@@ -21,13 +21,17 @@ def matrixPairPlot(data_in, weights=None, corr_stat="kendalltau", **kwargs):
     else:
         data = data_in
     upper_kde = kwargs.pop("kde", False)
-    pair_plot = sns.PairGrid(data, palette=["red"], size=kwargs.pop("size", 5))
+    pair_plot = sns.PairGrid(data, palette=["red"], height=kwargs.pop("size", 5))
+    #
     # UPPER
     if upper_kde:
         pair_plot.map_upper(sns.kdeplot, cmap="Blues_d")
     else:
         pair_plot.map_upper(sns.regplot, scatter_kws={'s': 3.0})
         pair_plot.map_upper(xy_slope)
+    if kwargs.get("mask_upper", False):
+        for i, j in zip(*np.triu_indices_from(pair_plot.axes, 1)):
+            pair_plot.axes[i, j].set_visible(False)
     #
     # LOWER
     if weights is not None:
@@ -45,19 +49,33 @@ def matrixPairPlot(data_in, weights=None, corr_stat="kendalltau", **kwargs):
     # DIAG
     if kwargs.get("diag_hist", True):
         pair_plot.map_diag(plt.hist, edgecolor="white", weights=weightArray)
+        pair_plot.map_diag(mean_line, **kwargs)
     else:
         pair_plot.map_diag(sns.distplot, kde=True, norm_hist=True, hist_kws={'weights': weightArray})
+        pair_plot.map_diag(mean_line, **kwargs)
     # sci notation
     tril_index = np.tril_indices(data.shape[-1])
     for tri_l_i, tri_l_j in zip(tril_index[0], tril_index[1]):
         axis = pair_plot.axes[tri_l_i, tri_l_j]
         axis.ticklabel_format(style='sci', scilimits=(0,0), useMathText=True)
     outfile = kwargs.pop("savefig", None)
+    pair_plot.fig.suptitle(kwargs.get("title", ""))
     if outfile:
         pair_plot.savefig(outfile)
     # plt.close()
     sns.set(font_scale=1.0)
     return pair_plot
+
+
+def mean_line(x, **kwargs):
+    ax = plt.gca()
+    mean = np.average(x)
+    sd = np.std(x)
+    ax.axvline(mean, ls='--', c='k', alpha=0.5)
+    ax.annotate(r"$\mu$ = {:.3e}".format(mean),
+                xy=(0.75, 0.95), xycoords=ax.transAxes)
+    ax.annotate(r"$\sigma$ = {:.3e}".format(sd),
+                xy=(0.75, 0.895), xycoords=ax.transAxes)
 
 
 def xy_slope(x, y, **kws):

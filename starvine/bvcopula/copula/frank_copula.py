@@ -79,7 +79,7 @@ class FrankCopula(CopulaBase):
 
         uu = h3 * np.log(1 + h2 / (h4 * (1 / UU - 1) + 1))
         if not (np.max(uu) <= 1.0) or not (np.min(uu) >= 0.0):
-            uu = np.clip(uu, 1e-12, 1. - 1e-12)
+            uu = np.clip(uu, 1e-14, 1. - 1e-14)
         return np.asarray(uu, dtype=np.float64)
 
     @CopulaBase._rotGen
