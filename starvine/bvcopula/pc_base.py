@@ -1,7 +1,7 @@
 ##
 # \brief Pair Copula.
 # Bivariate distribution base class.
-from __future__ import print_function, absolute_import
+
 import os
 import numpy as np
 from six import iteritems

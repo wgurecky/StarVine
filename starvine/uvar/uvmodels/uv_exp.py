@@ -1,7 +1,7 @@
 ##
 # @brief Beta model distribution
-from __future__ import print_function, division
-from uv_base import UVmodel
+
+from .uv_base import UVmodel
 import numpy as np
 from scipy.special import gamma
 

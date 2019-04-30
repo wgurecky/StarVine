@@ -1,7 +1,7 @@
 ##
 # \brief Uni-variate data container
 #
-from __future__ import absolute_import
+
 import starvine.uvar.uvmodel_factory as uvf
 
 

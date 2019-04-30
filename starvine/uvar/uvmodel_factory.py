@@ -1,6 +1,6 @@
 ##
 # \brief Univariate model factory class
-from uvmodels import *
+from .uvmodels import *
 
 
 class Uvm(object):

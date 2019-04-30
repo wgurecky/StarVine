@@ -1,6 +1,6 @@
 ##
 # \brief Test principal component analysis of a multivariate data set
-from __future__ import absolute_import, print_function, division
+
 import unittest
 
 

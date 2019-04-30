@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
-from __future__ import division
+
 import numpy as np
 from numpy import random
 #
@@ -13,7 +13,7 @@ from scipy.stats import genextreme, chi2, norm
 from scipy.interpolate import interp1d
 from numba import jit
 # starvine imports
-from pc_base import PairCopula
+from .pc_base import PairCopula
 
 
 def gauss_copula_test(x1, y1, wgts=None, nboot=8000, dist='ks',
@@ -61,7 +61,7 @@ def gauss_copula_test(x1, y1, wgts=None, nboot=8000, dist='ks',
 
     # est orig distance metric
     d_0 = dist_measure(y_hat, cov_hat_inv, dist)
-    print("KS-Gauss Dist= %f)" % d_0)
+    print(("KS-Gauss Dist= %f)" % d_0))
 
     # estimate p-value by boostrap resampling
     d = np.zeros(nboot)
@@ -73,13 +73,13 @@ def gauss_copula_test(x1, y1, wgts=None, nboot=8000, dist='ks',
                              dist=dist,
                              N=len(x1)
                             ),
-                     range(nboot))
+                     list(range(nboot)))
         d = np.array(d)
         pool.close()
     else:
         for i in range(nboot):
             d[i] = sample_d(i, cov_hat, cov_hat_inv, dist, len(x1))
-    print("KS-Gauss Empirical Dist Range= (%f, %f))" % (np.min(d), np.max(d)))
+    print(("KS-Gauss Empirical Dist Range= (%f, %f))" % (np.min(d), np.max(d))))
 
     # compute p-val
     # p_val = 1 - d_cdf(d_0)

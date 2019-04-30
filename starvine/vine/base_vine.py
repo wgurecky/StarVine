@@ -103,9 +103,9 @@ class BaseVine(object):
         for edge in tree_0.edges():
             n0, n1 = edge
             edge_info = tree_0[n0][n1]
-            if not n0 in sample_result.keys():
+            if not n0 in list(sample_result.keys()):
                 sample_result[n0] = edge_info['sample'][n0]
-            if not n1 in sample_result.keys():
+            if not n1 in list(sample_result.keys()):
                 sample_result[n1] = edge_info['sample'][n1]
 
         # clean up

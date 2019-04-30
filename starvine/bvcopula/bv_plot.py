@@ -2,14 +2,14 @@
 # \brief Bivariate plotting functions.
 # Depends on the seaborn python package for simplified
 # bivariate plotting.
-from __future__ import print_function, absolute_import
+
 from scipy.stats import kendalltau, spearmanr, pearsonr
 import seaborn as sns
 import matplotlib.pyplot as plt
 from pandas import DataFrame
 import numpy as np
-from pylab import contour, contourf, griddata
-
+from pylab import contour, contourf
+from scipy.interpolate import griddata
 
 def bvContour(x1, x2, y, **kwargs):
     contour_plot = plt.figure()

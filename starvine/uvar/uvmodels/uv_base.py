@@ -184,7 +184,7 @@ class UVmodel(rv_continuous):
                      bounds=kwargs.pop("bounds", None),
                      tol=1e-7, method='SLSQP',
                      options={'maxiter': 300, 'disp': True})
-        if not res.success: print(res.message)
+        if not res.success: print((res.message))
         return res.x
 
 

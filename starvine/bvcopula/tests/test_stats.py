@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
-from __future__ import division
+
 from six import iteritems
 import unittest
 import numpy as np
@@ -89,7 +89,7 @@ class TestMiscStats(unittest.TestCase):
         en_h = dcor.homogeneity.energy_test(np.array([x1, y1]).T,
                                             np.array([x2, y2]).T, num_resamples=1000)
         en_p, en_s = en_h.p_value, en_h.statistic
-        print(ks_p, en_p)
+        print((ks_p, en_p))
         # self.assertGreater(ks_p, self.alpha)
 
         # check in case of negative dep structure
@@ -97,7 +97,7 @@ class TestMiscStats(unittest.TestCase):
         en_h = dcor.homogeneity.energy_test(np.array([-x1, y1]).T,
                                             np.array([-x2, y2]).T, num_resamples=1000)
         en_p, en_s = en_h.p_value, en_h.statistic
-        print(ks_p, en_p)
+        print((ks_p, en_p))
         self.assertGreater(ks_p, self.alpha)
 
         # Check in case of two different copula.
@@ -115,7 +115,7 @@ class TestMiscStats(unittest.TestCase):
         en_h = dcor.homogeneity.energy_test(np.array([x1, y1]).T,
                                             np.array([x2, y2]).T, num_resamples=1000)
         en_p, en_s = en_h.p_value, en_h.statistic
-        print(ks_p, en_p)
+        print((ks_p, en_p))
         # should accept null hypoth that data are from different dists
         self.assertLess(ks_p, self.alpha)
 
@@ -128,7 +128,7 @@ class TestMiscStats(unittest.TestCase):
             copula_1.fitKtau(-0.55)
             x1, y1 = copula_1.sampleScale(self.margin_1, self.margin_2, n=2000)
             g_p, _, g_h = gauss_copula_test(x1, y1, dist='ad-avg', procs=6)
-            print(g_p, g_h['h0'])
+            print((g_p, g_h['h0']))
             self.assertFalse(g_h['h0'])
         print('--- frank')
         for i in range(3):
@@ -136,7 +136,7 @@ class TestMiscStats(unittest.TestCase):
             copula_1.fitKtau(-0.55)
             x1, y1 = copula_1.sampleScale(self.margin_1, self.margin_2, n=2000)
             g_p, _, g_h = gauss_copula_test(x1, y1, dist='ad-avg', procs=6)
-            print(g_p, g_h['h0'])
+            print((g_p, g_h['h0']))
             self.assertFalse(g_h['h0'])
         print('--- gumbel')
         for i in range(3):
@@ -146,7 +146,7 @@ class TestMiscStats(unittest.TestCase):
             # when |ktau| < 0.5.  A larger population sample size helps
             x1, y1 = copula_1.sampleScale(self.margin_1, self.margin_2, n=8000)
             g_p, _, g_h = gauss_copula_test(x1, y1, dist='ad-avg', procs=6)
-            print(g_p, g_h['h0'])
+            print((g_p, g_h['h0']))
             self.assertFalse(g_h['h0'])
         print('--- gauss')
         # check the gauss hypothesis is true when given gauss orig data
@@ -155,7 +155,7 @@ class TestMiscStats(unittest.TestCase):
             copula_1.fitKtau(-0.55)
             x1, y1 = copula_1.sampleScale(self.margin_1, self.margin_2, n=2000)
             g_p, _, g_h = gauss_copula_test(x1, y1, dist='ad-avg', procs=6)
-            print(g_p, g_h['h0'])
+            print((g_p, g_h['h0']))
             self.assertTrue(g_h['h0'])
 
     def testGaussCopulaTestSweep(self):
@@ -167,5 +167,5 @@ class TestMiscStats(unittest.TestCase):
             copula_1.fitKtau(ktau)
             x1, y1 = copula_1.sampleScale(self.margin_1, self.margin_2, n=500)
             g_p, _, g_h = gauss_copula_test(x1, y1, dist='ks-avg', procs=6)
-            print(ktau, g_p, g_h['h0'])
+            print((ktau, g_p, g_h['h0']))
             self.assertTrue(g_h['h0'])

@@ -1,5 +1,5 @@
 #!/usr/env/python2
-from __future__ import absolute_import, print_function, division
+
 # starvine imports
 import context
 from starvine.uvar.uvmodel_factory import Uvm
@@ -47,7 +47,7 @@ def main():
 
     # SPAN
     tsat = -618.5
-    zones = range(65, 98)
+    zones = list(range(65, 98))
     for zone in zones:
         zBounds = bounds.read()[:, zone][~np.isnan(bounds.read()[:, zone])]
         temps = temperature.read()[:, zone][~np.isnan(temperature.read()[:, zone])]
@@ -109,7 +109,7 @@ def t_tke():
 
     # SPAN
     tsat = -618.5
-    zones = range(1, 98)
+    zones = list(range(1, 98))
     results = []
     for zone in zones:
         zBounds = bounds.read()[:, zone][~np.isnan(bounds.read()[:, zone])]

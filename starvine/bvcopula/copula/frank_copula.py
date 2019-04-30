@@ -3,7 +3,7 @@
 import numpy as np
 from numba import jit
 from scipy.integrate import quad
-from copula_base import CopulaBase
+from .copula_base import CopulaBase
 
 
 class FrankCopula(CopulaBase):

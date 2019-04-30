@@ -2,7 +2,7 @@
 # \brief Bivariate copula base class.
 # All copula must have a density function, CDF, and
 # H function.
-from __future__ import print_function, absolute_import, division
+
 import numpy as np
 import scipy.integrate as spi
 from scipy.optimize import bisect, newton, brentq

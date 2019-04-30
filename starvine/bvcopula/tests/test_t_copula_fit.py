@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 ##
 # \brief Tests for T- and Gaussian copula fitting
-from __future__ import print_function, division
+
 import unittest
 from scipy.optimize import bisect
 from scipy.stats.mstats import rankdata

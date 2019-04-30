@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 
-from __future__ import print_function, division
+
 from starvine.uvar.uvmodels.uv_gamma import UVGamma
 import numpy as np
 import unittest

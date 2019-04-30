@@ -1,4 +1,4 @@
-from __future__ import print_function, division
+
 import unittest
 from starvine.bvcopula.pc_base import PairCopula
 from starvine.bvcopula.copula_factory import Copula

@@ -1,5 +1,5 @@
 #!/usr/bin/python2
-from __future__ import print_function, division
+
 # starvine imports
 import context
 from starvine.vine.C_vine import Cvine

@@ -7,7 +7,7 @@ from scipy.stats import gaussian_kde
 from sklearn.preprocessing import StandardScaler
 # internal imports
 from starvine.uvar.uvd import Uvd
-from mv_plot import matrixPairPlot as mpp
+from .mv_plot import matrixPairPlot as mpp
 
 
 class Mvd(object):

@@ -1,6 +1,6 @@
 ##
 # \brief Test copula CDF's to ensure integral on [0,1]^2 is 1
-from __future__ import print_function, division
+
 # COPULA IMPORTS
 from starvine.bvcopula.copula.t_copula import StudentTCopula
 from starvine.bvcopula.copula.gauss_copula import GaussCopula

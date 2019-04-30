@@ -1,12 +1,11 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 from numpy.distutils.core import setup
 
 
 def configuration(parent_package='', top_path=None):
     from numpy.distutils.misc_util import Configuration
-    config = Configuration('mvar', parent_package, top_path)
-    config.add_data_dir('tests')
+    config = Configuration('uvmodels', parent_package, top_path)
     return config
 
 
