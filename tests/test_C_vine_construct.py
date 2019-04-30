@@ -49,6 +49,3 @@ class TestCvine(unittest.TestCase):
         samples = tstVine.sample(n=8000)
         matrixPairPlot(samples, savefig="quad_varaite_resampled_ex.png")
 
-
-if __name__ == "__main__":
-    unittest.main()

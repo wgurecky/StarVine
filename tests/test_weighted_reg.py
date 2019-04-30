@@ -133,6 +133,3 @@ class TestWeightedReg(unittest.TestCase):
         # plot
         data = pd.DataFrame([x_wt, y_wt]).T
         matrixPairPlot(data, savefig='x_gauss_resampled_fit.png')
-
-if __name__ == '__main__':
-	unittest.main()

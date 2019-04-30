@@ -26,40 +26,40 @@ class TestCopulaCDF(unittest.TestCase):
         t_copula = StudentTCopula()
         u, v = np.ones(1) - 1e-9, np.ones(1) - 1e-9
         cdf_max = t_copula.cdf(u, v, *[0.7, 10])
-        self.assertAlmostEqual(cdf_max, 1.0)
+        self.assertAlmostEqual(cdf_max[0], 1.0)
 
     def testGaussCopulaCDF(self):
         gauss_copula = GaussCopula()
         u, v = np.ones(1) - 1e-9, np.ones(1) - 1e-9
         cdf_max = gauss_copula.cdf(u, v, *[0.7])
-        self.assertAlmostEqual(cdf_max, 1.0)
+        self.assertAlmostEqual(cdf_max[0], 1.0)
 
     def testFrankCopulaCDF(self):
         frank_copula = FrankCopula()
         u, v = np.ones(1), np.ones(1)
         cdf_max = frank_copula.cdf(u, v, *[2.7])
-        self.assertAlmostEqual(cdf_max, 1.0)
+        self.assertAlmostEqual(cdf_max[0], 1.0)
 
     def testGumbelCopulaCDF(self):
         gumbel_copula = GumbelCopula()
         u, v = np.ones(1), np.ones(1)
         cdf_max = gumbel_copula.cdf(u, v, *[2.7])
-        self.assertAlmostEqual(cdf_max, 1.0)
+        self.assertAlmostEqual(cdf_max[0], 1.0)
 
     def testClaytonCopulaCDF(self):
         clayton_copula = ClaytonCopula()
         u, v = np.ones(1), np.ones(1)
         cdf_max = clayton_copula.cdf(u, v, *[2.7])
-        self.assertAlmostEqual(cdf_max, 1.0)
+        self.assertAlmostEqual(cdf_max[0], 1.0)
 
     def testClayton90CopulaCDF(self):
         clayton_copula = ClaytonCopula(1)
         u, v = np.ones(1), np.ones(1)
         cdf_max = clayton_copula.cdf(u, v, *[2.7])
-        self.assertAlmostEqual(cdf_max, 1.0)
+        self.assertAlmostEqual(cdf_max[0], 1.0)
 
     def testIndepCopulaCDF(self):
         indep_copula = IndepCopula()
         u, v = np.ones(1), np.ones(1)
         cdf_max = indep_copula.cdf(u, v)
-        self.assertAlmostEqual(cdf_max, 1.0)
+        self.assertAlmostEqual(cdf_max[0], 1.0)

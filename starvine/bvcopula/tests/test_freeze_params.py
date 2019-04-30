@@ -30,7 +30,7 @@ class TestGaussFrozen(unittest.TestCase):
         self.assertTrue(stockModel.copulaParams[0] == "gauss")
 
         # Check gaussian copula parameters for correctness
-        self.assertAlmostEqual(stockModel.copulaParams[1], 0.73874003, 4)
+        self.assertAlmostEqual(stockModel.copulaParams[1][0], 0.73874003, 4)
 
         # Eval the frozen model
         frzU, frzV = stockModel.copulaModel.sample(40000)
