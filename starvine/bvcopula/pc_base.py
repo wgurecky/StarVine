@@ -124,13 +124,6 @@ class PairCopula(object):
         assert type(method) is int
         self._rank_method = method
 
-    def rankInv(self):
-        """!
-        @brief Inverse rank transform data
-        back to original scale.
-        """
-        pass
-
     def setTrialCopula(self, family):
         self.trialFamily = family
         self.copulaBank = {}
