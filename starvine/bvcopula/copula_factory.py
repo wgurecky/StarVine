@@ -1,9 +1,7 @@
 ##
-# \brief Concrete Copula factory class
-try:
-    from copula import *
-except:
-    from starvine.bvcopula.copula import *
+# \brief Copula factory
+from __future__ import print_function, absolute_import, division
+from starvine.bvcopula.copula import *
 import re
 
 
@@ -14,7 +12,7 @@ def validateRotation(rotation):
 
 def Copula(copulatype, rotation=0):
     """!
-    @brief Returns a bivariate copula instance.
+    @brief Factory method. Returns a bivariate copula instance.
     @param copulatype <b>string</b> Copula type.
     @param rotation <b>int</b>  Copula rotation 1==90 deg, 2==180 deg, 3==270 deg
     """

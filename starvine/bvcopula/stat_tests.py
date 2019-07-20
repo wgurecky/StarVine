@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
-from __future__ import division
+from __future__ import print_function, absolute_import, division
 import numpy as np
 from numpy import random
 #
@@ -13,7 +13,7 @@ from scipy.stats import genextreme, chi2, norm
 from scipy.interpolate import interp1d
 from numba import jit
 # starvine imports
-from pc_base import PairCopula
+from starvine.bvcopula.pc_base import PairCopula
 
 
 def gauss_copula_test(x1, y1, wgts=None, nboot=8000, dist='ks',
@@ -73,7 +73,7 @@ def gauss_copula_test(x1, y1, wgts=None, nboot=8000, dist='ks',
                              dist=dist,
                              N=len(x1)
                             ),
-                     range(nboot))
+                     list(range(nboot)))
         d = np.array(d)
         pool.close()
     else:

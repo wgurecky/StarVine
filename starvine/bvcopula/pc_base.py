@@ -1,7 +1,7 @@
 ##
 # \brief Pair Copula.
 # Bivariate distribution base class.
-from __future__ import print_function, absolute_import
+from __future__ import print_function, absolute_import, division
 import os
 import numpy as np
 from six import iteritems
@@ -11,10 +11,7 @@ from scipy.stats.mstats import rankdata
 # NUMBA
 from numba import jit
 # COPULA IMPORTS
-try:
-    from starvine.bvcopula.copula_factory import Copula
-except:
-    from copula_factory import Copula
+from starvine.bvcopula.copula_factory import Copula
 
 
 class PairCopula(object):

@@ -23,7 +23,7 @@ class TestKtauFit(unittest.TestCase):
         stockModel.copulaTournament()
 
         # Check gaussian copula parameters for correctness
-        self.assertAlmostEqual(stockModel.copulaParams[1], 0.73874003, 4)
+        self.assertAlmostEqual(stockModel.copulaParams[1][0], 0.73874003, 4)
 
         # Obtain Ktau
         kTauFitted = stockModel.copulaModel.kTau()

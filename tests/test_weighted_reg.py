@@ -3,6 +3,7 @@
 from __future__ import print_function, division
 import unittest
 import numpy as np
+from scipy.stats import norm
 import seaborn as sns
 from six import iteritems
 import os
@@ -10,7 +11,6 @@ import pandas as pd
 # starvine imports
 from starvine.bvcopula.pc_base import PairCopula
 from starvine.bvcopula.copula_factory import Copula
-from starvine.uvar.uvmodel_factory import Uvm
 from starvine.mvar.mv_plot import matrixPairPlot
 #
 pwd_ = os.getcwd()
@@ -33,8 +33,10 @@ class TestWeightedReg(unittest.TestCase):
         """
         np.random.seed(123)
         # construct gaussian margins; mu={0, 0}, sd={1.0, 2}
-        marg1 = Uvm("gauss")(1e-3, 1.)
-        marg2 = Uvm("gauss")(1e-3, 2.)
+        # marg1 = Uvm("gauss")(1e-3, 1.)
+        marg1 = norm(loc=1e-3, scale=1.0)
+        # marg2 = Uvm("gauss")(1e-3, 2.)
+        marg2 = norm(loc=1e-3, scale=2.0)
 
         # construct gaussian copula positive dep
         cop1 = Copula("gauss")
@@ -91,8 +93,10 @@ class TestWeightedReg(unittest.TestCase):
         """
         np.random.seed(123)
         # construct gaussian margins; mu={0, 0}, sd={1.0, 2}
-        marg1 = Uvm("gauss")(1e-3, 1.)
-        marg2 = Uvm("gauss")(1e-3, 2.)
+        # marg1 = Uvm("gauss")(1e-3, 1.)
+        marg1 = norm(loc=1e-3, scale=1.0)
+        # marg2 = Uvm("gauss")(1e-3, 2.)
+        marg2 = norm(loc=1e-3, scale=2.0)
 
         # construct gaussian copula positive dep
         cop1 = Copula("gauss")

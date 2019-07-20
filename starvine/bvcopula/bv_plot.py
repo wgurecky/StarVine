@@ -2,27 +2,14 @@
 # \brief Bivariate plotting functions.
 # Depends on the seaborn python package for simplified
 # bivariate plotting.
-from __future__ import print_function, absolute_import
+from __future__ import print_function, absolute_import, division
 from scipy.stats import kendalltau, spearmanr, pearsonr
 import seaborn as sns
 import matplotlib.pyplot as plt
 from pandas import DataFrame
 import numpy as np
-from pylab import contour, contourf, griddata
+from scipy.interpolate import griddata
 
-
-def bvContour(x1, x2, y, **kwargs):
-    contour_plot = plt.figure()
-    outfile = kwargs.pop("savefig", None)
-    sns.interactplot(x1, x2, y, filled=True,
-                     scatter_kws={"marker": "x", "markersize": 1},
-                     contour_kws={"linewidths": 2},
-                     **kwargs)
-    if outfile:
-        plt.title(kwargs.pop("title", ""))
-        contour_plot.savefig(outfile)
-    plt.close()
-    return contour_plot
 
 def bvContourf(x1, x2, z, **kwargs):
     contour_plot = plt.figure()
@@ -33,8 +20,8 @@ def bvContourf(x1, x2, z, **kwargs):
     # create grid required by pl.contour
     x_grid, y_grid = np.meshgrid(xx, yy)
     # interpolate data to meshgrid
-    z_grid = griddata(x1, x2, z, x_grid, y_grid,
-                      interp='linear',
+    z_grid = griddata((x1, x2), z, (x_grid, y_grid),
+                      method='linear',
                       )
     # plot contour
     contour_plot = plt.figure()

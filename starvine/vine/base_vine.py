@@ -23,7 +23,7 @@ class BaseVine(object):
 
     def vineNLLH(self, vineParams=[None], **kwargs):
         """!
-        @brief Compute the vine negative log likelyhood.  Used for
+        @brief Compute the vine negative log likelihood.  Used for
         simulatneous MLE estimation of PCC model parameters.
         Loops through all tree levels and sums all NLL.
         @param vineParams <b>np_array</b>  Flattened array of all copula parametrs in vine
@@ -103,9 +103,9 @@ class BaseVine(object):
         for edge in tree_0.edges():
             n0, n1 = edge
             edge_info = tree_0[n0][n1]
-            if not n0 in sample_result.keys():
+            if not n0 in list(sample_result.keys()):
                 sample_result[n0] = edge_info['sample'][n0]
-            if not n1 in sample_result.keys():
+            if not n1 in list(sample_result.keys()):
                 sample_result[n1] = edge_info['sample'][n1]
 
         # clean up
