@@ -1,6 +1,5 @@
-__all__ = ['bvcopula', 'marginals', 'multivar', 'vine']
+__all__ = ['bvcopula', 'mvar', 'vine']
 
 import starvine.bvcopula
 import starvine.vine
-import starvine.uvar
 import starvine.mvar

@@ -4,7 +4,7 @@ scipy
 emcee
 pandas
 h5py
-networkx>=2.0.0
+networkx>=2.2.0
 matplotlib
 seaborn
 statsmodels

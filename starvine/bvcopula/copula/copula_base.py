@@ -67,9 +67,21 @@ class CopulaBase(object):
         rotation = 0
         return self._hinv(u, v, rotation, *theta)
 
+    def fitMcmc(self, u, v, *theta0, **kwargs):
+        """!
+        @brief Markov chain monte carlo fit method
+        @param u <b>np_1darray</b> Rank data vector
+        @param v <b>np_1darray</b> Rank data vector
+        @param theta0 Initial guess for copula parameter list
+        @return <b>tuple</b> :
+                (<b>np_array</b> Array of MLE fit copula parameters,
+                <b>int</b> Fitting success flag, 1==success)
+        """
+        pass
+
     def fitMLE(self, u, v, *theta0, **kwargs):
         """!
-        @brief Maximum likelyhood copula fit.
+        @brief Maximum likelihood copula fit.
         @param u <b>np_1darray</b> Rank data vector
         @param v <b>np_1darray</b> Rank data vector
         @param theta0 Initial guess for copula parameter list
@@ -96,7 +108,8 @@ class CopulaBase(object):
                     minimize(lambda args: self._nlogLike(u, v, wgts, rotation, *args),
                              x0=params0,
                              tol=kwargs.pop("tol", 1e-8),
-                             method=kwargs.pop("altMethod", 'Nelder-Mead'))
+                             bounds=kwargs.pop("bounds", self.thetaBounds),
+                             )
             else:
                 res = \
                     minimize(lambda args: self._nlogLike(u, v, wgts, rotation, *args),
@@ -233,14 +246,14 @@ class CopulaBase(object):
 
     def _nlogLike(self, u, v, wgts=None, rotation=0, *theta):
         """!
-        @brief Default negative log likelyhood function.
+        @brief Default negative log likelihood function.
         Used in MLE fitting
         """
         return -1.0 * self._logLike(u, v, wgts, rotation, *theta)
 
     def _logLike(self, u, v, wgts=None, rotation=0, *theta):
         """!
-        @brief Default log likelyhood func.
+        @brief Default log likelihood func.
         """
         if wgts is None:
             wgts = np.ones(len(u))

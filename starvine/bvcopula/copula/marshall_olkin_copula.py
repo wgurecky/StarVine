@@ -2,8 +2,9 @@
 """!
 @brief Marshall-Olkin copula.
 """
+from __future__ import print_function, absolute_import, division
 import numpy as np
-from copula_base import CopulaBase
+from starvine.bvcopula.copula.copula_base import CopulaBase
 
 
 class OlkinCopula(CopulaBase):

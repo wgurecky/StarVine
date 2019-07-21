@@ -10,7 +10,7 @@ To construct a vine sequentially starting from the top tree:
 1. For each tree level in the vine:
     1. Determine the tree structure.  In the case of a regular vine, this is the
            maximum spanning tree with edge weights equal to kendall's tau.
-    2. Fit copula (maximum likelyhood) at all edges in the current tree
+    2. Fit copula (maximum likelihood) at all edges in the current tree
     3. Compute the conditional distribution at each edge in the current tree.
     4. Use conditional distribution as nodes in the next tree.
     5. Next

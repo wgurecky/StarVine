@@ -1,9 +1,10 @@
 ##
 # \brief Frank copula.
+from __future__ import print_function, absolute_import, division
 import numpy as np
 from numba import jit
 from scipy.integrate import quad
-from copula_base import CopulaBase
+from starvine.bvcopula.copula.copula_base import CopulaBase
 
 
 class FrankCopula(CopulaBase):
@@ -41,6 +42,9 @@ class FrankCopula(CopulaBase):
 
     @CopulaBase._rotCDF
     def _cdf(self, u, v, rotation=0, *theta):
+        """!
+        @brief Cumulative density function for frank bivariate copula
+        """
         h1 = -theta[0]
         h2 = expm1(h1)
 
@@ -54,6 +58,7 @@ class FrankCopula(CopulaBase):
     @CopulaBase._rotH
     def _h(self, v, u, rotation=0, *theta):
         """
+        @brief Conditional distribution for frank copula
         TODO: CHECK UU and VV ordering!
         """
         h1 = np.exp(-theta[0])
@@ -68,6 +73,7 @@ class FrankCopula(CopulaBase):
     @CopulaBase._rotHinv
     def _hinv(self, V, U, rotation=0, *theta):
         """
+        @brief Inverse conditional distribution for frank copula
         TODO: CHECK UU and VV ordering!
         """
         h1 = np.exp(-theta[0])
@@ -84,6 +90,9 @@ class FrankCopula(CopulaBase):
 
     @CopulaBase._rotGen
     def _gen(self, t, *theta):
+        """!
+        @brief Frank copula generating function
+        """
         return -np.log((np.exp(-theta[0] * t) - 1.0) / (np.exp(-theta[0]) - 1.0))
 
     def _kTau(self, rotation=0, *theta):

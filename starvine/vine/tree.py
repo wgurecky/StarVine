@@ -207,12 +207,12 @@ class Vtree(object):
 
         # if both marginal samples exist on this edge,
         # nothing to do.
-        if edge_info.has_key('sample') and \
+        if 'sample' in edge_info and \
                 len(edge_info['sample']) == 2:
             return
 
         # if u_n0 and u_n1 both dont exist, or if only u_n0 exists
-        if not edge_info.has_key('sample') or not edge_info['sample'].has_key(n1):
+        if 'sample' not in edge_info or n1 not in edge_info['sample']:
             if tree_num == 0:
                 u_n1 = np.random.rand(size)
             # if we are not in the first tree:
@@ -225,7 +225,7 @@ class Vtree(object):
                 if not (prev_n0, prev_n2) == n1:
                     prev_n0 = prev_n1
                 prev_edge_info = prev_tree[prev_n0][prev_n2]
-                if prev_edge_info.has_key('sample') and \
+                if 'sample' in prev_edge_info and \
                         len(prev_edge_info['sample']) == 2:
                     u_prev_n0 = prev_edge_info['sample'][prev_n0]
                     u_prev_n2 = prev_edge_info['sample'][prev_n2]
@@ -250,18 +250,18 @@ class Vtree(object):
         # neighbor edge
         if tree_num == 0:
             for one_node in current_tree.neighbors(n0):
-                if not current_tree[n0][one_node].has_key('sample'):
+                if 'sample' not in current_tree[n0][one_node]:
                     edge_sample = {n0:u_n0}
                     current_tree[n0][one_node]['sample'] = edge_sample
                 else:
-                    if not current_tree[n0][one_node]['sample'].has_key(n0):
+                    if n0 not in current_tree[n0][one_node]['sample']:
                         current_tree[n0][one_node]['sample'][n0] = u_n0
             for one_node in current_tree.neighbors(n1):
-                if not current_tree[n1][one_node].has_key('sample'):
+                if 'sample' not in current_tree[n1][one_node]:
                     edge_sample = {n1:u_n1}
                     current_tree[n1][one_node]['sample'] = edge_sample
                 else:
-                    if not current_tree[n1][one_node]['sample'].has_key(n1):
+                    if n1 not in current_tree[n1][one_node]['sample']:
                         current_tree[n1][one_node]['sample'][n1] = u_n1
             return
 

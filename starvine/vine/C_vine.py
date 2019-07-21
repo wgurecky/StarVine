@@ -6,13 +6,13 @@
 # be abs(empirical kendall's tau) correlation coefficients in this
 # implementation.
 #
-from base_vine import BaseVine
+from starvine.vine.base_vine import BaseVine
 from pandas import DataFrame
 from scipy.optimize import minimize
 import networkx as nx
 from starvine.bvcopula import pc_base as pc
 import numpy as np
-from tree import Vtree
+from starvine.vine.tree import Vtree
 
 
 class Cvine(BaseVine):
@@ -138,7 +138,7 @@ class Ctree(Vtree):
 
     def treeNLLH(self, treeCopulaParams=None):
         """!
-        @brief Compute this tree's negative log likelyhood.
+        @brief Compute this tree's negative log likelihood.
         For C-trees this is just the sum of copula-log-likeyhoods over all
         node-pairs.
         @param treeCopulaParams <b>np_1darray</b> Copula parameter array.

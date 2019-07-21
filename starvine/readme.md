@@ -1,12 +1,11 @@
 StarVine
 ========
 
-The StarVine package is split into four subpackages:
+The StarVine package is split into three subpackages:
 
 - vine : C- and R- vine classes
 - bvcopula : Bivariate copula
-- mvar : Multi-variate data
-- uvar : Uni-variate data (marginal distribution fitting)
+- mvar : Multi-variate data utilities
 
 
 Quick Example

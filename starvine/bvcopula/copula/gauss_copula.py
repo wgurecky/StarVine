@@ -1,9 +1,10 @@
 ##
 # \brief Gaussian copula (special case of t-copula where DoF = \inf)
+from __future__ import print_function, absolute_import, division
 import numpy as np
 from scipy import stats
 # STARVINE IMPORTS
-from copula_base import CopulaBase
+from starvine.bvcopula.copula.copula_base import CopulaBase
 from starvine.bvcopula.copula.mvtdstpack import mvtdstpack as mvt
 
 
