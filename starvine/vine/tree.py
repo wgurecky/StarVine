@@ -211,6 +211,9 @@ class Vtree(object):
                 len(edge_info['sample']) == 2:
             return
 
+        # reverse edge flag
+        rev = False
+
         # if u_n0 and u_n1 both dont exist, or if only u_n0 exists
         if 'sample' not in edge_info or n1 not in edge_info['sample']:
             if tree_num == 0:
@@ -230,7 +233,6 @@ class Vtree(object):
                     u_prev_n0 = prev_edge_info['sample'][prev_n0]
                     u_prev_n2 = prev_edge_info['sample'][prev_n2]
                     u_n1 = prev_edge_info["h-dist"](u_prev_n2, u_prev_n0)
-                    # u_n1 = prev_edge_info["h-dist"](u_prev_n0, u_prev_n2)
                 else:
                     u_n1 = np.random.rand(size)
         else:
@@ -241,9 +243,13 @@ class Vtree(object):
             u_n0 = edge_info["hinv-dist"](u_n1, next_tree_info['sample'][(n0, n1)])
         except:
             u_n0 = edge_info["hinv-dist"](u_n1, next_tree_info['sample'][(n1, n0)])
-        edge_sample = {n0: 1. - u_n0, n1: 1. - u_n1}
+            rev = True
+        if rev:
+            edge_sample = {n0: u_n0, n1: 1 - u_n1}
+        else:
+            edge_sample = {n0: u_n0, n1: u_n1}
         # matrixPairPlot(DataFrame(edge_sample),
-        #                savefig="edge" + str(n0) + "_" + str(n1) + "sample.png")
+        #         savefig="c_test/edge" + str(n0) + "_" + str(n1) + "sample_rev_" + str(rev) + ".png")
         current_tree[n0][n1]['sample'] = edge_sample
 
         # If current tree is 0th tree: copy marginal sample to

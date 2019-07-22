@@ -195,16 +195,14 @@ class Ctree(Vtree):
                 # iterate though all child nodes,
                 # root dataset cannot be paired with itself
                 if nodeID != rootNodeID:
-                    ## VV is OK UU is wrong!
                     trialPair = pc.PairCopula(self.tree.node[nodeID]["data"].values,
                                               self.tree.node[rootNodeID]["data"].values)
-                    # trialPair = pc.PairCopula(self.tree.node[rootNodeID]["data"].values,
-                    #                           self.tree.node[nodeID]["data"].values)
                     trialKtau, trialP = trialPair.empKTau()
                     trialKtauSum[i] += abs(trialKtau)
-                    # trialPairings[i].append((rootNodeID, nodeID, trialKtau))
                     trialPairings[i].append((nodeID, rootNodeID, trialKtau))
+            print("Tree level: %d, configuration: %d, Ktau Metric: %f" % (self.level, i, trialKtauSum[i]))
         bestPairingIndex = np.argmax(np.abs(trialKtauSum))
+        print(" === Configuration %d selected === " % (bestPairingIndex))
         self.rootNodeID = trialPairings[bestPairingIndex][0][1]
         return trialPairings[bestPairingIndex]
 
@@ -231,8 +229,6 @@ class Ctree(Vtree):
                 rootData = data["pc"].UU
             condData[(nonRootID, rootID)] = data["h-dist"](data["pc"].VV,
                                                            data["pc"].UU)
-            # condData[(nonRootID, rootID)] = data["h-dist"](nonRootData,
-            #                                                rootData)
         return condData
 
     def _getEdgeCopulaParams(self, u, v):
