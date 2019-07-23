@@ -7,7 +7,6 @@ from itertools import chain
 from starvine.bvcopula import pc_base as pc
 import networkx as nx
 import numpy as np
-# from starvine.mvar.mv_plot import matrixPairPlot
 
 
 class Vtree(object):
@@ -211,9 +210,6 @@ class Vtree(object):
                 len(edge_info['sample']) == 2:
             return
 
-        # reverse edge flag
-        rev = False
-
         # if u_n0 and u_n1 both dont exist, or if only u_n0 exists
         if 'sample' not in edge_info or n1 not in edge_info['sample']:
             if tree_num == 0:
@@ -242,14 +238,9 @@ class Vtree(object):
         try:
             u_n0 = edge_info["hinv-dist"](u_n1, next_tree_info['sample'][(n0, n1)])
         except:
-            u_n0 = edge_info["hinv-dist"](u_n1, next_tree_info['sample'][(n1, n0)])
-            rev = True
-        if rev:
-            edge_sample = {n0: u_n0, n1: 1 - u_n1}
-        else:
-            edge_sample = {n0: u_n0, n1: u_n1}
-        # matrixPairPlot(DataFrame(edge_sample),
-        #         savefig="c_test/edge" + str(n0) + "_" + str(n1) + "sample_rev_" + str(rev) + ".png")
+            # u_n0 = edge_info["hinv-dist"](u_n1, next_tree_info['sample'][(n1, n0)])
+            raise RuntimeError("Edge with nodes: " + str((n0, n1)), " does not exist.")
+        edge_sample = {n0: u_n0, n1: u_n1}
         current_tree[n0][n1]['sample'] = edge_sample
 
         # If current tree is 0th tree: copy marginal sample to

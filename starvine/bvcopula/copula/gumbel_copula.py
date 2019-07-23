@@ -12,11 +12,11 @@ class GumbelCopula(CopulaBase):
     \f$\theta \in [1, \infty) \f$
     """
     def __init__(self, rotation=0, init_params=None):
+        super(GumbelCopula, self).__init__(rotation, params=init_params)
         self.thetaBounds = ((1 + 1e-9, np.inf),)
         self.theta0 = (2.0, )
         self.rotation = rotation
         self.name = 'gumbel'
-        super(GumbelCopula, self).__init__(rotation, params=init_params)
 
     @CopulaBase._rotPDF
     def _pdf(self, u, v, rotation=0, *theta):

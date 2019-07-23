@@ -216,7 +216,7 @@ class PairCopula(object):
         self.copulaParams = goldParams
         return (self.copulaModel, self.copulaParams)
 
-    def fitCopula(self, copula, thetaGuess=(None, None, )):
+    def fitCopula(self, copula, thetaGuess=(None, None,)):
         """!
         @brief fit specified copula to data.
         @param copula <b>CopulaBase</b>  Copula instance
