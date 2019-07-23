@@ -261,3 +261,22 @@ class Ctree(Vtree):
                                  for item in sublist]
         self.treeCopulaParams = np.array(self.treeCopulaParams)
         return self.treeCopulaParams
+
+    @property
+    def _all_trial_copula(self):
+        default_copula = {'t': 0,
+                          'gauss': 0,
+                          'frank': 0,
+                          'frank-90': 1,
+                          'frank-180': 2,
+                          'frank-270': 3,
+                          'clayton': 0,
+                          'clayton-90': 1,
+                          'clayton-180': 2,
+                          'clayton-270': 3,
+                          'gumbel': 0,
+                          'gumbel-90': 1,
+                          'gumbel-180': 2,
+                          'gumbel-270': 3,
+                         }
+        return default_copula
