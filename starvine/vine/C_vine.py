@@ -17,7 +17,7 @@ from starvine.vine.tree import Vtree
 
 class Cvine(BaseVine):
     """!
-    @brief Cononical vine (C-vine).  Provides methods to fit pair
+    @brief Canonical vine (C-vine).  Provides methods to fit pair
     copula constructions sequentially and simultaneously.
     Additional methods are provided to draw samples from a
     constructed C-vine.
@@ -53,7 +53,7 @@ class Cvine(BaseVine):
 
     \f[ h(x| v, \theta) = F(x|v, \theta) = \frac{\partial C_{xv}(x,v,\theta)}{\partial v} \f]
 
-    Where we have defined the convinience conditional distribution
+    Where we have defined, for convinience, the conditional distribution:
     \f$ h(\cdot) \f$
 
     The nodes of the lower level trees are formed by using \f$ h(x| v,\theta) \f$
@@ -111,7 +111,7 @@ class Cvine(BaseVine):
 class Ctree(Vtree):
     """!
     @brief A C-tree is a tree with a single root node.
-    Each level of a cononical vine is a C-tree.
+    Each level of a canonical vine is a C-tree.
     """
     def __init__(self, data, lvl=None, **kwargs):
         """!
@@ -139,7 +139,7 @@ class Ctree(Vtree):
     def treeNLLH(self, treeCopulaParams=None):
         """!
         @brief Compute this tree's negative log likelihood.
-        For C-trees this is just the sum of copula-log-likeyhoods over all
+        For C-trees this is just the sum of copula-log-likelihoods over all
         node-pairs.
         @param treeCopulaParams <b>np_1darray</b> Copula parameter array.
         Contains parameters for all PCC in the tree.

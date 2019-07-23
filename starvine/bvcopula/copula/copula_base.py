@@ -48,6 +48,8 @@ class CopulaBase(object):
 
     @fittedParams.setter
     def fittedParams(self, fp):
+        if not self._bounds_check(*fp):
+            raise RuntimeError("Fitted params not in bounds.")
         self._fittedParams = fp
 
     @property

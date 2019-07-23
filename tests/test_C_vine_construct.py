@@ -46,8 +46,19 @@ class TestCvine(unittest.TestCase):
         tstVine.plotVine(savefig="c_vine_graph_ex.png")
 
         # sample from vine
-        samples = tstVine.sample(n=8000)
-        matrixPairPlot(samples, savefig="quad_varaite_resampled_ex.png")
+        c_vine_samples = tstVine.sample(n=8000)
+        matrixPairPlot(c_vine_samples, savefig="quad_varaite_resampled_ex.png")
+
+        # check that the original data has same correlation coefficients as re-sampled
+        # data from the fitted c-vine
+        tst_rho_matrix = ranked_data.corr(method='pearson')
+        tst_ktau_matrix = ranked_data.corr(method='kendall')
+
+        sample_rho_matrix = c_vine_samples.corr(method='pearson')
+        sample_ktau_matrix = c_vine_samples.corr(method='kendall')
+
+        self.assertTrue(np.allclose(tst_rho_matrix, sample_rho_matrix, atol=0.1))
+        self.assertTrue(np.allclose(tst_ktau_matrix, sample_ktau_matrix, atol=0.1))
 
 
 if __name__ == "__main__":
