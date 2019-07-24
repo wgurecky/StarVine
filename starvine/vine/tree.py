@@ -21,6 +21,7 @@ class Vtree(object):
         """
         assert(type(data) is DataFrame)
         assert(len(data.shape) == 2)
+        self.trial_copula_dict = kwargs.get("trial_copula", {})
         self.data = data
         self._upperTree = parentTree
         #
@@ -62,7 +63,8 @@ class Vtree(object):
                                           pc= \
                                           pc.PairCopula(self.tree.node[pair[0]]["data"],
                                                         self.tree.node[pair[1]]["data"],
-                                                        id=(pair[0], pair[1])),
+                                                        id=(pair[0], pair[1]),
+                                                        family=self.trial_copula_dict),
                                           id=(pair[0], pair[1]),
                                           edge_data={pair[0]: self.tree.node[pair[0]]["data"],
                                                      pair[1]: self.tree.node[pair[1]]["data"]},

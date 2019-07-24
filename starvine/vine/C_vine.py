@@ -12,6 +12,7 @@ from scipy.optimize import minimize
 import networkx as nx
 from starvine.bvcopula import pc_base as pc
 import numpy as np
+from six import iteritems
 from starvine.vine.tree import Vtree
 
 
@@ -71,7 +72,10 @@ class Cvine(BaseVine):
     and the inner product indicies represent
     the pair copula constructions (PCC) withen the given tree.
     """
-    def __init__(self, data, dataWeights=None):
+    def __init__(self, data, dataWeights=None, **kwargs):
+        self.trial_copula_dict = \
+                self._validate_trial_copula( \
+                kwargs.get("trial_copula", self._all_trial_copula))
         self.data = data
         self.weights = dataWeights
         self.nLevels = int(data.shape[1] - 1)
@@ -84,7 +88,7 @@ class Cvine(BaseVine):
         build all tree levels.
         """
         # 0th tree build
-        tree0 = Ctree(self.data, lvl=0)
+        tree0 = Ctree(self.data, lvl=0, trial_copula=self.trial_copula_dict)
         tree0.seqCopulaFit()
         self.vine.append(tree0)
         # build all other trees
@@ -98,7 +102,8 @@ class Cvine(BaseVine):
         """
         treeT = Ctree(self.vine[level - 1].evalH(),
                       lvl=level,
-                      parentTree=self.vine[level - 1])
+                      parentTree=self.vine[level - 1],
+                      trial_copula=self.trial_copula_dict)
         treeT.seqCopulaFit()
         if self.nLevels > 1:
             self.vine.append(treeT)
@@ -106,6 +111,31 @@ class Cvine(BaseVine):
             self.buildDeepTrees(level + 1)
         elif level == self.nLevels - 1:
             self.vine[level].evalH()
+
+    def _validate_trial_copula(self, trial_copula):
+        assert isinstance(trial_copula, dict)
+        for key, val in iteritems(trial_copula):
+            assert key in self._all_trial_copula
+            assert self._all_trial_copula[key] == val
+
+    @property
+    def _all_trial_copula(self):
+        default_copula = {'t': 0,
+                          'gauss': 0,
+                          'frank': 0,
+                          'frank-90': 1,
+                          'frank-180': 2,
+                          'frank-270': 3,
+                          'clayton': 0,
+                          'clayton-90': 1,
+                          'clayton-180': 2,
+                          'clayton-270': 3,
+                          'gumbel': 0,
+                          'gumbel-90': 1,
+                          'gumbel-180': 2,
+                          'gumbel-270': 3,
+                         }
+        return default_copula
 
 
 class Ctree(Vtree):
@@ -261,22 +291,3 @@ class Ctree(Vtree):
                                  for item in sublist]
         self.treeCopulaParams = np.array(self.treeCopulaParams)
         return self.treeCopulaParams
-
-    @property
-    def _all_trial_copula(self):
-        default_copula = {'t': 0,
-                          'gauss': 0,
-                          'frank': 0,
-                          'frank-90': 1,
-                          'frank-180': 2,
-                          'frank-270': 3,
-                          'clayton': 0,
-                          'clayton-90': 1,
-                          'clayton-180': 2,
-                          'clayton-270': 3,
-                          'gumbel': 0,
-                          'gumbel-90': 1,
-                          'gumbel-180': 2,
-                          'gumbel-270': 3,
-                         }
-        return default_copula

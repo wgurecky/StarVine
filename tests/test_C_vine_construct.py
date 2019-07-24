@@ -53,9 +53,13 @@ class TestCvine(unittest.TestCase):
         # data from the fitted c-vine
         tst_rho_matrix = ranked_data.corr(method='pearson')
         tst_ktau_matrix = ranked_data.corr(method='kendall')
-
         sample_rho_matrix = c_vine_samples.corr(method='pearson')
         sample_ktau_matrix = c_vine_samples.corr(method='kendall')
+        # sort by col labels
+        tst_rho_matrix = tst_rho_matrix.reindex(sorted(tst_rho_matrix.columns), axis=1)
+        tst_ktau_matrix = tst_ktau_matrix.reindex(sorted(tst_ktau_matrix.columns), axis=1)
+        sample_rho_matrix = sample_rho_matrix.reindex(sorted(sample_rho_matrix.columns), axis=1)
+        sample_ktau_matrix = sample_ktau_matrix.reindex(sorted(sample_ktau_matrix.columns), axis=1)
 
         print("Original data corr matrix:")
         print(tst_rho_matrix)
@@ -63,8 +67,8 @@ class TestCvine(unittest.TestCase):
         print(sample_rho_matrix)
         print("Diff:")
         print(tst_rho_matrix - sample_rho_matrix)
-        self.assertTrue(np.allclose(tst_rho_matrix, sample_rho_matrix, atol=0.12))
-        self.assertTrue(np.allclose(tst_ktau_matrix, sample_ktau_matrix, atol=0.12))
+        self.assertTrue(np.allclose(tst_rho_matrix - sample_rho_matrix, 0, atol=0.12))
+        self.assertTrue(np.allclose(tst_ktau_matrix - sample_ktau_matrix, 0, atol=0.12))
 
 
 if __name__ == "__main__":
