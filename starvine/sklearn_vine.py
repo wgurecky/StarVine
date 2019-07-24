@@ -28,7 +28,7 @@ class VineModel(BaseEstimator):
     def fit(self, X, weights=None):
         """
         @brief Fit vine copula model to data.
-        @param X uncorrolated vectors with shape (Nsamples, Ndim). Can be
+        @param X corrolated vectors with shape (Nsamples, Ndim). Can be
             unranked or ranked data
         """
         if not isinstance(X, pd.DataFrame):
@@ -42,18 +42,12 @@ class VineModel(BaseEstimator):
         self.vine = Cvine(x_r, trial_copula=self.trial_copula_dict)
         self.vine.constructVine()
 
-    def predict(self, X, n, marginal_model_list=[]):
+    def predict(self, n):
         """!
         @brief Predict correlated output vectors given uncorrolated inputs.
-        @param X uncorrolated vectors with shape (Nsamples, Ndim)
+        @param n int. Number of samples to draw.
         """
-        if marginal_model_list:
-            for dist in marginal_model_list:
-                assert hasattr(dist, 'ppf')
-            # Perform sampling from supplied marginal distributions
-            pass
-        c_vine_samples = self.vine.sample(n)
-        return c_vine_samples
+        return self.vine.sample(n)
 
     @property
     def rank_transform(self):

@@ -232,8 +232,6 @@ class CopulaBase(object):
         @param mytheta  (optional) Copula parameter list
         @return scaled samples from the bivariate copula model.
         """
-        assert hasattr(frozen_margin_x, 'ppf')
-        assert hasattr(frozen_margin_y, 'ppf')
         u_hat, v_hat = self.sample(n, *mytheta)
         resampled_scaled_x = self.icdf_uv_bisect(u_hat, frozen_margin_x)
         resampled_scaled_y = self.icdf_uv_bisect(v_hat, frozen_margin_y)
@@ -680,10 +678,13 @@ class CopulaBase(object):
         """
         @brief Apply marginal model.
         @param X <b>np_1darray</b> samples from copula margin (uniform distributed)
-        @param frozen_marginal_model  <b>function</b> frozen scipy.stats.rv_continuous python function object
-            CDF(ux)
-            Note: margin CDF model should be a monotonic function with a range in [0, 1]
+        @param frozen_marginal_model frozen scipy.stats.rv_continuous python object
+            or <b>function</b> inverse cdf fuction
+            Note: inv_CDF should be a monotonic function with a domain in [0, 1]
         @return <b>np_1darray</b> Samples drawn from supplied margin model
         """
-        icdf = frozen_marginal_model.ppf(X)
+        if hasattr(frozen_marginal_model, 'ppf'):
+            icdf = frozen_marginal_model.ppf(X)
+        else:
+            icdf = frozen_marginal_model(X)
         return icdf

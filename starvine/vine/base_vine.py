@@ -97,8 +97,9 @@ class BaseVine(object):
     def sample(self, n=1000):
         """!
         @brief Draws n samples from the vine.
+        @param n int. number of samples to draw
         @returns  size == (n, nvars) <b>pandas.DataFrame</b>
-        samples from vine
+            samples from vine
         """
         # gen random samples
         u_n0 = np.random.rand(n)
@@ -145,6 +146,40 @@ class BaseVine(object):
                 base_tree.tree[n0][n1].pop('sample')
 
         # convert sample dict of arrays to dataFrame
+        return pd.DataFrame(sample_result)
+
+    def sampleScale(self, n, frozen_margin_dict):
+        """!
+        @brief Sample vine copula and apply inverse transform sampling
+            to margins.
+        @param n int. number of samples to draw.
+        @param frozen_margin_dict dict of frozen single dimensional
+            prob density functions. See: scipy.stats.rv_continuous
+        """
+        df_x = self.sample(n)
+        return self.scaleSamples(df_x, frozen_margin_dict)
+
+    def scaleSamples(self, df_x, frozen_margin_dict):
+        """!
+        @brief Apply inverse transform sampling
+        @param df_x corrolated samples in [0, 1] from vine copula
+        @param frozen_margin_dict dict of frozen single dimensional
+            prob density functions. See: scipy.stats.rv_continuous.
+            Each entry in the dict is an instance of:
+                frozen_marginal_model  frozen scipy.stats.rv_continuous
+                python object
+            or is a inverse cdf fuction
+        """
+        sample_result = {}
+        assert isinstance(df_x, pd.DataFrame)
+        for col_name in df_x.columns:
+            assert col_name in frozen_margin_dict.keys()
+            frozen_marginal_model = frozen_margin_dict[col_name]
+            x = df_x[col_name]
+            if hasattr(frozen_marginal_model, 'ppf'):
+                sample_result[col_name] = frozen_marginal_model.ppf(x)
+            else:
+                sample_result[col_name] = frozen_marginal_model(x)
         return pd.DataFrame(sample_result)
 
     def plotVine(self, plotAll=True, savefig=None):
