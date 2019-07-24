@@ -5,6 +5,7 @@ from scipy.optimize import minimize
 import networkx as nx
 import numpy as np
 import pandas as pd
+from six import iteritems
 # from starvine.mvar.mv_plot import matrixPairPlot
 
 
@@ -12,8 +13,37 @@ class BaseVine(object):
     """!
     @brief Regular vine base class.
     """
-    def __init__(self, data=None, weights=None):
-        pass
+    def __init__(self, data, dataWeights=None, **kwargs):
+        self.trial_copula_dict = \
+                self._validate_trial_copula( \
+                kwargs.get("trial_copula", self._all_trial_copula))
+        self.data = data
+        self.weights = dataWeights
+
+    def _validate_trial_copula(self, trial_copula):
+        assert isinstance(trial_copula, dict)
+        for key, val in iteritems(trial_copula):
+            assert key in self._all_trial_copula
+            assert self._all_trial_copula[key] == val
+
+    @property
+    def _all_trial_copula(self):
+        default_copula = {'t': 0,
+                          'gauss': 0,
+                          'frank': 0,
+                          'frank-90': 1,
+                          'frank-180': 2,
+                          'frank-270': 3,
+                          'clayton': 0,
+                          'clayton-90': 1,
+                          'clayton-180': 2,
+                          'clayton-270': 3,
+                          'gumbel': 0,
+                          'gumbel-90': 1,
+                          'gumbel-180': 2,
+                          'gumbel-270': 3,
+                         }
+        return default_copula
 
     def loadVineStructure(self, vS):
         """!
@@ -67,8 +97,9 @@ class BaseVine(object):
     def sample(self, n=1000):
         """!
         @brief Draws n samples from the vine.
+        @param n int. number of samples to draw
         @returns  size == (n, nvars) <b>pandas.DataFrame</b>
-        samples from vine
+            samples from vine
         """
         # gen random samples
         u_n0 = np.random.rand(n)
@@ -81,8 +112,8 @@ class BaseVine(object):
 
         # sample from edge of last tree
         u_n1 = edge_info["hinv-dist"](u_n0, u_n1)
-        edge_sample = {n0: 1. - u_n0, n1: 1. - u_n1}
-        # matrixPairPlot(pd.DataFrame(edge_sample), savefig="tree_1_edge_sample.png")
+        edge_sample = {n0: u_n0, n1: u_n1}
+        # matrixPairPlot(pd.DataFrame(edge_sample), savefig="c_test/tree_1_edge_sample.png")
 
         # store edge sample inside graph data struct
         current_tree.tree[n0][n1]['sample'] = edge_sample
@@ -115,6 +146,40 @@ class BaseVine(object):
                 base_tree.tree[n0][n1].pop('sample')
 
         # convert sample dict of arrays to dataFrame
+        return pd.DataFrame(sample_result)
+
+    def sampleScale(self, n, frozen_margin_dict):
+        """!
+        @brief Sample vine copula and apply inverse transform sampling
+            to margins.
+        @param n int. number of samples to draw.
+        @param frozen_margin_dict dict of frozen single dimensional
+            prob density functions. See: scipy.stats.rv_continuous
+        """
+        df_x = self.sample(n)
+        return self.scaleSamples(df_x, frozen_margin_dict)
+
+    def scaleSamples(self, df_x, frozen_margin_dict):
+        """!
+        @brief Apply inverse transform sampling
+        @param df_x corrolated samples in [0, 1] from vine copula
+        @param frozen_margin_dict dict of frozen single dimensional
+            prob density functions. See: scipy.stats.rv_continuous.
+            Each entry in the dict is an instance of:
+                frozen_marginal_model  frozen scipy.stats.rv_continuous
+                python object
+            or is a inverse cdf fuction
+        """
+        sample_result = {}
+        assert isinstance(df_x, pd.DataFrame)
+        for col_name in df_x.columns:
+            assert col_name in frozen_margin_dict.keys()
+            frozen_marginal_model = frozen_margin_dict[col_name]
+            x = df_x[col_name]
+            if hasattr(frozen_marginal_model, 'ppf'):
+                sample_result[col_name] = frozen_marginal_model.ppf(x)
+            else:
+                sample_result[col_name] = frozen_marginal_model(x)
         return pd.DataFrame(sample_result)
 
     def plotVine(self, plotAll=True, savefig=None):

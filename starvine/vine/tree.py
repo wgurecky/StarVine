@@ -7,7 +7,6 @@ from itertools import chain
 from starvine.bvcopula import pc_base as pc
 import networkx as nx
 import numpy as np
-# from starvine.mvar.mv_plot import matrixPairPlot
 
 
 class Vtree(object):
@@ -22,6 +21,7 @@ class Vtree(object):
         """
         assert(type(data) is DataFrame)
         assert(len(data.shape) == 2)
+        self.trial_copula_dict = kwargs.get("trial_copula", {})
         self.data = data
         self._upperTree = parentTree
         #
@@ -63,7 +63,8 @@ class Vtree(object):
                                           pc= \
                                           pc.PairCopula(self.tree.node[pair[0]]["data"],
                                                         self.tree.node[pair[1]]["data"],
-                                                        id=(pair[0], pair[1])),
+                                                        id=(pair[0], pair[1]),
+                                                        family=self.trial_copula_dict),
                                           id=(pair[0], pair[1]),
                                           edge_data={pair[0]: self.tree.node[pair[0]]["data"],
                                                      pair[1]: self.tree.node[pair[1]]["data"]},
@@ -230,7 +231,6 @@ class Vtree(object):
                     u_prev_n0 = prev_edge_info['sample'][prev_n0]
                     u_prev_n2 = prev_edge_info['sample'][prev_n2]
                     u_n1 = prev_edge_info["h-dist"](u_prev_n2, u_prev_n0)
-                    # u_n1 = prev_edge_info["h-dist"](u_prev_n0, u_prev_n2)
                 else:
                     u_n1 = np.random.rand(size)
         else:
@@ -240,10 +240,9 @@ class Vtree(object):
         try:
             u_n0 = edge_info["hinv-dist"](u_n1, next_tree_info['sample'][(n0, n1)])
         except:
-            u_n0 = edge_info["hinv-dist"](u_n1, next_tree_info['sample'][(n1, n0)])
-        edge_sample = {n0: 1. - u_n0, n1: 1. - u_n1}
-        # matrixPairPlot(DataFrame(edge_sample),
-        #                savefig="edge" + str(n0) + "_" + str(n1) + "sample.png")
+            # u_n0 = edge_info["hinv-dist"](u_n1, next_tree_info['sample'][(n1, n0)])
+            raise RuntimeError("Edge with nodes: " + str((n0, n1)), " does not exist.")
+        edge_sample = {n0: u_n0, n1: u_n1}
         current_tree[n0][n1]['sample'] = edge_sample
 
         # If current tree is 0th tree: copy marginal sample to

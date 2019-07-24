@@ -7,6 +7,7 @@ from starvine.bvcopula.copula.copula_base import CopulaBase
 
 class IndepCopula(CopulaBase):
     def __init__(self, rotation=0):
+        super(IndepCopula, self).__init__(rotation)
         self.name = 'indep'
         self.theta0 = (1.0, )
         self.fittedParams = [1.0]

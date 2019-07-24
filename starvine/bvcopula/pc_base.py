@@ -47,7 +47,7 @@ class PairCopula(object):
             self.weights = self.weights / np.average(self.weights)
         if resample > 0:
             self.resample(resample, kwargs.pop("jitter", 1e-12))
-        self.setTrialCopula(kwargs.pop("family", self.defaultFamily))
+        self.setTrialCopula(kwargs.pop("family", {}))
         # default data ranking method
         self.rank_method = kwargs.pop("rankMethod", 0)
         self.rank(self.rank_method)
@@ -124,7 +124,9 @@ class PairCopula(object):
         assert type(method) is int
         self._rank_method = method
 
-    def setTrialCopula(self, family):
+    def setTrialCopula(self, family={}):
+        if not family:
+            family = self.defaultFamily
         self.trialFamily = family
         self.copulaBank = {}
         for name, rotation in iteritems(self.trialFamily):
@@ -216,7 +218,7 @@ class PairCopula(object):
         self.copulaParams = goldParams
         return (self.copulaModel, self.copulaParams)
 
-    def fitCopula(self, copula, thetaGuess=(None, None, )):
+    def fitCopula(self, copula, thetaGuess=(None, None,)):
         """!
         @brief fit specified copula to data.
         @param copula <b>CopulaBase</b>  Copula instance

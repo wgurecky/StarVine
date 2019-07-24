@@ -12,11 +12,11 @@ class GumbelCopula(CopulaBase):
     \f$\theta \in [1, \infty) \f$
     """
     def __init__(self, rotation=0, init_params=None):
+        super(GumbelCopula, self).__init__(rotation, params=init_params)
         self.thetaBounds = ((1 + 1e-9, np.inf),)
         self.theta0 = (2.0, )
         self.rotation = rotation
         self.name = 'gumbel'
-        super(GumbelCopula, self).__init__(rotation, params=init_params)
 
     @CopulaBase._rotPDF
     def _pdf(self, u, v, rotation=0, *theta):
@@ -79,22 +79,27 @@ class GumbelCopula(CopulaBase):
         """
         U = np.asarray(u)
         V = np.asarray(v)
-        # uu = np.zeros(U.size)
-        # for i, (ui, vi) in enumerate(zip(U, V)):
-        #     uu[i] = self._invhfun_bisect(ui, vi, rotation, *theta)
-        # return uu
+        uu = np.zeros(U.size)
+        for i, (ui, vi) in enumerate(zip(U, V)):
+            uu[i] = self._invhfun_bisect(ui, vi, rotation, *theta)
+        return uu
         # Apply rotation
-        if rotation == 1:
-            U = 1. - U
-        elif rotation == 3:
-            V = 1. - V
-        elif rotation == 0:
-            pass
-        vv = self.vec_newton_hinv(V, U, theta[0], z_init=np.ones(len(U)))
-        if rotation == 1 or rotation == 3:
-            return 1. - vv
-        else:
-            return vv
+
+        # TODO: Fix! Properly vectorize hinv!
+        # TODO: This is causing an issue in c-vine sampling
+        # It is faster but it is incorrect.
+        #if rotation == 1:
+        #    U = 1. - U
+        #elif rotation == 3:
+        #    V = 1. - V
+        #elif rotation == 0:
+        #    pass
+        #vv = self.vec_newton_hinv(V, U, theta[0], z_init=np.ones(len(U)))
+        #if rotation == 1 or rotation == 3:
+        #    return 1. - vv
+        #else:
+        #    return vv
+        pass
 
     @CopulaBase._rotGen
     def _gen(self, t, *theta):

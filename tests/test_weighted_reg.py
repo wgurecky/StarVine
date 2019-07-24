@@ -79,13 +79,6 @@ class TestWeightedReg(unittest.TestCase):
         data = pd.DataFrame([x_wt, y_wt]).T
         matrixPairPlot(data, savefig='x_gauss_weighted_fit.png')
 
-    def testWgtMargins(self):
-        """!
-        @brief Test the ability to construct a marginal PDF
-        given samples with unequal weights.
-        """
-        pass
-
     def testWgtResampledCopula(self):
         """!
         @brief Test ability to construct copula

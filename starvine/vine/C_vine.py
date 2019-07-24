@@ -12,12 +12,13 @@ from scipy.optimize import minimize
 import networkx as nx
 from starvine.bvcopula import pc_base as pc
 import numpy as np
+from six import iteritems
 from starvine.vine.tree import Vtree
 
 
 class Cvine(BaseVine):
     """!
-    @brief Cononical vine (C-vine).  Provides methods to fit pair
+    @brief Canonical vine (C-vine).  Provides methods to fit pair
     copula constructions sequentially and simultaneously.
     Additional methods are provided to draw samples from a
     constructed C-vine.
@@ -53,7 +54,7 @@ class Cvine(BaseVine):
 
     \f[ h(x| v, \theta) = F(x|v, \theta) = \frac{\partial C_{xv}(x,v,\theta)}{\partial v} \f]
 
-    Where we have defined the convinience conditional distribution
+    Where we have defined, for convinience, the conditional distribution:
     \f$ h(\cdot) \f$
 
     The nodes of the lower level trees are formed by using \f$ h(x| v,\theta) \f$
@@ -71,9 +72,8 @@ class Cvine(BaseVine):
     and the inner product indicies represent
     the pair copula constructions (PCC) withen the given tree.
     """
-    def __init__(self, data, dataWeights=None):
-        self.data = data
-        self.weights = dataWeights
+    def __init__(self, data, dataWeights=None, **kwargs):
+        super(Cvine, self).__init__(data, dataWeights, **kwargs)
         self.nLevels = int(data.shape[1] - 1)
         self.vine = []
 
@@ -84,7 +84,7 @@ class Cvine(BaseVine):
         build all tree levels.
         """
         # 0th tree build
-        tree0 = Ctree(self.data, lvl=0)
+        tree0 = Ctree(self.data, lvl=0, trial_copula=self.trial_copula_dict)
         tree0.seqCopulaFit()
         self.vine.append(tree0)
         # build all other trees
@@ -98,7 +98,8 @@ class Cvine(BaseVine):
         """
         treeT = Ctree(self.vine[level - 1].evalH(),
                       lvl=level,
-                      parentTree=self.vine[level - 1])
+                      parentTree=self.vine[level - 1],
+                      trial_copula=self.trial_copula_dict)
         treeT.seqCopulaFit()
         if self.nLevels > 1:
             self.vine.append(treeT)
@@ -111,7 +112,7 @@ class Cvine(BaseVine):
 class Ctree(Vtree):
     """!
     @brief A C-tree is a tree with a single root node.
-    Each level of a cononical vine is a C-tree.
+    Each level of a canonical vine is a C-tree.
     """
     def __init__(self, data, lvl=None, **kwargs):
         """!
@@ -139,7 +140,7 @@ class Ctree(Vtree):
     def treeNLLH(self, treeCopulaParams=None):
         """!
         @brief Compute this tree's negative log likelihood.
-        For C-trees this is just the sum of copula-log-likeyhoods over all
+        For C-trees this is just the sum of copula-log-likelihoods over all
         node-pairs.
         @param treeCopulaParams <b>np_1darray</b> Copula parameter array.
         Contains parameters for all PCC in the tree.
@@ -195,16 +196,14 @@ class Ctree(Vtree):
                 # iterate though all child nodes,
                 # root dataset cannot be paired with itself
                 if nodeID != rootNodeID:
-                    ## VV is OK UU is wrong!
                     trialPair = pc.PairCopula(self.tree.node[nodeID]["data"].values,
                                               self.tree.node[rootNodeID]["data"].values)
-                    # trialPair = pc.PairCopula(self.tree.node[rootNodeID]["data"].values,
-                    #                           self.tree.node[nodeID]["data"].values)
                     trialKtau, trialP = trialPair.empKTau()
                     trialKtauSum[i] += abs(trialKtau)
-                    # trialPairings[i].append((rootNodeID, nodeID, trialKtau))
                     trialPairings[i].append((nodeID, rootNodeID, trialKtau))
+            print("Tree level: %d, configuration: %d, Ktau Metric: %f" % (self.level, i, trialKtauSum[i]))
         bestPairingIndex = np.argmax(np.abs(trialKtauSum))
+        print(" === Configuration %d selected === " % (bestPairingIndex))
         self.rootNodeID = trialPairings[bestPairingIndex][0][1]
         return trialPairings[bestPairingIndex]
 
@@ -231,8 +230,6 @@ class Ctree(Vtree):
                 rootData = data["pc"].UU
             condData[(nonRootID, rootID)] = data["h-dist"](data["pc"].VV,
                                                            data["pc"].UU)
-            # condData[(nonRootID, rootID)] = data["h-dist"](nonRootData,
-            #                                                rootData)
         return condData
 
     def _getEdgeCopulaParams(self, u, v):

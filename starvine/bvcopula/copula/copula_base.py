@@ -4,6 +4,7 @@
 # H function.
 from __future__ import print_function, absolute_import, division
 import numpy as np
+import six, abc
 import scipy.integrate as spi
 from scipy.optimize import bisect, newton, brentq
 from scipy.optimize import minimize
@@ -12,6 +13,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
+@six.add_metaclass(abc.ABCMeta)
 class CopulaBase(object):
     """!
     @brief Bivariate Copula base class.  Meant to be subclassed
@@ -21,22 +23,84 @@ class CopulaBase(object):
     Copula can be rotated by 90, 180, 270 degrees to accommodate
     negative dependence.
     """
-    def __init__(self, rotation=0, **kwargs):
+    def __init__(self, rotation=0, thetaBounds=((-np.inf, np.inf),),
+                 theta0=(0.0,), name='defaut', **kwargs):
         """!
         @brief Init copula
-        @param rotation <b>int</b>  Copula orientation
+        @param rotation <b>int</b>  Copula orientation in [0, 1, 2, 3]
+        @param thetaBounds <b>tuple of tuples</b> should have len = len(theta0).
+            provides upper and lower bounds for each copula parameter
+        @param theta0 <b>tuple</b> initial parameter guesses
+        @name <b>str</b> name of coupula
         """
+        self._thetaBounds = thetaBounds
         self.rotation = rotation
+        self.theta0 = theta0
+        self.name = name
         self._fittedParams = kwargs.pop("params", None)
 
     @property
     def fittedParams(self):
+        """!
+        @brief Fitted parameters from MLE or MCMC
+        """
         return self._fittedParams
 
     @fittedParams.setter
     def fittedParams(self, fp):
-        # TODO: bounds check input fp!
+        if not self._bounds_check(*fp):
+            raise RuntimeError("Fitted params not in bounds.")
         self._fittedParams = fp
+
+    @property
+    def theta0(self):
+        """!
+        @brief Initial parameter guess
+        """
+        return self._theta0
+
+    @theta0.setter
+    def theta0(self, theta):
+        if not self._bounds_check(*theta):
+            raise RuntimeError("Theta_0 not in bounds.")
+        self._theta0 = theta
+
+    @property
+    def thetaBounds(self):
+        """!
+        @brief Copula parameter bounds
+        """
+        return self._thetaBounds
+
+    @thetaBounds.setter
+    def thetaBounds(self, bounds):
+        """!
+        @brief Copula parameter bounds
+        """
+        self._thetaBounds = bounds
+
+    @property
+    def rotation(self):
+        """!
+        @brief Copula orientation
+        """
+        return self._rotation
+
+    @rotation.setter
+    def rotation(self, rot):
+        assert rot in [0, 1, 2, 3]
+        self._rotation = rot
+
+    @property
+    def name(self):
+        """!
+        @brief Copula name
+        """
+        return self._name
+
+    @name.setter
+    def name(self, nm_str):
+        self._name = nm_str
 
     # ---------------------------- PUBLIC METHODS ------------------------------ #
     def cdf(self, u, v, *theta):
@@ -75,9 +139,29 @@ class CopulaBase(object):
         @param theta0 Initial guess for copula parameter list
         @return <b>tuple</b> :
                 (<b>np_array</b> Array of MLE fit copula parameters,
-                <b>int</b> Fitting success flag, 1==success)
+                <b>np_2darray</b> sample array of shape (nparams, nsamples))
         """
-        pass
+        from emcee import EnsembleSampler
+        wgts = kwargs.pop("weights", np.ones(len(u)))
+        rotation = 0
+        ln_prob = lambda theta: self._ln_prior(*theta, **kwargs) + \
+                self._ln_like(u, v, wgts, rotation, *theta)
+        if None in theta0:
+            params0 = self.theta0
+        else:
+            params0 = theta0
+        ndim = len(params0)
+        ngen = kwargs.get("ngen", 200)
+        nburn = kwargs.get("nburn", 100)
+        nwalkers = kwargs.get("nwalkers", 50)
+        # initilize walkers in gaussian ball around theta0
+        pos_0 = [np.array(params0) + 1e-6 * np.asarray(params0)*np.random.randn(ndim) for i in range(nwalkers)]
+        emcee_mcmc = EnsembleSampler(nwalkers, ndim, ln_prob)
+        emcee_mcmc.run_mcmc(pos_0, ngen)
+        samples = emcee_mcmc.chain[:, nburn:, :].reshape((-1, ndim))
+        res = np.mean(samples, axis=0)
+        self._fittedParams = res
+        return res, samples
 
     def fitMLE(self, u, v, *theta0, **kwargs):
         """!
@@ -157,8 +241,7 @@ class CopulaBase(object):
         """!
         @brief  Set the copula's orientation:
         Allows for modeling negative dependence with the
-        frank, gumbel, and clayton copulas (Archimedean Copula family is
-        non-symmetric)
+        frank, gumbel, and clayton copulas
         @param rotation <b>int</b> Copula rotation.
             0 == 0 deg,
             1 == 90 deg rotation,
@@ -168,6 +251,7 @@ class CopulaBase(object):
         self.rotation = rotation
 
     # ---------------------------- PRIVATE METHODS ------------------------------ #
+    @abc.abstractmethod
     def _pdf(self, u, v, rotation=0, *theta):
         """!
         @brief Pure virtual density function.
@@ -210,6 +294,7 @@ class CopulaBase(object):
         v_hat = self._hinv(u_hat, v, rotation, *theta)
         return (u_hat, v_hat)
 
+    @abc.abstractmethod
     def _h(self, u, v, rotation=0, *theta):
         """!
         @brief Copula conditional distribution function.
@@ -226,6 +311,7 @@ class CopulaBase(object):
         """
         raise NotImplementedError
 
+    @abc.abstractmethod
     def _hinv(self, u, v, rotation=0, *theta):
         """!
         @brief Inverse H function.
@@ -259,12 +345,43 @@ class CopulaBase(object):
             wgts = np.ones(len(u))
         return np.sum(wgts * np.log(self._pdf(u, v, rotation, *theta)))
 
+    def _ln_like(self, u, v, wgts=None, rotation=0, *theta):
+        """!
+        @brief log likelihood func wrapper.  return -np.inf if
+        theta is out of bounds
+        """
+        try:
+            a = self._logLike(u, v, wgts, rotation, *theta)
+            if np.isnan(a):
+                return -np.inf
+            else:
+                return a
+        except:
+            return -np.inf
+
+    def _bounds_check(self, *theta, **kwargs):
+        """!
+        @brief Check if parameters are in bounds.
+        """
+        bounds=kwargs.pop("bounds", self.thetaBounds)
+        assert len(theta) == len(bounds)
+        for i, param in enumerate(theta):
+            if bounds[i][0] < param < bounds[i][1]:
+                pass
+            else:
+                return False
+        return True
+
+    def _ln_prior(self, *theta, **kwargs):
+        in_bounds = self._bounds_check(*theta, **kwargs)
+        if in_bounds:
+            return 0.0
+        else:
+            return -np.inf
+
     def _invhfun_bisect(self, U, V, rotation, *theta):
         """!
         @brief Compute inverse of H function using bisection.
-        Update (11/08/2016) performance improvement: finish with newton iterations
-        Update (12/04/2016) Newton can minimization needs bounds checks!
-        TODO: move to scipy.minmize
         """
         # Apply limiters
         U = np.clip(U, 1e-8, 1. - 1e-8)
@@ -307,6 +424,7 @@ class CopulaBase(object):
         AICc = AIC + (2. * k ** 2. + 2. * k) / (len(u) - k - 1)
         return AICc
 
+    @abc.abstractmethod
     def _gen(self, t, *theta):
         """!
         @brief Copula generator function.
@@ -537,9 +655,6 @@ class CopulaBase(object):
                 return 1. - f(self, 1. - u, 1. - v, rot, *nargs)
             elif self.rotation == 3:
                 # 270 deg rotation
-                # Clayton is flipped!
-                # TODO: Fix GUMBEL 270 rotation
-                # return 1. - f(self, 1. - u, v, rot, *nargs)  # works for gumbel
                 return 1. - f(self, u, 1. - v, rot, *nargs)
         return wrapper
 
@@ -563,10 +678,13 @@ class CopulaBase(object):
         """
         @brief Apply marginal model.
         @param X <b>np_1darray</b> samples from copula margin (uniform distributed)
-        @param frozen_marginal_model  <b>function</b> frozen scipy.stats.rv_continuous python function object
-            CDF(ux)
-            Note: margin CDF model should be a monotonic function with a range in [0, 1]
+        @param frozen_marginal_model frozen scipy.stats.rv_continuous python object
+            or <b>function</b> inverse cdf fuction
+            Note: inv_CDF should be a monotonic function with a domain in [0, 1]
         @return <b>np_1darray</b> Samples drawn from supplied margin model
         """
-        icdf = frozen_marginal_model.ppf(X)
+        if hasattr(frozen_marginal_model, 'ppf'):
+            icdf = frozen_marginal_model.ppf(X)
+        else:
+            icdf = frozen_marginal_model(X)
         return icdf

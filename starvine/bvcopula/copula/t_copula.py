@@ -22,11 +22,11 @@ class StudentTCopula(CopulaBase):
     \f$ \theta_1 \in (2, \infty) \f$
     """
     def __init__(self, rotation=0, init_params=None):
+        super(StudentTCopula, self).__init__(rotation, params=init_params)
         self.thetaBounds = ((-1 + 1e-9, 1 - 1e-9), (2.0, np.inf),)
         self.theta0 = (0.7, 10.0)
         self.name = 't'
         self.rotation = 0
-        super(StudentTCopula, self).__init__(rotation, params=init_params)
 
     @CopulaBase._rotPDF
     def _pdf(self, u, v, rotation=0, *theta):
@@ -149,6 +149,8 @@ class StudentTCopula(CopulaBase):
         kt = (2.0 / np.pi) * np.arcsin(theta[0])
         return kt
 
+    def _gen(self, t, *theta):
+        raise NotImplementedError
 
 def ggamma(x):
     return np.log(gammaln(x))

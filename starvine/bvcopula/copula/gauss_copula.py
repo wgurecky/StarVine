@@ -19,11 +19,11 @@ class GaussCopula(CopulaBase):
         @param rotation Int. in (0, 1, 2, 3)
         @param init_params List of initial copula parameters
         """
+        super(GaussCopula, self).__init__(rotation, params=init_params)
         self.thetaBounds = ((-1 + 1e-9, 1 - 1e-9),)
         self.theta0 = (0.7,)
         self.name = 'gauss'
         self.rotation = rotation
-        super(GaussCopula, self).__init__(rotation, params=init_params)
 
     @CopulaBase._rotPDF
     def _pdf(self, u, v, rotation=0, *theta):
