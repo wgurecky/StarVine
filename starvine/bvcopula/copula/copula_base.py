@@ -519,7 +519,7 @@ class CopulaBase(object):
         \f]
         The double integral can be computed numerically:
         \f[
-            \int_0^t \int_0^t I{C(u, v) \leq t} dC(u, v)}
+            \int_0^t \int_0^t I{C(u, v) \leq t} dC(u, v)
         \f]
         Where $I$ is the indicator function.
         Numerical integration is necissary in the base class as to

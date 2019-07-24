@@ -1,3 +1,6 @@
+"""!
+@brief bvcopula namespace __init__ file.
+"""
 __all__ = ['bv_plot', 'pc_base']
 
 # from copula import *

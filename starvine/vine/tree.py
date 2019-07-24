@@ -189,6 +189,7 @@ class Vtree(object):
         @param old_n0  Node_0 from lowerTree edge
         @param old_n1  Node_1 from lowerTree
         @param size <b>int</b>  sample size
+        @param vine starvine.vine.base_vine.BaseVine instance
         """
         def unrollNodes(l):
             try:
