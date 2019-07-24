@@ -73,11 +73,7 @@ class Cvine(BaseVine):
     the pair copula constructions (PCC) withen the given tree.
     """
     def __init__(self, data, dataWeights=None, **kwargs):
-        self.trial_copula_dict = \
-                self._validate_trial_copula( \
-                kwargs.get("trial_copula", self._all_trial_copula))
-        self.data = data
-        self.weights = dataWeights
+        super(Cvine, self).__init__(data, dataWeights, **kwargs)
         self.nLevels = int(data.shape[1] - 1)
         self.vine = []
 
@@ -111,31 +107,6 @@ class Cvine(BaseVine):
             self.buildDeepTrees(level + 1)
         elif level == self.nLevels - 1:
             self.vine[level].evalH()
-
-    def _validate_trial_copula(self, trial_copula):
-        assert isinstance(trial_copula, dict)
-        for key, val in iteritems(trial_copula):
-            assert key in self._all_trial_copula
-            assert self._all_trial_copula[key] == val
-
-    @property
-    def _all_trial_copula(self):
-        default_copula = {'t': 0,
-                          'gauss': 0,
-                          'frank': 0,
-                          'frank-90': 1,
-                          'frank-180': 2,
-                          'frank-270': 3,
-                          'clayton': 0,
-                          'clayton-90': 1,
-                          'clayton-180': 2,
-                          'clayton-270': 3,
-                          'gumbel': 0,
-                          'gumbel-90': 1,
-                          'gumbel-180': 2,
-                          'gumbel-270': 3,
-                         }
-        return default_copula
 
 
 class Ctree(Vtree):

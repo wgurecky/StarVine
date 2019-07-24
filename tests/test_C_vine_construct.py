@@ -67,8 +67,8 @@ class TestCvine(unittest.TestCase):
         print(sample_rho_matrix)
         print("Diff:")
         print(tst_rho_matrix - sample_rho_matrix)
-        self.assertTrue(np.allclose(tst_rho_matrix - sample_rho_matrix, 0, atol=0.12))
-        self.assertTrue(np.allclose(tst_ktau_matrix - sample_ktau_matrix, 0, atol=0.12))
+        self.assertTrue(np.allclose(tst_rho_matrix - sample_rho_matrix, 0, atol=0.10))
+        self.assertTrue(np.allclose(tst_ktau_matrix - sample_ktau_matrix, 0, atol=0.10))
 
 
 if __name__ == "__main__":

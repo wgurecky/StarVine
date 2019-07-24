@@ -5,6 +5,7 @@ from scipy.optimize import minimize
 import networkx as nx
 import numpy as np
 import pandas as pd
+from six import iteritems
 # from starvine.mvar.mv_plot import matrixPairPlot
 
 
@@ -12,8 +13,37 @@ class BaseVine(object):
     """!
     @brief Regular vine base class.
     """
-    def __init__(self, data=None, weights=None):
-        pass
+    def __init__(self, data, dataWeights=None, **kwargs):
+        self.trial_copula_dict = \
+                self._validate_trial_copula( \
+                kwargs.get("trial_copula", self._all_trial_copula))
+        self.data = data
+        self.weights = dataWeights
+
+    def _validate_trial_copula(self, trial_copula):
+        assert isinstance(trial_copula, dict)
+        for key, val in iteritems(trial_copula):
+            assert key in self._all_trial_copula
+            assert self._all_trial_copula[key] == val
+
+    @property
+    def _all_trial_copula(self):
+        default_copula = {'t': 0,
+                          'gauss': 0,
+                          'frank': 0,
+                          'frank-90': 1,
+                          'frank-180': 2,
+                          'frank-270': 3,
+                          'clayton': 0,
+                          'clayton-90': 1,
+                          'clayton-180': 2,
+                          'clayton-270': 3,
+                          'gumbel': 0,
+                          'gumbel-90': 1,
+                          'gumbel-180': 2,
+                          'gumbel-270': 3,
+                         }
+        return default_copula
 
     def loadVineStructure(self, vS):
         """!
