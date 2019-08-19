@@ -51,6 +51,18 @@ class BaseVine(object):
         """
         pass
 
+    def vinePdf(self, x, level=1, **kwargs):
+        return self._pdf(x)
+
+    def vineCdf(self, x):
+        return self._cdf(x)
+
+    def _pdf(self, x, level=1, **kwargs):
+        raise NotImplementedError
+
+    def _cdf(self, x, level=1, **kwargs):
+        raise NotImplementedError
+
     def vineNLLH(self, vineParams=[None], **kwargs):
         """!
         @brief Compute the vine negative log likelihood.  Used for

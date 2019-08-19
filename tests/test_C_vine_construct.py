@@ -70,7 +70,7 @@ class TestCvine(unittest.TestCase):
         print(tst_rho_matrix - sample_rho_matrix)
         self.assertTrue(np.allclose(tst_rho_matrix - sample_rho_matrix, 0, atol=0.10))
         self.assertTrue(np.allclose(tst_ktau_matrix - sample_ktau_matrix, 0, atol=0.10))
-
+    
         # fit marginal distributions to original data
         marginal_dict = {}
         for col_name in tstData.columns:
@@ -88,6 +88,26 @@ class TestCvine(unittest.TestCase):
         # check for consistency
         self.assertTrue(np.allclose(tst_rho_matrix - sample_scaled_rho_matrix_a, 0, atol=0.1))
         self.assertTrue(np.allclose(tst_rho_matrix - sample_scaled_rho_matrix_b, 0, atol=0.1))
+
+        # check vine pdf values
+        tstX = pd.DataFrame()
+        tstX['1a'] = [0.01, 0.4, 0.5, 0.6, 0.99, 0.999]
+        tstX['2b'] = [0.01, 0.4, 0.5, 0.6, 0.99, 0.999]
+        tstX['3c'] = [0.01, 0.4, 0.5, 0.6, 0.99, 0.999]
+        tstX['4d'] = [0.01, 0.4, 0.5, 0.6, 0.99, 0.999]
+        tstX['5e'] = [0.01, 0.4, 0.5, 0.6, 0.99, 0.999]
+        pdf_at_tstX = tstVine.vinePdf(tstX)
+        print(pdf_at_tstX)
+        self.assertTrue(np.all(pdf_at_tstX > 0.0))
+
+        # check vine cdf values
+        cdf_at_tstX = tstVine.vineCdf(tstX)
+        print(cdf_at_tstX)
+        cdf_tol = 0.05
+        self.assertTrue(cdf_at_tstX[1] > cdf_at_tstX[0])
+        self.assertTrue(np.all(0.0 <= cdf_at_tstX))
+        self.assertTrue(np.all(cdf_at_tstX <= 1.0 + cdf_tol))
+        self.assertAlmostEqual(cdf_at_tstX[-1], 1.0, delta=cdf_tol)
 
 
 if __name__ == "__main__":

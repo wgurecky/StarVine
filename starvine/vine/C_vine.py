@@ -11,6 +11,7 @@ from pandas import DataFrame
 from scipy.optimize import minimize
 import networkx as nx
 from starvine.bvcopula import pc_base as pc
+import scipy.integrate as spi
 import numpy as np
 from six import iteritems
 from starvine.vine.tree import Vtree
@@ -107,6 +108,141 @@ class Cvine(BaseVine):
             self.buildDeepTrees(level + 1)
         elif level == self.nLevels - 1:
             self.vine[level].evalH()
+
+    def _lnpdf(self, x, **kwargs):
+        vine_cond_x = []
+        vine_cond_x.append(self.vine[0].evalHData(x))
+        for lvl in range(1, self.nLevels):
+            vine_cond_x.append(self.vine[lvl].evalHData(vine_cond_x[lvl - 1]))
+        """
+        sum_pdf = np.zeros(len(x))
+        total_n_copula = np.math.factorial(self.nLevels)
+        for u_id, v_id in self.vine[0].tree.edges(data=False):
+            x_lvl = x
+
+            rootID = self.vine[0].rootNodeID
+            if u_id is not rootID:
+                nonRootID = u_id
+            else:
+                nonRootID = v_id
+
+            u, v = np.asarray(x_lvl[nonRootID]), np.asarray(x_lvl[rootID])
+            # u, v = np.asarray(x_lvl[u_id]), np.asarray(x_lvl[v_id])
+
+            # tree_wgt = len(self.vine[0].tree.edges)
+            tree_wgt =  total_n_copula
+            sum_pdf += \
+                self.vine[0].tree.adj[nonRootID][rootID]["pc"].copulaModel.pdf( \
+                u, v) / tree_wgt
+
+        for lvl in range(1, self.nLevels):
+            for u_id, v_id in self.vine[lvl].tree.edges(data=False):
+                x_lvl = vine_cond_x[lvl - 1]
+
+                rootID = self.vine[lvl].rootNodeID
+                if u_id is not rootID:
+                    nonRootID = u_id
+                else:
+                    nonRootID = v_id
+
+                # u, v = np.asarray(x_lvl[u_id]), np.asarray(x_lvl[v_id])
+                u, v = np.asarray(x_lvl[nonRootID]), np.asarray(x_lvl[rootID])
+
+                # tree_wgt = len(self.vine[lvl].tree.edges)
+                tree_wgt =  total_n_copula
+                sum_pdf += \
+                    self.vine[lvl].tree.adj[nonRootID][rootID]["pc"].copulaModel.pdf( \
+                    u, v) / tree_wgt
+        return sum_pdf
+        """
+        ln_pdf = np.zeros(len(x))
+        total_n_copula = np.math.factorial(self.nLevels)
+        for u_id, v_id in self.vine[0].tree.edges(data=False):
+            x_lvl = x
+
+            rootID = self.vine[0].rootNodeID
+            if u_id is not rootID:
+                nonRootID = u_id
+            else:
+                nonRootID = v_id
+
+            # u, v = np.asarray(x_lvl[u_id]), np.asarray(x_lvl[v_id])
+            u, v = np.asarray(x_lvl[nonRootID]), np.asarray(x_lvl[rootID])
+
+            ln_pdf += \
+                np.log(self.vine[0].tree.adj[nonRootID][rootID]["pc"].copulaModel.pdf( \
+                u, v))
+
+        for lvl in range(1, self.nLevels):
+            for u_id, v_id in self.vine[lvl].tree.edges(data=False):
+                x_lvl = vine_cond_x[lvl - 1]
+
+                rootID = self.vine[lvl].rootNodeID
+                if u_id is not rootID:
+                    nonRootID = u_id
+                else:
+                    nonRootID = v_id
+
+                # u, v = np.asarray(x_lvl[u_id]), np.asarray(x_lvl[v_id])
+                u, v = np.asarray(x_lvl[nonRootID]), np.asarray(x_lvl[rootID])
+
+                ln_pdf += \
+                    np.log(self.vine[lvl].tree.adj[nonRootID][rootID]["pc"].copulaModel.pdf( \
+                    u, v))
+        return ln_pdf
+
+    def _pdf(self, x, **kwargs):
+        assert isinstance(x, DataFrame)
+        return np.exp(self._lnpdf(x, **kwargs))
+
+    def _cdf(self, x, **kwargs):
+        import quadpy
+        assert isinstance(x, DataFrame)
+        cdf_vector = np.zeros(len(x))
+        points_vector = np.ones(len(x)) * 0.0
+        def _pdf(*x):
+            # x should always have even len
+            col_labels = x[int(len(x)/2):]
+            x_dframe = DataFrame()
+            for i, col_label in enumerate(col_labels):
+                x_dframe[col_label] = [x[i]]
+            pdf_x = self._pdf(x_dframe)
+            print(x[0:int(len(x)/2)], pdf_x)
+            return pdf_x
+
+        def f_pdf(x_np):
+            nps = x_np.shape
+            x_dframe = DataFrame()
+            for k in range(nps[0]):
+                x_dframe[x.columns[k]] = x_np[k, :]
+            pdf_x = self._pdf(x_dframe)
+            pdf_x[np.isnan(pdf_x)] = np.max(pdf_x)
+            return pdf_x
+
+        edge_tol = 1e-2
+        for i, x_i in x.iterrows():
+            ranges = np.zeros((len(x_i), 2)) + edge_tol
+            col_labels = []
+            j=0
+            for col_name, col_data  in x_i.iteritems():
+                col_labels.append(col_name)
+                ranges[j, 1] = np.clip(col_data, edge_tol, 1. - 0.1 * edge_tol)
+                j += 1
+
+            dim = len(x.columns)
+            scheme = quadpy.ncube.stroud_cn_5_9(dim)
+            cdf_vector[i] = scheme.integrate(f_pdf,
+                    quadpy.ncube.ncube_points(
+                        *[r for r in ranges])
+                        )
+
+            #res = spi.nquad(_pdf, ranges,
+            #               args=(col_labels),
+            #               opts={'limit': 2, 'epsabs': 1e-2, 'epsrel': 1e-2,
+            #                     'points': points_vector, 'limlst': 8})[0]
+            #print("Vine CDF abs err est at xi=%s: %0.5e" % (str(x_i), res[1]))
+            #cdf_vector[i] = res[0]
+        return cdf_vector
 
 
 class Ctree(Vtree):
@@ -222,14 +358,23 @@ class Ctree(Vtree):
             rootID = self.rootNodeID
             if u is not rootID:
                 nonRootID = u
-                nonRootData = data["pc"].UU
-                rootData = data["pc"].VV
             else:
                 nonRootID = v
-                nonRootData = data["pc"].VV
-                rootData = data["pc"].UU
             condData[(nonRootID, rootID)] = data["h-dist"](data["pc"].VV,
                                                            data["pc"].UU)
+        return condData
+
+    def evalHData(self, x):
+        assert isinstance(x, DataFrame)
+        condData = DataFrame()
+        for u, v, data in self.tree.edges(data=True):
+            rootID = self.rootNodeID
+            if u is not rootID:
+                nonRootID = u
+            else:
+                nonRootID = v
+            condData[(nonRootID, rootID)] = data["h-dist"](x[v],
+                                                           x[u])
         return condData
 
     def _getEdgeCopulaParams(self, u, v):
