@@ -10,11 +10,28 @@ from starvine.vine.base_vine import BaseVine
 from pandas import DataFrame
 from scipy.optimize import minimize
 import networkx as nx
+from itertools import product
 from starvine.bvcopula import pc_base as pc
 import scipy.integrate as spi
 import numpy as np
 from six import iteritems
 from starvine.vine.tree import Vtree
+
+def splitcubes(K, d, bounds_list):
+    coords = [np.linspace(bounds_list[i][0] , bounds_list[i][1], num=K + 1) for i in range(d)]
+    grid = np.stack(np.meshgrid(*coords)).T
+
+    ks = list(range(1, K))
+    for slices in product(*([[slice(b,e) for b,e in zip([None] + ks, [k+1 for k in ks] + [None])]]*d)):
+        yield grid[slices]
+
+def cubesets(K, d, bounds_list=()):
+    assert len(bounds_list) == d
+    assert len(bounds_list[0]) == 2
+    if (K & (K - 1)) or K < 2:
+        raise ValueError('K must be a positive power of 2. K: %s' % K)
+
+    return [set(tuple(p.tolist()) for p in c.reshape(-1, d)) for c in splitcubes(K, d, bounds_list)]
 
 
 class Cvine(BaseVine):
@@ -230,6 +247,11 @@ class Cvine(BaseVine):
                 j += 1
 
             dim = len(x.columns)
+            sub_cubes = cubesets(4, dim, ranges)
+            for sub_cube in sub_cubes:
+                sub_cube_coords = np.asarray(sub_cube)
+                import pdb; pdb.set_trace()
+
             scheme = quadpy.ncube.stroud_cn_5_9(dim)
             cdf_vector[i] = scheme.integrate(f_pdf,
                     quadpy.ncube.ncube_points(

@@ -25,6 +25,7 @@ class BaseVine(object):
         for key, val in iteritems(trial_copula):
             assert key in self._all_trial_copula
             assert self._all_trial_copula[key] == val
+        return trial_copula
 
     @property
     def _all_trial_copula(self):
