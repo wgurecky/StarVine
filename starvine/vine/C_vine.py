@@ -31,7 +31,7 @@ def cubesets(K, d, bounds_list=()):
     if (K & (K - 1)) or K < 2:
         raise ValueError('K must be a positive power of 2. K: %s' % K)
 
-    return [set(tuple(p.tolist()) for p in c.reshape(-1, d)) for c in splitcubes(K, d, bounds_list)]
+    return list([set(tuple(p.tolist()) for p in c.reshape(-1, d)) for c in splitcubes(K, d, bounds_list)])
 
 
 class Cvine(BaseVine):
@@ -212,9 +212,20 @@ class Cvine(BaseVine):
         assert isinstance(x, DataFrame)
         return np.exp(self._lnpdf(x, **kwargs))
 
-    def _cdf(self, x, **kwargs):
+    def _cdf(self, x, k_split=2, **kwargs):
+        """
+        @brief CDF via numerical integration of PDF.
+        @param x pandas dataframe of locations at which to evaluate CDF.
+        @param k_split splits the [0,1]^D dimensional hypercube
+            over which the copula PDF is supported over into k_split chunks
+            in each dimension.  Ex:  a copula of D=3 with k_split=2
+            would have 8 equally sized cubical integration zones.
+        """
+        # note: quadpy makes use of mypy
         import quadpy
         assert isinstance(x, DataFrame)
+        dim = len(x.columns)
+        scheme = quadpy.ncube.stroud_cn_5_9(dim)
         cdf_vector = np.zeros(len(x))
         points_vector = np.ones(len(x)) * 0.0
         def _pdf(*x):
@@ -236,7 +247,7 @@ class Cvine(BaseVine):
             pdf_x[np.isnan(pdf_x)] = np.max(pdf_x)
             return pdf_x
 
-        edge_tol = 1e-2
+        edge_tol = 1e-8
         for i, x_i in x.iterrows():
             ranges = np.zeros((len(x_i), 2)) + edge_tol
             col_labels = []
@@ -246,17 +257,20 @@ class Cvine(BaseVine):
                 ranges[j, 1] = np.clip(col_data, edge_tol, 1. - 0.1 * edge_tol)
                 j += 1
 
-            dim = len(x.columns)
-            sub_cubes = cubesets(4, dim, ranges)
-            for sub_cube in sub_cubes:
-                sub_cube_coords = np.asarray(sub_cube)
-                import pdb; pdb.set_trace()
+            sub_cubes = cubesets(k_split, dim, ranges)
+            for k, sub_cube in enumerate(sub_cubes):
+                sub_cube_coords = np.asarray(list(sub_cube))
+                sub_cube_ranges = np.array([np.min(sub_cube_coords, axis=0), np.max(sub_cube_coords, axis=0)]).T
+                # print("Integrating subcube %d out of %d" % (int(k), len(sub_cubes)))
+                cdf_vector[i] += scheme.integrate(f_pdf,
+                        quadpy.ncube.ncube_points(
+                            *[r for r in sub_cube_ranges])
+                            )
 
-            scheme = quadpy.ncube.stroud_cn_5_9(dim)
-            cdf_vector[i] = scheme.integrate(f_pdf,
-                    quadpy.ncube.ncube_points(
-                        *[r for r in ranges])
-                        )
+            # cdf_vector[i] = scheme.integrate(f_pdf,
+            #         quadpy.ncube.ncube_points(
+            #             *[r for r in ranges])
+            #             )
 
             #res = spi.nquad(_pdf, ranges,
             #               args=(col_labels),

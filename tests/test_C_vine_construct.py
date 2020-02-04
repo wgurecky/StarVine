@@ -8,6 +8,7 @@ from starvine.mvar.mv_plot import matrixPairPlot
 from scipy.stats import norm, beta
 import unittest
 import os
+from scipy.optimize import minimize
 import numpy as np
 import pandas as pd
 pwd_ = os.path.dirname(os.path.abspath(__file__))
@@ -70,11 +71,15 @@ class TestCvine(unittest.TestCase):
         print(tst_rho_matrix - sample_rho_matrix)
         self.assertTrue(np.allclose(tst_rho_matrix - sample_rho_matrix, 0, atol=0.10))
         self.assertTrue(np.allclose(tst_ktau_matrix - sample_ktau_matrix, 0, atol=0.10))
-    
+
+        def opti_wrap(fun, x0, args, disp=0, **kwargs):
+            return minimize(fun, x0, args=args, method='Nelder-Mead',
+                                        tol=1e-12, options={'maxiter': 4000}).x
+
         # fit marginal distributions to original data
         marginal_dict = {}
         for col_name in tstData.columns:
-            marginal_dict[col_name] = beta(*beta.fit(tstData[col_name]))
+            marginal_dict[col_name] = beta(*beta.fit(tstData[col_name], optimizer=opti_wrap))
         # scale the samples
         c_vine_scaled_samples_a = tstVine.scaleSamples(c_vine_samples, marginal_dict)
         matrixPairPlot(c_vine_scaled_samples_a, savefig="vine_varaite_resampled_scaled_a.png")
@@ -97,11 +102,13 @@ class TestCvine(unittest.TestCase):
         tstX['4d'] = [0.01, 0.4, 0.5, 0.6, 0.99, 0.999]
         tstX['5e'] = [0.01, 0.4, 0.5, 0.6, 0.99, 0.999]
         pdf_at_tstX = tstVine.vinePdf(tstX)
+        print("PDF at: ", tstX)
         print(pdf_at_tstX)
         self.assertTrue(np.all(pdf_at_tstX > 0.0))
 
         # check vine cdf values
         cdf_at_tstX = tstVine.vineCdf(tstX)
+        print("CDF at: ", tstX)
         print(cdf_at_tstX)
         cdf_tol = 0.05
         self.assertTrue(cdf_at_tstX[1] > cdf_at_tstX[0])

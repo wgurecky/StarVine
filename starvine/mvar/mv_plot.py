@@ -21,7 +21,7 @@ def matrixPairPlot(data_in, weights=None, corr_stat="kendalltau", **kwargs):
     else:
         data = data_in
     upper_kde = kwargs.pop("kde", False)
-    pair_plot = sns.PairGrid(data, palette=["red"], size=kwargs.pop("size", 5))
+    pair_plot = sns.PairGrid(data, palette=["red"], height=kwargs.pop("size", 5))
     # UPPER
     if upper_kde:
         pair_plot.map_upper(sns.kdeplot, cmap="Blues_d")
