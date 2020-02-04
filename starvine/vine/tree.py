@@ -39,7 +39,7 @@ class Vtree(object):
         @param data <b>np_1darray</b>
         """
         if dataLabel in self.tree.nodes():
-            self.tree.node[dataLabel]["data"].update(data)
+            self.tree.nodes[dataLabel]["data"].update(data)
         else:
             self.tree.add_node(dataLabel, data=data)
 
@@ -61,13 +61,13 @@ class Vtree(object):
         for i, pair in enumerate(nodePairs):
             self.tree.add_edge(pair[0], pair[1], weight=pair[2],
                                           pc= \
-                                          pc.PairCopula(self.tree.node[pair[0]]["data"],
-                                                        self.tree.node[pair[1]]["data"],
+                                          pc.PairCopula(self.tree.nodes[pair[0]]["data"],
+                                                        self.tree.nodes[pair[1]]["data"],
                                                         id=(pair[0], pair[1]),
                                                         family=self.trial_copula_dict),
                                           id=(pair[0], pair[1]),
-                                          edge_data={pair[0]: self.tree.node[pair[0]]["data"],
-                                                     pair[1]: self.tree.node[pair[1]]["data"]},
+                                          edge_data={pair[0]: self.tree.nodes[pair[0]]["data"],
+                                                     pair[1]: self.tree.nodes[pair[1]]["data"]},
                               )
         self._setEdgeTriplets()
 
@@ -124,8 +124,8 @@ class Vtree(object):
         treeStructure = []
         for pair in existingTreeStruct:
             trialPair = \
-                pc.PairCopula(self.tree.node[pair[0]]["data"].values,
-                              self.tree.node[pair[1]]["data"].values)
+                pc.PairCopula(self.tree.nodes[pair[0]]["data"].values,
+                              self.tree.nodes[pair[1]]["data"].values)
             treeStructure.append((pair[0], pair[1], trialPair.empKTau()[0]))
         return treeStructure
 

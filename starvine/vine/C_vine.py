@@ -315,8 +315,8 @@ class Ctree(Vtree):
         for u, v, data in self.tree.edges(data=True):
             nLL += \
                 self.tree.adj[u][v]["pc"].copulaModel.\
-                _nlogLike(self.tree.node[u]["data"].values,
-                          self.tree.node[v]["data"].values,
+                _nlogLike(self.tree.nodes[u]["data"].values,
+                          self.tree.nodes[v]["data"].values,
                           0,
                           *treeCopulaParams[data["paramMap"][0]: data["paramMap"][1]])
         return nLL
@@ -354,8 +354,8 @@ class Ctree(Vtree):
                 # iterate though all child nodes,
                 # root dataset cannot be paired with itself
                 if nodeID != rootNodeID:
-                    trialPair = pc.PairCopula(self.tree.node[nodeID]["data"].values,
-                                              self.tree.node[rootNodeID]["data"].values)
+                    trialPair = pc.PairCopula(self.tree.nodes[nodeID]["data"].values,
+                                              self.tree.nodes[rootNodeID]["data"].values)
                     trialKtau, trialP = trialPair.empKTau()
                     trialKtauSum[i] += abs(trialKtau)
                     trialPairings[i].append((nodeID, rootNodeID, trialKtau))
