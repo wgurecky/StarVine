@@ -13,6 +13,7 @@ addons:
 env:
     - MPLBACKEND="agg"
 install:
+    - pip uninstall numpy -y
     - pip install coveralls pytest-cov
     - pip install dcor
     - pip install -r requirements.txt
