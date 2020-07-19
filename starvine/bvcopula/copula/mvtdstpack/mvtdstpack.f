@@ -1329,7 +1329,7 @@
 *          estimated absolute accuracy ABSERR.
 ************************************************************************
       EXTERNAL FUNSUB
-      DOUBLE PRECISION ABSEPS, RELEPS, FINEST(*), ABSERR, ONE
+      DOUBLE PRECISION ABSEPS, RELEPS, FINEST(*), ABSERR(1), ONE
       INTEGER NDIM, NF, MINVLS, MAXVLS, INFORM, NP, PLIM, KLIM,
      &        NLIM, FLIM, SAMPLS, I, K, INTVLS, MINSMP, KMX
       PARAMETER ( PLIM = 28, NLIM = 1000, KLIM = 100, FLIM = 5000 )
@@ -1387,8 +1387,8 @@
          IF ( VARSQR(K) .GT. 0 ) VAREST(K) = ( 1 + VARPRD )/VARSQR(K)
          IF ( ABS(FINEST(K)) .GT. ABS(FINEST(KMX)) ) KMX = K
       END DO
-      ABSERR = 7*SQRT( VARSQR(KMX)/( 1 + VARPRD ) )/2
-      IF ( ABSERR .GT. MAX( ABSEPS, ABS(FINEST(KMX))*RELEPS ) ) THEN
+      ABSERR(1) = 7*SQRT( VARSQR(KMX)/( 1 + VARPRD ) )/2
+      IF ( ABSERR(1) .GT. MAX( ABSEPS, ABS(FINEST(KMX))*RELEPS ) ) THEN
          IF ( NP .LT. PLIM ) THEN
             NP = NP + 1
          ELSE
