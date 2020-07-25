@@ -20,7 +20,7 @@ class MixtureCopula(CopulaBase):
         self._name = copula_a.name + '-' + copula_b.name
         self._thetaBounds = tuple(list(copula_a.thetaBounds) + list(copula_b.thetaBounds) + [(0.,1.), (0.,1.)])
         self._theta0 = tuple(list(copula_a.theta0) + list(copula_b.theta0) + [wt_a, wt_b])
-        self.fittedParams = list(copula_a.theta0) + list(copula_b.theta0) + [wt_a, wt_b]
+        self.fittedParams = list(copula_a.fittedParams) + list(copula_b.fittedParams) + [wt_a, wt_b]
         self._copula_a = copula_a
         self._copula_b = copula_b
         self._n_params_a = len(copula_a.thetaBounds)
