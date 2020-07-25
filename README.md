@@ -19,6 +19,7 @@ The following bivariate copula families are built-in:
   - Gumbel
   - Clayton
 - Marshall-Olkin
+- Mixture (Work in progress)
 
 All copula orientations are implemented.
 
