@@ -184,7 +184,7 @@ class CopulaBase(object):
                      x0=params0,
                      bounds=kwargs.pop("bounds", self.thetaBounds),
                      tol=kwargs.pop("tol", 1e-8),
-                     method=kwargs.pop("method", 'SLSQP'))
+                     method=kwargs.pop("method", 'trust-constr'))
         if not res.success:
             # Fallback
             if "frank" in self.name:
