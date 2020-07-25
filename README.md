@@ -11,11 +11,13 @@ StarVine can also be used as a standalone copula fitting tool for bivariate mode
 
 The following bivariate copula families are built-in:
 
-- Gauss
-- Student-t
-- Frank
-- Gumbel
-- Clayton
+- Elliptic
+  - Gauss
+  - Student-t
+- Archimedean
+  - Frank
+  - Gumbel
+  - Clayton
 - Marshall-Olkin
 
 All copula orientations are implemented.
