@@ -2,7 +2,7 @@
 from __future__ import print_function, division
 # starvine imports
 import context
-from starvine.vine.C_vine import Cvine
+from starvine.vine.R_vine import Rvine
 from starvine.mvar.mv_plot import matrixPairPlot
 # extra imports
 from scipy.stats import norm, beta
@@ -15,8 +15,8 @@ dataDir = pwd_ + "/data/"
 np.random.seed(123)
 
 
-class TestCvine(unittest.TestCase):
-    def testCvineConstruct(self):
+class TestRvine(unittest.TestCase):
+    def testRvineConstruct(self):
         stocks = np.loadtxt(dataDir + 'stocks.csv', delimiter=',')
         x = stocks[:, 0]
         y = stocks[:, 1]
@@ -37,25 +37,25 @@ class TestCvine(unittest.TestCase):
         # ranked_data['1a'] = ranked_data['1a']
         matrixPairPlot(ranked_data, savefig="quad_varaite_ranked_ex.png")
 
-        # Init Cvine
-        tstVine = Cvine(ranked_data)
+        # Init Rvine
+        tstVine = Rvine(ranked_data)
 
         # construct the vine
         tstVine.constructVine()
 
         # plot vine
-        tstVine.plotVine(savefig="c_vine_graph_ex.png")
+        tstVine.plotVine(savefig="r_vine_graph_ex.png")
 
         # sample from vine
-        c_vine_samples = tstVine.sample(n=8000)
-        matrixPairPlot(c_vine_samples, savefig="vine_resampled_ex.png")
+        r_vine_samples = tstVine.sample(n=8000)
+        matrixPairPlot(r_vine_samples, savefig="r_vine_resampled_ex.png")
 
         # check that the original data has same correlation coefficients as re-sampled
         # data from the fitted c-vine
         tst_rho_matrix = ranked_data.corr(method='pearson')
         tst_ktau_matrix = ranked_data.corr(method='kendall')
-        sample_rho_matrix = c_vine_samples.corr(method='pearson')
-        sample_ktau_matrix = c_vine_samples.corr(method='kendall')
+        sample_rho_matrix = r_vine_samples.corr(method='pearson')
+        sample_ktau_matrix = r_vine_samples.corr(method='kendall')
         # sort by col labels
         tst_rho_matrix = tst_rho_matrix.reindex(sorted(tst_rho_matrix.columns), axis=1)
         tst_ktau_matrix = tst_ktau_matrix.reindex(sorted(tst_ktau_matrix.columns), axis=1)
@@ -76,14 +76,14 @@ class TestCvine(unittest.TestCase):
         for col_name in tstData.columns:
             marginal_dict[col_name] = beta(*beta.fit(tstData[col_name]))
         # scale the samples
-        c_vine_scaled_samples_a = tstVine.scaleSamples(c_vine_samples, marginal_dict)
-        matrixPairPlot(c_vine_scaled_samples_a, savefig="vine_varaite_resampled_scaled_a.png")
+        r_vine_scaled_samples_a = tstVine.scaleSamples(r_vine_samples, marginal_dict)
+        matrixPairPlot(r_vine_scaled_samples_a, savefig="r_vine_varaite_resampled_scaled_a.png")
 
-        c_vine_scaled_samples_b = tstVine.sampleScale(8000, marginal_dict)
+        r_vine_scaled_samples_b = tstVine.sampleScale(8000, marginal_dict)
 
         # compute correlation coeffs
-        sample_scaled_rho_matrix_a = c_vine_scaled_samples_a.corr(method='pearson')
-        sample_scaled_rho_matrix_b = c_vine_scaled_samples_b.corr(method='pearson')
+        sample_scaled_rho_matrix_a = r_vine_scaled_samples_a.corr(method='pearson')
+        sample_scaled_rho_matrix_b = r_vine_scaled_samples_b.corr(method='pearson')
 
         # check for consistency
         self.assertTrue(np.allclose(tst_rho_matrix - sample_scaled_rho_matrix_a, 0, atol=0.1))

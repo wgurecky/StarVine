@@ -240,8 +240,7 @@ class Vtree(object):
         try:
             u_n0 = edge_info["hinv-dist"](u_n1, next_tree_info['sample'][(n0, n1)])
         except:
-            # u_n0 = edge_info["hinv-dist"](u_n1, next_tree_info['sample'][(n1, n0)])
-            raise RuntimeError("Edge with nodes: " + str((n0, n1)), " does not exist.")
+            u_n0 = edge_info["hinv-dist"](u_n1, next_tree_info['sample'][(n1, n0)])
         edge_sample = {n0: u_n0, n1: u_n1}
         current_tree[n0][n1]['sample'] = edge_sample
 
