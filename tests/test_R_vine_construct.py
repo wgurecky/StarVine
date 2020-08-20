@@ -38,7 +38,7 @@ class TestRvine(unittest.TestCase):
         matrixPairPlot(ranked_data, savefig="quad_varaite_ranked_ex.png")
 
         # Init Rvine
-        tstVine = Rvine(ranked_data)
+        tstVine = Rvine(ranked_data, trial_copula={"gauss": 0})
 
         # construct the vine
         tstVine.constructVine()

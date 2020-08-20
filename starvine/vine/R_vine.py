@@ -145,6 +145,7 @@ class Rtree(Vtree):
             trialKtau, trialP = trialPair.empKTau()
             # assign emperical calculated ktau as edge weights
             fully_connected_tree[e[0]][e[1]]['weight'] = abs(trialKtau)
+            fully_connected_tree[e[0]][e[1]]['ktau'] = trialKtau
 
             if self.upperTree is not None:
                 if set(e[0]).intersection(set(e[1])):
@@ -154,9 +155,9 @@ class Rtree(Vtree):
         # compute max spanning tree
         mst = nx.algorithms.tree.maximum_spanning_tree(
                 fully_connected_tree, weight='weight')
+        # mst_edge_list = sorted(list(mst.edges()))
         mst_edge_list = list(mst.edges())
-        trialPairings = [tuple([e_mst[0], e_mst[1], fully_connected_tree.edges[e_mst]['weight']]) for e_mst in mst_edge_list]
-        print(trialPairings)
+        trialPairings = list([tuple([e_mst[0], e_mst[1], fully_connected_tree.edges[e_mst]['ktau']]) for e_mst in mst_edge_list])
         return trialPairings
 
     def _evalH(self):
@@ -168,8 +169,10 @@ class Rtree(Vtree):
         # TODO: Establish linkage between tree levels
         condData = DataFrame()
         for u, v, data in self.tree.edges(data=True):
-            condData[(u, v)] = data["h-dist"](data["pc"].VV,
-                                              data["pc"].UU)
+            if self.upperTree is not None:
+                pass
+            condData[(u, v)] = data["h-dist"](data["pc"].UU,
+                                              data["pc"].VV)
         return condData
 
     def _setEdgeTriplets(self):
@@ -197,9 +200,26 @@ class Rtree(Vtree):
                     else:
                         n_sides.append(node)
                 assert(n_anchors[0] == n_anchors[1])
+                anchor = n_anchors[0]
                 # Set one fold triplet of each edge
-                self.tree[u][v]['one-fold'] = \
-                    (n_sides[0], n_sides[1], n_anchors[0])
+                #print("===One-fold-builder===")
+                #print("===",n_sides[0], "--|--", n_anchors[0], "--|--",  n_sides[1])
+                #print("===","|", u, "|", v)
+                if u[1] != anchor and v[1] != anchor:
+                    self.tree[u][v]['one-fold'] = \
+                        (u[1], v[1], anchor)
+                elif u[0] != anchor and v[1] != anchor:
+                    self.tree[u][v]['one-fold'] = \
+                        (u[0], v[1], anchor)
+                elif u[1] != anchor and v[0] != anchor:
+                    self.tree[u][v]['one-fold'] = \
+                        (u[1], v[0], anchor)
+                elif u[0] != anchor and v[0] != anchor:
+                    self.tree[u][v]['one-fold'] = \
+                        (u[0], v[0], anchor)
+                else:
+                    raise RuntimeError
+                # print("===", self.tree[u][v]['one-fold'])
 
     def _getEdgeCopulaParams(self, u, v):
         """!
