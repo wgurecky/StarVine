@@ -35,7 +35,7 @@ class TestRotateArchimedeanCopula(unittest.TestCase):
         for rotation, expectedKtau in iteritems(expectedKtaus):
             clayton = Copula("clayton", rotation)
             u, v = clayton.sample(40000, *(shapeParam,))
-            g = sns.jointplot(u, v, stat_func=kendalltau)
+            g = sns.jointplot(u, v)
             g.savefig("clayton_sample_pdf_" + str(rotation) + ".png")
             clayton.fittedParams = (shapeParam,)
             c_kTau = clayton.kTau()
@@ -58,5 +58,5 @@ class TestRotateArchimedeanCopula(unittest.TestCase):
             u_resample, v_resample = clayton_refit.copulaModel.sample(1000)
             self.assertAlmostEqual(c_kTau, clayton_refit.copulaModel.kTau(), delta=0.05)
             # plot resampled data
-            g_resample = sns.jointplot(u_resample, v_resample, stat_func=kendalltau)
+            g_resample = sns.jointplot(u_resample, v_resample)
             g_resample.savefig("clayton_resample_pdf_" + str(rotation) + ".png")

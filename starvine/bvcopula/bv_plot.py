@@ -43,7 +43,8 @@ def bvJointPlot(u, v, corr_stat="kendalltau", vs=None, **kwargs):
                   "spearmanr": spearmanr,
                   "pearsonr": pearsonr}
     outfile = kwargs.pop("savefig", None)
-    joint_plt = sns.jointplot(x=u, y=v, stat_func=stat_funcs[corr_stat], zorder=2, label="resampled", **kwargs)
+    joint_plt = sns.jointplot(x=u, y=v, zorder=2, label="resampled", **kwargs)
+    # joint_plt.annotate(stat_funcs[corr_stat])
     vsData = vs
     if vsData is not None:
         joint_plt.x, joint_plt.y = vsData[0], vsData[1]
