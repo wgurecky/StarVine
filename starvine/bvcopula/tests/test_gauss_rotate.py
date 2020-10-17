@@ -22,7 +22,7 @@ class TestRotateGauss(unittest.TestCase):
         for rotation, shapeParam in iteritems(shapes):
             gauss = Copula("gauss", 0)
             u, v = gauss.sample(10000, *(shapeParam,))
-            g = sns.jointplot(u, v, stat_func=kendalltau)
+            g = sns.jointplot(u, v)
             g.savefig("gauss_sample_pdf_" + str(rotation) + ".png")
             gauss.fittedParams = (shapeParam,)
             c_kTau = gauss.kTau()
@@ -43,5 +43,5 @@ class TestRotateGauss(unittest.TestCase):
             self.assertAlmostEqual(c_kTau, gauss_refit.copulaModel.kTau(), delta=0.05)
             self.assertAlmostEqual(shapeParam, gauss_refit.copulaParams[1][0], delta=0.2)
             # plot resampled data
-            g_resample = sns.jointplot(u_resample, v_resample, stat_func=kendalltau)
+            g_resample = sns.jointplot(u_resample, v_resample)
             g_resample.savefig("gauss_resample_pdf_" + str(rotation) + ".png")

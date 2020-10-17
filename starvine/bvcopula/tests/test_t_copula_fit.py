@@ -31,14 +31,14 @@ class TestTcopulaFit(unittest.TestCase):
 
         # plot dataset for visual inspection
         marg_dict = {}
-        plt0 = sns.jointplot(x, y, marginal_kws=marg_dict, stat_func=kendalltau)
+        plt0 = sns.jointplot(x, y, marginal_kws=marg_dict)
         plt0.savefig("original_stocks.png")
         bvPairPlot(x, y, savefig="original_stocks_pair.png")
 
         # Rank transform the data
         u = rankdata(x) / (len(x) + 1)
         v = rankdata(y) / (len(y) + 1)
-        plt1 = sns.jointplot(u, v, marginal_kws=marg_dict, stat_func=kendalltau)
+        plt1 = sns.jointplot(u, v, marginal_kws=marg_dict)
         plt1.savefig("rank_transformed.png")
 
         # CDF tranformed data
@@ -49,7 +49,7 @@ class TestTcopulaFit(unittest.TestCase):
         for i, (xp, yp) in enumerate(zip(x, y)):
             u_c[i] = kde_x.integrate_box_1d(-np.inf, xp)
             v_c[i] = kde_y.integrate_box_1d(-np.inf, yp)
-        plt11 = sns.jointplot(u_c, v_c, marginal_kws=marg_dict, stat_func=kendalltau)
+        plt11 = sns.jointplot(u_c, v_c, marginal_kws=marg_dict)
         plt11.savefig("cdf_transformed.png")
 
         # Fit t copula and gaussian copula
@@ -74,13 +74,13 @@ class TestTcopulaFit(unittest.TestCase):
         # Sample from the fitted gaussian copula and plot
         ug_hat, vg_hat = g_copula.sample(1000, *theta_g_fit)
         pl.figure(2)
-        plt2 = sns.jointplot(ug_hat, vg_hat, stat_func=kendalltau)
+        plt2 = sns.jointplot(ug_hat, vg_hat)
         plt2.savefig("gaussian_copula_hat.png")
 
         # Sample from the fitted t copula and plot
         ut_hat, vt_hat = t_copula.sample(1000, *theta_t_fit)
         pl.figure(3)
-        plt3 = sns.jointplot(ut_hat, vt_hat, stat_func=kendalltau)
+        plt3 = sns.jointplot(ut_hat, vt_hat)
         plt3.savefig("t_copula_hat.png")
 
         # Resample original data
@@ -99,7 +99,7 @@ class TestTcopulaFit(unittest.TestCase):
             return icdf
         resampled_x = icdf_uv_bisect(x, ut_hat)
         resampled_y = icdf_uv_bisect(y, vt_hat)
-        plt5 = sns.jointplot(resampled_x, resampled_y, stat_func=kendalltau)
+        plt5 = sns.jointplot(resampled_x, resampled_y)
         plt5.savefig("resampled_scatter.png")
 
         # Compare to expected results

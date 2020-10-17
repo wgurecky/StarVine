@@ -29,7 +29,7 @@ class TestRotateArchimedeanCopula(unittest.TestCase):
         for rotation, expectedKtau in iteritems(expectedKtaus):
             gumbel = Copula("gumbel", rotation)
             u, v = gumbel.sample(40000, *(shapeParam,))
-            g = sns.jointplot(u, v, stat_func=kendalltau)
+            g = sns.jointplot(u, v)
             g.savefig("gumbel_sample_pdf_" + str(rotation) + ".png")
             gumbel.fittedParams = (shapeParam,)
             c_kTau = gumbel.kTau()
@@ -52,5 +52,5 @@ class TestRotateArchimedeanCopula(unittest.TestCase):
             u_resample, v_resample = gumbel_refit.copulaModel.sample(4000)
             self.assertAlmostEqual(c_kTau, gumbel_refit.copulaModel.kTau(), delta=0.05)
             # plot resampled data
-            g_resample = sns.jointplot(u_resample, v_resample, stat_func=kendalltau)
+            g_resample = sns.jointplot(u_resample, v_resample)
             g_resample.savefig("gumbel_resample_pdf_" + str(rotation) + ".png")

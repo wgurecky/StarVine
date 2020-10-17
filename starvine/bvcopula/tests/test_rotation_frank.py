@@ -31,7 +31,7 @@ class TestRotateFrankCopula(unittest.TestCase):
         for rotation, expectedKtau in iteritems(expectedKtaus):
             frank = Copula("frank", rotation)
             u, v = frank.sample(10000, *(shapeParam,))
-            g = sns.jointplot(u, v, stat_func=kendalltau)
+            g = sns.jointplot(u, v)
             g.savefig("frank_sample_pdf_" + str(rotation) + ".png")
             frank.fittedParams = (shapeParam,)
             c_kTau = frank.kTau()
@@ -53,5 +53,5 @@ class TestRotateFrankCopula(unittest.TestCase):
             u_resample, v_resample = frank_refit.copulaModel.sample(1000)
             self.assertAlmostEqual(c_kTau, frank_refit.copulaModel.kTau(), delta=0.05)
             # plot resampled data
-            g_resample = sns.jointplot(u_resample, v_resample, stat_func=kendalltau)
+            g_resample = sns.jointplot(u_resample, v_resample)
             g_resample.savefig("frank_resample_pdf_" + str(rotation) + ".png")
