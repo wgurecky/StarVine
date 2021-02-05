@@ -22,6 +22,7 @@ class Vtree(object):
         assert(type(data) is DataFrame)
         assert(len(data.shape) == 2)
         self.trial_copula_dict = kwargs.get("trial_copula", {})
+        print("trial copula: ", self.trial_copula_dict)
         self.data = data
         self._upperTree = parentTree
         #
@@ -206,6 +207,18 @@ class Vtree(object):
         next_tree = vine[tree_num + 1].tree
         edge_info = current_tree[n0][n1]
 
+
+        if not self.upperTree:
+            pass
+        else:
+            if tree_num == 0:
+                pass
+            else:
+                prev_n0, prev_n1, prev_n2 = edge_info["one-fold"]
+                print("===One-fold-sampler===")
+                print("===",prev_n0, "--|--", prev_n2, "--|--", prev_n1)
+                print("===","|", n0, "|", n1)
+
         # if both marginal samples exist on this edge,
         # nothing to do.
         if 'sample' in edge_info and \
@@ -239,15 +252,17 @@ class Vtree(object):
         next_tree_info = next_tree[old_n0][old_n1]
         try:
             u_n0 = edge_info["hinv-dist"](u_n1, next_tree_info['sample'][(n0, n1)])
+            order_swap = False
         except:
-            # u_n0 = edge_info["hinv-dist"](u_n1, next_tree_info['sample'][(n1, n0)])
-            raise RuntimeError("Edge with nodes: " + str((n0, n1)), " does not exist.")
+            u_n0 = edge_info["hinv-dist"](u_n1, next_tree_info['sample'][(n1, n0)])
+            order_swap = True
         edge_sample = {n0: u_n0, n1: u_n1}
         current_tree[n0][n1]['sample'] = edge_sample
 
         # If current tree is 0th tree: copy marginal sample to
         # neighbor edge
         if tree_num == 0:
+            #print("===Tree num 0, n edges: ", len(current_tree.edges))
             for one_node in current_tree.neighbors(n0):
                 if 'sample' not in current_tree[n0][one_node]:
                     edge_sample = {n0:u_n0}
@@ -266,6 +281,9 @@ class Vtree(object):
 
         # Traverse up the vine one level
         prev_n0, prev_n1, prev_n2 = edge_info['one-fold']
+        #prev_n0, prev_n1 = sorted([prev_n0, prev_n1])
+        #print("===",order_swap, n0, n1)
         self._sampleEdge(prev_n0, prev_n2, n0, n1, size, vine)
+        #prev_n1, prev_n2 = sorted([prev_n1, prev_n2])
         self._sampleEdge(prev_n1, prev_n2, n0, n1, size, vine)
         return

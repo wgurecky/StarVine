@@ -25,6 +25,7 @@ class BaseVine(object):
         for key, val in iteritems(trial_copula):
             assert key in self._all_trial_copula
             assert self._all_trial_copula[key] == val
+        return trial_copula
 
     @property
     def _all_trial_copula(self):
@@ -112,6 +113,7 @@ class BaseVine(object):
 
         # sample from edge of last tree
         u_n1 = edge_info["hinv-dist"](u_n0, u_n1)
+        # u_n0 = edge_info["hinv-dist"](u_n1, u_n0)
         edge_sample = {n0: u_n0, n1: u_n1}
         # matrixPairPlot(pd.DataFrame(edge_sample), savefig="c_test/tree_1_edge_sample.png")
 
