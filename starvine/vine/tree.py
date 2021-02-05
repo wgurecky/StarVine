@@ -201,7 +201,8 @@ class Vtree(object):
             tree_num = 0
         else:
             # Determine tree level from number of nodes (#nodes are powers of 2)
-            tree_num = int(np.log(len(unrollNodes(n0))) / np.log(2)) - 1
+            # tree_num = int(np.log(len(unrollNodes(n0))) / np.log(2)) - 1
+            tree_num = len(np.unique(np.asarray(n0).flatten())) - 1
         current_tree = vine[tree_num].tree
         next_tree = vine[tree_num + 1].tree
         edge_info = current_tree[n0][n1]

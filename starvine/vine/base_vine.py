@@ -25,6 +25,7 @@ class BaseVine(object):
         for key, val in iteritems(trial_copula):
             assert key in self._all_trial_copula
             assert self._all_trial_copula[key] == val
+        return trial_copula
 
     @property
     def _all_trial_copula(self):
@@ -50,6 +51,18 @@ class BaseVine(object):
         @brief Load saved vine structure
         """
         pass
+
+    def vinePdf(self, x, level=1, **kwargs):
+        return self._pdf(x)
+
+    def vineCdf(self, x):
+        return self._cdf(x)
+
+    def _pdf(self, x, level=1, **kwargs):
+        raise NotImplementedError
+
+    def _cdf(self, x, level=1, **kwargs):
+        raise NotImplementedError
 
     def vineNLLH(self, vineParams=[None], **kwargs):
         """!
